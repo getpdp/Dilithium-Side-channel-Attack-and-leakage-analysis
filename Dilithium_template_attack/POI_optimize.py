@@ -2,6 +2,13 @@ import numpy as np
 from tqdm import *
 import matplotlib.pyplot as plt
 import gc
+
+# ##############################################################################
+# ##############################################################################
+# ################################# align ######################################
+# ##############################################################################
+# ##############################################################################
+
 Gamma=2**32
 def hamming_weight(hex_string):
     # 将整数转换为二进制字符串，并去掉开头的 '0b'
@@ -9,7 +16,7 @@ def hamming_weight(hex_string):
     if hex_string[0]=='f':
         val=int(hex_string,16)-Gamma
     else:val=int(hex_string,16)
-    re=0x2000-val
+    re=0x600-val
     binary_string = bin(re)[2:]
     # 计算二进制字符串中 '1' 的数量，即汉明重量
     hamming_weight = binary_string.count('1')
@@ -48,8 +55,8 @@ def Extract_Coeff(data_url,round,index,blocknum,blocksize):
 
 
 if __name__=="__main__":
-    trace_url=r"D:\Dilithium_Paper_Work\Dilithium_paper_traces\Dilithium_paper_profile\traces_for_profiling_part{}.npy"
-    coeff_url=r'D:\Dilithium_Paper_Work\Dilithium_paper_metadata\metadata_files\profiling_metadata\metadata_profiling_part{}.npz'
+    trace_url=r"E:\Dilithium_Paper_Work\Dilithium_paper_traces\Dilithium_paper_profile\traces_for_profiling_part{}.npy"
+    coeff_url=r'E:\Dilithium_Paper_Work\Dilithium_paper_metadata\metadata_files\profiling_metadata\metadata_profiling_part{}.npz'
     index_list=[0,1,2,3]
     Coeff_0=[]
     Coeff_1=[]
@@ -57,15 +64,16 @@ if __name__=="__main__":
     Coeff_3=[]
     gc.collect()
     trace_example=np.load(trace_url.format(0))
-    traces=Extract_traces(trace_url=trace_url,blocksize=10,blocknum=20)
-    for round in trange(1,desc="Itrerting Rounds"):
+    traces=Extract_traces(trace_url=trace_url,blocksize=60,blocknum=60)
+    for round in trange(64,desc="Itrerting Rounds"):
         
         N=traces[0].shape[0]
         for index in index_list:
-            Coeff=Extract_Coeff(data_url=coeff_url,round=round,index=index,blocknum=20,blocksize=500)
+            Coeff=Extract_Coeff(data_url=coeff_url,round=round,index=index,blocknum=60,blocksize=60)
             
             trace_arr=np.array(traces)
             coeff_arr=np.array(Coeff)
+            # print(trace_arr.shape,coeff_arr.shape)
             result=np.zeros([N])
             for i in range(N):
                 result[i]=np.abs(np.corrcoef(coeff_arr,trace_arr[:,i])[0,1])
@@ -104,18 +112,18 @@ if __name__=="__main__":
     plt.ylabel("Correlation Value",fontproperties = 'Times New Roman')
     plt.show()
         
-    c0=np.array(Coeff_0)
-    np.save(r"C:\Users\DELL\Desktop\start\Coeff_0.npy",c0)
-    c1=np.array(Coeff_1)
-    np.save(r"C:\Users\DELL\Desktop\start\Coeff_1.npy",c1)
-    c2=np.array(Coeff_2)
-    np.save(r"C:\Users\DELL\Desktop\start\Coeff_2.npy",c2)
-    c3=np.array(Coeff_3)
-    np.save(r"C:\Users\DELL\Desktop\start\Coeff_3.npy",c3)
-    print(c0)
-    print(c1)
-    print(c2)
-    print(c3)
+    # c0=np.array(Coeff_0)
+    # np.save(r"C:\Users\DELL\Desktop\start\Coeff_0.npy",c0)
+    # c1=np.array(Coeff_1)
+    # np.save(r"C:\Users\DELL\Desktop\start\Coeff_1.npy",c1)
+    # c2=np.array(Coeff_2)
+    # np.save(r"C:\Users\DELL\Desktop\start\Coeff_2.npy",c2)
+    # c3=np.array(Coeff_3)
+    # np.save(r"C:\Users\DELL\Desktop\start\Coeff_3.npy",c3)
+    # print(c0)
+    # print(c1)
+    # print(c2)
+    # print(c3)
     
     
         

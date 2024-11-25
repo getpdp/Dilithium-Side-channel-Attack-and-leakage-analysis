@@ -545,12 +545,12 @@ def process_iteration_low_noise(trace,plain,start, end, X_matrix, lambda_val, re
 
 
 if __name__ == '__main__':
-    low_trace_url=r"D:\AES_Challenge\AES_data\leakage_low.mat"
-    low_plain_url=r"D:\AES_Challenge\AES_data\plain_low.mat"
-    medium_trace_url=r"D:\AES_Challenge\AES_data\leakage_medium.mat"
-    medium_plain_url=r"D:\AES_Challenge\AES_data\plain_medium.mat"
-    high_trace_url=r"D:\AES_Challenge\AES_data\leakage_high.mat"
-    high_plain_url=r"D:\AES_Challenge\AES_data\plain_high.mat"
+    low_trace_url=r"Approximate Universal DPA\\leakage_low.mat"
+    low_plain_url=r"Approximate Universal DPA\\plain_low.mat"
+    medium_trace_url=r"Approximate Universal DPA\\leakage_medium.mat"
+    medium_plain_url=r"Approximate Universal DPA\\plain_medium.mat"
+    high_trace_url=r"Approximate Universal DPA\\leakage_high.mat"
+    high_plain_url=r"Approximate Universal DPA\\plain_high.mat"
     plain_low = scio.loadmat(low_plain_url)['plain']
     leakage_low = scio.loadmat(low_trace_url)['leakage']
     plain_medium = scio.loadmat(medium_plain_url)['plain']
