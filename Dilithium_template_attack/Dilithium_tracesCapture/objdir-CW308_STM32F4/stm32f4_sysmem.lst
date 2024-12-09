@@ -1,0 +1,203 @@
+   1              		.cpu cortex-m4
+   2              		.eabi_attribute 20, 1
+   3              		.eabi_attribute 21, 1
+   4              		.eabi_attribute 23, 3
+   5              		.eabi_attribute 24, 1
+   6              		.eabi_attribute 25, 1
+   7              		.eabi_attribute 26, 1
+   8              		.eabi_attribute 30, 6
+   9              		.eabi_attribute 34, 1
+  10              		.eabi_attribute 18, 4
+  11              		.file	"stm32f4_sysmem.c"
+  12              		.text
+  13              	.Ltext0:
+  14              		.cfi_sections	.debug_frame
+  15              		.bss
+  16              		.align	2
+  17              	heap_end.0:
+  18 0000 00000000 		.space	4
+  20              		.section	.text._sbrk,"ax",%progbits
+  21              		.align	1
+  22              		.global	_sbrk
+  23              		.arch armv7e-m
+  24              		.syntax unified
+  25              		.thumb
+  26              		.thumb_func
+  27              		.fpu softvfp
+  29              	_sbrk:
+  30              	.LFB3:
+  31              		.file 1 "../../hardware/victims/firmware/./hal/stm32f4/stm32f4_sysmem.c"
+   1:../../hardware/victims/firmware/./hal/stm32f4/stm32f4_sysmem.c **** /**
+   2:../../hardware/victims/firmware/./hal/stm32f4/stm32f4_sysmem.c **** *****************************************************************************
+   3:../../hardware/victims/firmware/./hal/stm32f4/stm32f4_sysmem.c **** **
+   4:../../hardware/victims/firmware/./hal/stm32f4/stm32f4_sysmem.c **** **  File        : sysmem.c
+   5:../../hardware/victims/firmware/./hal/stm32f4/stm32f4_sysmem.c **** **
+   6:../../hardware/victims/firmware/./hal/stm32f4/stm32f4_sysmem.c **** **  Author	    : Ac6
+   7:../../hardware/victims/firmware/./hal/stm32f4/stm32f4_sysmem.c **** **
+   8:../../hardware/victims/firmware/./hal/stm32f4/stm32f4_sysmem.c **** **  Abstract    : System Workbench Minimal System Memory calls file
+   9:../../hardware/victims/firmware/./hal/stm32f4/stm32f4_sysmem.c **** **
+  10:../../hardware/victims/firmware/./hal/stm32f4/stm32f4_sysmem.c **** ** 		          For more information about which c-functions
+  11:../../hardware/victims/firmware/./hal/stm32f4/stm32f4_sysmem.c **** **                need which of these lowlevel functions
+  12:../../hardware/victims/firmware/./hal/stm32f4/stm32f4_sysmem.c **** **                please consult the Newlib libc-manual
+  13:../../hardware/victims/firmware/./hal/stm32f4/stm32f4_sysmem.c **** **
+  14:../../hardware/victims/firmware/./hal/stm32f4/stm32f4_sysmem.c **** **  Environment : System Workbench for MCU
+  15:../../hardware/victims/firmware/./hal/stm32f4/stm32f4_sysmem.c **** **
+  16:../../hardware/victims/firmware/./hal/stm32f4/stm32f4_sysmem.c **** **  Distribution: The file is distributed “as is,” without any warranty
+  17:../../hardware/victims/firmware/./hal/stm32f4/stm32f4_sysmem.c **** **                of any kind.
+  18:../../hardware/victims/firmware/./hal/stm32f4/stm32f4_sysmem.c **** **
+  19:../../hardware/victims/firmware/./hal/stm32f4/stm32f4_sysmem.c **** *****************************************************************************
+  20:../../hardware/victims/firmware/./hal/stm32f4/stm32f4_sysmem.c **** **
+  21:../../hardware/victims/firmware/./hal/stm32f4/stm32f4_sysmem.c **** ** <h2><center>&copy; COPYRIGHT(c) 2014 Ac6</center></h2>
+  22:../../hardware/victims/firmware/./hal/stm32f4/stm32f4_sysmem.c **** **
+  23:../../hardware/victims/firmware/./hal/stm32f4/stm32f4_sysmem.c **** ** Redistribution and use in source and binary forms, with or without modification,
+  24:../../hardware/victims/firmware/./hal/stm32f4/stm32f4_sysmem.c **** ** are permitted provided that the following conditions are met:
+  25:../../hardware/victims/firmware/./hal/stm32f4/stm32f4_sysmem.c **** **   1. Redistributions of source code must retain the above copyright notice,
+  26:../../hardware/victims/firmware/./hal/stm32f4/stm32f4_sysmem.c **** **      this list of conditions and the following disclaimer.
+  27:../../hardware/victims/firmware/./hal/stm32f4/stm32f4_sysmem.c **** **   2. Redistributions in binary form must reproduce the above copyright notice,
+  28:../../hardware/victims/firmware/./hal/stm32f4/stm32f4_sysmem.c **** **      this list of conditions and the following disclaimer in the documentation
+  29:../../hardware/victims/firmware/./hal/stm32f4/stm32f4_sysmem.c **** **      and/or other materials provided with the distribution.
+  30:../../hardware/victims/firmware/./hal/stm32f4/stm32f4_sysmem.c **** **   3. Neither the name of Ac6 nor the names of its contributors
+  31:../../hardware/victims/firmware/./hal/stm32f4/stm32f4_sysmem.c **** **      may be used to endorse or promote products derived from this software
+  32:../../hardware/victims/firmware/./hal/stm32f4/stm32f4_sysmem.c **** **      without specific prior written permission.
+  33:../../hardware/victims/firmware/./hal/stm32f4/stm32f4_sysmem.c **** **
+  34:../../hardware/victims/firmware/./hal/stm32f4/stm32f4_sysmem.c **** ** THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+  35:../../hardware/victims/firmware/./hal/stm32f4/stm32f4_sysmem.c **** ** AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+  36:../../hardware/victims/firmware/./hal/stm32f4/stm32f4_sysmem.c **** ** IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+  37:../../hardware/victims/firmware/./hal/stm32f4/stm32f4_sysmem.c **** ** DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+  38:../../hardware/victims/firmware/./hal/stm32f4/stm32f4_sysmem.c **** ** FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+  39:../../hardware/victims/firmware/./hal/stm32f4/stm32f4_sysmem.c **** ** DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+  40:../../hardware/victims/firmware/./hal/stm32f4/stm32f4_sysmem.c **** ** SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+  41:../../hardware/victims/firmware/./hal/stm32f4/stm32f4_sysmem.c **** ** CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+  42:../../hardware/victims/firmware/./hal/stm32f4/stm32f4_sysmem.c **** ** OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+  43:../../hardware/victims/firmware/./hal/stm32f4/stm32f4_sysmem.c **** ** OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+  44:../../hardware/victims/firmware/./hal/stm32f4/stm32f4_sysmem.c **** **
+  45:../../hardware/victims/firmware/./hal/stm32f4/stm32f4_sysmem.c **** *****************************************************************************
+  46:../../hardware/victims/firmware/./hal/stm32f4/stm32f4_sysmem.c **** */
+  47:../../hardware/victims/firmware/./hal/stm32f4/stm32f4_sysmem.c **** 
+  48:../../hardware/victims/firmware/./hal/stm32f4/stm32f4_sysmem.c **** /* Includes */
+  49:../../hardware/victims/firmware/./hal/stm32f4/stm32f4_sysmem.c **** #include <errno.h>
+  50:../../hardware/victims/firmware/./hal/stm32f4/stm32f4_sysmem.c **** #include <stdio.h>
+  51:../../hardware/victims/firmware/./hal/stm32f4/stm32f4_sysmem.c **** 
+  52:../../hardware/victims/firmware/./hal/stm32f4/stm32f4_sysmem.c **** /* Variables */
+  53:../../hardware/victims/firmware/./hal/stm32f4/stm32f4_sysmem.c **** //Uncomment following if needed - commented out for now as not used and causes warning
+  54:../../hardware/victims/firmware/./hal/stm32f4/stm32f4_sysmem.c **** //extern int errno;
+  55:../../hardware/victims/firmware/./hal/stm32f4/stm32f4_sysmem.c **** register char * stack_ptr asm("sp");
+  56:../../hardware/victims/firmware/./hal/stm32f4/stm32f4_sysmem.c **** 
+  57:../../hardware/victims/firmware/./hal/stm32f4/stm32f4_sysmem.c **** /* Functions */
+  58:../../hardware/victims/firmware/./hal/stm32f4/stm32f4_sysmem.c **** 
+  59:../../hardware/victims/firmware/./hal/stm32f4/stm32f4_sysmem.c **** /**
+  60:../../hardware/victims/firmware/./hal/stm32f4/stm32f4_sysmem.c ****  _sbrk
+  61:../../hardware/victims/firmware/./hal/stm32f4/stm32f4_sysmem.c ****  Increase program data space. Malloc and related functions depend on this
+  62:../../hardware/victims/firmware/./hal/stm32f4/stm32f4_sysmem.c **** **/
+  63:../../hardware/victims/firmware/./hal/stm32f4/stm32f4_sysmem.c **** caddr_t _sbrk(int incr)
+  64:../../hardware/victims/firmware/./hal/stm32f4/stm32f4_sysmem.c **** {
+  32              		.loc 1 64 1
+  33              		.cfi_startproc
+  34              		@ args = 0, pretend = 0, frame = 16
+  35              		@ frame_needed = 1, uses_anonymous_args = 0
+  36 0000 80B5     		push	{r7, lr}
+  37              	.LCFI0:
+  38              		.cfi_def_cfa_offset 8
+  39              		.cfi_offset 7, -8
+  40              		.cfi_offset 14, -4
+  41 0002 84B0     		sub	sp, sp, #16
+  42              	.LCFI1:
+  43              		.cfi_def_cfa_offset 24
+  44 0004 00AF     		add	r7, sp, #0
+  45              	.LCFI2:
+  46              		.cfi_def_cfa_register 7
+  47 0006 7860     		str	r0, [r7, #4]
+  65:../../hardware/victims/firmware/./hal/stm32f4/stm32f4_sysmem.c **** 	extern char end asm("end");
+  66:../../hardware/victims/firmware/./hal/stm32f4/stm32f4_sysmem.c **** 	static char *heap_end;
+  67:../../hardware/victims/firmware/./hal/stm32f4/stm32f4_sysmem.c **** 	char *prev_heap_end;
+  68:../../hardware/victims/firmware/./hal/stm32f4/stm32f4_sysmem.c **** 
+  69:../../hardware/victims/firmware/./hal/stm32f4/stm32f4_sysmem.c **** 	if (heap_end == 0)
+  48              		.loc 1 69 15
+  49 0008 114B     		ldr	r3, .L5
+  50 000a 1B68     		ldr	r3, [r3]
+  51              		.loc 1 69 5
+  52 000c 002B     		cmp	r3, #0
+  53 000e 02D1     		bne	.L2
+  70:../../hardware/victims/firmware/./hal/stm32f4/stm32f4_sysmem.c **** 		heap_end = &end;
+  54              		.loc 1 70 12
+  55 0010 0F4B     		ldr	r3, .L5
+  56 0012 104A     		ldr	r2, .L5+4
+  57 0014 1A60     		str	r2, [r3]
+  58              	.L2:
+  71:../../hardware/victims/firmware/./hal/stm32f4/stm32f4_sysmem.c **** 
+  72:../../hardware/victims/firmware/./hal/stm32f4/stm32f4_sysmem.c **** 	prev_heap_end = heap_end;
+  59              		.loc 1 72 16
+  60 0016 0E4B     		ldr	r3, .L5
+  61 0018 1B68     		ldr	r3, [r3]
+  62 001a FB60     		str	r3, [r7, #12]
+  73:../../hardware/victims/firmware/./hal/stm32f4/stm32f4_sysmem.c **** 	if (heap_end + incr > stack_ptr)
+  63              		.loc 1 73 15
+  64 001c 0C4B     		ldr	r3, .L5
+  65 001e 1A68     		ldr	r2, [r3]
+  66 0020 7B68     		ldr	r3, [r7, #4]
+  67 0022 1344     		add	r3, r3, r2
+  68              		.loc 1 73 22
+  69 0024 6A46     		mov	r2, sp
+  70              		.loc 1 73 5
+  71 0026 9342     		cmp	r3, r2
+  72 0028 07D9     		bls	.L3
+  74:../../hardware/victims/firmware/./hal/stm32f4/stm32f4_sysmem.c **** 	{
+  75:../../hardware/victims/firmware/./hal/stm32f4/stm32f4_sysmem.c **** 		errno = ENOMEM;
+  73              		.loc 1 75 3
+  74 002a FFF7FEFF 		bl	__errno
+  75 002e 0346     		mov	r3, r0
+  76              		.loc 1 75 9
+  77 0030 0C22     		movs	r2, #12
+  78 0032 1A60     		str	r2, [r3]
+  76:../../hardware/victims/firmware/./hal/stm32f4/stm32f4_sysmem.c **** 		return (caddr_t) -1;
+  79              		.loc 1 76 10
+  80 0034 4FF0FF33 		mov	r3, #-1
+  81 0038 06E0     		b	.L4
+  82              	.L3:
+  77:../../hardware/victims/firmware/./hal/stm32f4/stm32f4_sysmem.c **** 	}
+  78:../../hardware/victims/firmware/./hal/stm32f4/stm32f4_sysmem.c **** 
+  79:../../hardware/victims/firmware/./hal/stm32f4/stm32f4_sysmem.c **** 	heap_end += incr;
+  83              		.loc 1 79 11
+  84 003a 054B     		ldr	r3, .L5
+  85 003c 1A68     		ldr	r2, [r3]
+  86 003e 7B68     		ldr	r3, [r7, #4]
+  87 0040 1344     		add	r3, r3, r2
+  88 0042 034A     		ldr	r2, .L5
+  89 0044 1360     		str	r3, [r2]
+  80:../../hardware/victims/firmware/./hal/stm32f4/stm32f4_sysmem.c **** 
+  81:../../hardware/victims/firmware/./hal/stm32f4/stm32f4_sysmem.c **** 	return (caddr_t) prev_heap_end;
+  90              		.loc 1 81 9
+  91 0046 FB68     		ldr	r3, [r7, #12]
+  92              	.L4:
+  82:../../hardware/victims/firmware/./hal/stm32f4/stm32f4_sysmem.c **** }
+  93              		.loc 1 82 1
+  94 0048 1846     		mov	r0, r3
+  95 004a 1037     		adds	r7, r7, #16
+  96              	.LCFI3:
+  97              		.cfi_def_cfa_offset 8
+  98 004c BD46     		mov	sp, r7
+  99              	.LCFI4:
+ 100              		.cfi_def_cfa_register 13
+ 101              		@ sp needed
+ 102 004e 80BD     		pop	{r7, pc}
+ 103              	.L6:
+ 104              		.align	2
+ 105              	.L5:
+ 106 0050 00000000 		.word	heap_end.0
+ 107 0054 00000000 		.word	end
+ 108              		.cfi_endproc
+ 109              	.LFE3:
+ 111              		.text
+ 112              	.Letext0:
+ 113              		.file 2 "c:\\users\\h3c\\chipwh~1\\cw\\home\\portable\\armgcc\\arm-none-eabi\\include\\sys\\types.
+DEFINED SYMBOLS
+                            *ABS*:00000000 stm32f4_sysmem.c
+C:\Users\H3C\AppData\Local\Temp\cc5oL2SU.s:16     .bss:00000000 $d
+C:\Users\H3C\AppData\Local\Temp\cc5oL2SU.s:17     .bss:00000000 heap_end.0
+C:\Users\H3C\AppData\Local\Temp\cc5oL2SU.s:21     .text._sbrk:00000000 $t
+C:\Users\H3C\AppData\Local\Temp\cc5oL2SU.s:29     .text._sbrk:00000000 _sbrk
+C:\Users\H3C\AppData\Local\Temp\cc5oL2SU.s:106    .text._sbrk:00000050 $d
+
+UNDEFINED SYMBOLS
+__errno
+end

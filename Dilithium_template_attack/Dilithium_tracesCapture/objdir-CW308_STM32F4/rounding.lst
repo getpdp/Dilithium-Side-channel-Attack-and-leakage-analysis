@@ -1,0 +1,452 @@
+   1              		.cpu cortex-m4
+   2              		.eabi_attribute 20, 1
+   3              		.eabi_attribute 21, 1
+   4              		.eabi_attribute 23, 3
+   5              		.eabi_attribute 24, 1
+   6              		.eabi_attribute 25, 1
+   7              		.eabi_attribute 26, 1
+   8              		.eabi_attribute 30, 6
+   9              		.eabi_attribute 34, 1
+  10              		.eabi_attribute 18, 4
+  11              		.file	"rounding.c"
+  12              		.text
+  13              	.Ltext0:
+  14              		.cfi_sections	.debug_frame
+  15              		.section	.text.pqcrystals_dilithium2_ref_power2round,"ax",%progbits
+  16              		.align	1
+  17              		.global	pqcrystals_dilithium2_ref_power2round
+  18              		.arch armv7e-m
+  19              		.syntax unified
+  20              		.thumb
+  21              		.thumb_func
+  22              		.fpu softvfp
+  24              	pqcrystals_dilithium2_ref_power2round:
+  25              	.LFB0:
+  26              		.file 1 "rounding.c"
+   1:rounding.c    **** #include <stdint.h>
+   2:rounding.c    **** #include "params.h"
+   3:rounding.c    **** #include "rounding.h"
+   4:rounding.c    **** 
+   5:rounding.c    **** /*************************************************
+   6:rounding.c    **** * Name:        power2round
+   7:rounding.c    **** *
+   8:rounding.c    **** * Description: For finite field element a, compute a0, a1 such that
+   9:rounding.c    **** *              a mod^+ Q = a1*2^D + a0 with -2^{D-1} < a0 <= 2^{D-1}.
+  10:rounding.c    **** *              Assumes a to be standard representative.
+  11:rounding.c    **** *
+  12:rounding.c    **** * Arguments:   - int32_t a: input element
+  13:rounding.c    **** *              - int32_t *a0: pointer to output element a0
+  14:rounding.c    **** *
+  15:rounding.c    **** * Returns a1.
+  16:rounding.c    **** **************************************************/
+  17:rounding.c    **** int32_t power2round(int32_t *a0, int32_t a)  {
+  27              		.loc 1 17 46
+  28              		.cfi_startproc
+  29              		@ args = 0, pretend = 0, frame = 16
+  30              		@ frame_needed = 1, uses_anonymous_args = 0
+  31              		@ link register save eliminated.
+  32 0000 80B4     		push	{r7}
+  33              	.LCFI0:
+  34              		.cfi_def_cfa_offset 4
+  35              		.cfi_offset 7, -4
+  36 0002 85B0     		sub	sp, sp, #20
+  37              	.LCFI1:
+  38              		.cfi_def_cfa_offset 24
+  39 0004 00AF     		add	r7, sp, #0
+  40              	.LCFI2:
+  41              		.cfi_def_cfa_register 7
+  42 0006 7860     		str	r0, [r7, #4]
+  43 0008 3960     		str	r1, [r7]
+  18:rounding.c    ****   int32_t a1;
+  19:rounding.c    **** 
+  20:rounding.c    ****   a1 = (a + (1 << (D-1)) - 1) >> D;
+  44              		.loc 1 20 26
+  45 000a 3B68     		ldr	r3, [r7]
+  46 000c 03F6FF73 		addw	r3, r3, #4095
+  47              		.loc 1 20 6
+  48 0010 5B13     		asrs	r3, r3, #13
+  49 0012 FB60     		str	r3, [r7, #12]
+  21:rounding.c    ****   *a0 = a - (a1 << D);
+  50              		.loc 1 21 17
+  51 0014 FB68     		ldr	r3, [r7, #12]
+  52 0016 5B03     		lsls	r3, r3, #13
+  53              		.loc 1 21 11
+  54 0018 3A68     		ldr	r2, [r7]
+  55 001a D21A     		subs	r2, r2, r3
+  56              		.loc 1 21 7
+  57 001c 7B68     		ldr	r3, [r7, #4]
+  58 001e 1A60     		str	r2, [r3]
+  22:rounding.c    ****   return a1;
+  59              		.loc 1 22 10
+  60 0020 FB68     		ldr	r3, [r7, #12]
+  23:rounding.c    **** }
+  61              		.loc 1 23 1
+  62 0022 1846     		mov	r0, r3
+  63 0024 1437     		adds	r7, r7, #20
+  64              	.LCFI3:
+  65              		.cfi_def_cfa_offset 4
+  66 0026 BD46     		mov	sp, r7
+  67              	.LCFI4:
+  68              		.cfi_def_cfa_register 13
+  69              		@ sp needed
+  70 0028 80BC     		pop	{r7}
+  71              	.LCFI5:
+  72              		.cfi_restore 7
+  73              		.cfi_def_cfa_offset 0
+  74 002a 7047     		bx	lr
+  75              		.cfi_endproc
+  76              	.LFE0:
+  78              		.section	.text.pqcrystals_dilithium2_ref_decompose,"ax",%progbits
+  79              		.align	1
+  80              		.global	pqcrystals_dilithium2_ref_decompose
+  81              		.syntax unified
+  82              		.thumb
+  83              		.thumb_func
+  84              		.fpu softvfp
+  86              	pqcrystals_dilithium2_ref_decompose:
+  87              	.LFB1:
+  24:rounding.c    **** 
+  25:rounding.c    **** /*************************************************
+  26:rounding.c    **** * Name:        decompose
+  27:rounding.c    **** *
+  28:rounding.c    **** * Description: For finite field element a, compute high and low bits a0, a1 such
+  29:rounding.c    **** *              that a mod^+ Q = a1*ALPHA + a0 with -ALPHA/2 < a0 <= ALPHA/2 except
+  30:rounding.c    **** *              if a1 = (Q-1)/ALPHA where we set a1 = 0 and
+  31:rounding.c    **** *              -ALPHA/2 <= a0 = a mod^+ Q - Q < 0. Assumes a to be standard
+  32:rounding.c    **** *              representative.
+  33:rounding.c    **** *
+  34:rounding.c    **** * Arguments:   - int32_t a: input element
+  35:rounding.c    **** *              - int32_t *a0: pointer to output element a0
+  36:rounding.c    **** *
+  37:rounding.c    **** * Returns a1.
+  38:rounding.c    **** **************************************************/
+  39:rounding.c    **** int32_t decompose(int32_t *a0, int32_t a) {
+  88              		.loc 1 39 43
+  89              		.cfi_startproc
+  90              		@ args = 0, pretend = 0, frame = 16
+  91              		@ frame_needed = 1, uses_anonymous_args = 0
+  92              		@ link register save eliminated.
+  93 0000 80B4     		push	{r7}
+  94              	.LCFI6:
+  95              		.cfi_def_cfa_offset 4
+  96              		.cfi_offset 7, -4
+  97 0002 85B0     		sub	sp, sp, #20
+  98              	.LCFI7:
+  99              		.cfi_def_cfa_offset 24
+ 100 0004 00AF     		add	r7, sp, #0
+ 101              	.LCFI8:
+ 102              		.cfi_def_cfa_register 7
+ 103 0006 7860     		str	r0, [r7, #4]
+ 104 0008 3960     		str	r1, [r7]
+  40:rounding.c    ****   int32_t a1;
+  41:rounding.c    **** 
+  42:rounding.c    ****   a1  = (a + 127) >> 7;
+ 105              		.loc 1 42 12
+ 106 000a 3B68     		ldr	r3, [r7]
+ 107 000c 7F33     		adds	r3, r3, #127
+ 108              		.loc 1 42 7
+ 109 000e DB11     		asrs	r3, r3, #7
+ 110 0010 FB60     		str	r3, [r7, #12]
+  43:rounding.c    **** #if GAMMA2 == (Q-1)/32
+  44:rounding.c    ****   a1  = (a1*1025 + (1 << 21)) >> 22;
+  45:rounding.c    ****   a1 &= 15;
+  46:rounding.c    **** #elif GAMMA2 == (Q-1)/88
+  47:rounding.c    ****   a1  = (a1*11275 + (1 << 23)) >> 24;
+ 111              		.loc 1 47 12
+ 112 0012 FB68     		ldr	r3, [r7, #12]
+ 113 0014 42F60B42 		movw	r2, #11275
+ 114 0018 02FB03F3 		mul	r3, r2, r3
+ 115              		.loc 1 47 19
+ 116 001c 03F50003 		add	r3, r3, #8388608
+ 117              		.loc 1 47 7
+ 118 0020 1B16     		asrs	r3, r3, #24
+ 119 0022 FB60     		str	r3, [r7, #12]
+  48:rounding.c    ****   a1 ^= ((43 - a1) >> 31) & a1;
+ 120              		.loc 1 48 14
+ 121 0024 FB68     		ldr	r3, [r7, #12]
+ 122 0026 C3F12B03 		rsb	r3, r3, #43
+ 123              		.loc 1 48 20
+ 124 002a DB17     		asrs	r3, r3, #31
+ 125              		.loc 1 48 6
+ 126 002c DB43     		mvns	r3, r3
+ 127 002e FA68     		ldr	r2, [r7, #12]
+ 128 0030 1340     		ands	r3, r3, r2
+ 129 0032 FB60     		str	r3, [r7, #12]
+  49:rounding.c    **** #endif
+  50:rounding.c    **** 
+  51:rounding.c    ****   *a0  = a - a1*2*GAMMA2;
+ 130              		.loc 1 51 18
+ 131 0034 FB68     		ldr	r3, [r7, #12]
+ 132 0036 0D4A     		ldr	r2, .L5
+ 133 0038 03FB02F2 		mul	r2, r3, r2
+ 134              		.loc 1 51 12
+ 135 003c 3B68     		ldr	r3, [r7]
+ 136 003e 1A44     		add	r2, r2, r3
+ 137              		.loc 1 51 8
+ 138 0040 7B68     		ldr	r3, [r7, #4]
+ 139 0042 1A60     		str	r2, [r3]
+  52:rounding.c    ****   *a0 -= (((Q-1)/2 - *a0) >> 31) & Q;
+ 140              		.loc 1 52 7
+ 141 0044 7B68     		ldr	r3, [r7, #4]
+ 142 0046 1A68     		ldr	r2, [r3]
+ 143              		.loc 1 52 22
+ 144 0048 7B68     		ldr	r3, [r7, #4]
+ 145 004a 1B68     		ldr	r3, [r3]
+ 146              		.loc 1 52 20
+ 147 004c C3F57F13 		rsb	r3, r3, #4177920
+ 148 0050 03F54053 		add	r3, r3, #12288
+ 149              		.loc 1 52 27
+ 150 0054 D917     		asrs	r1, r3, #31
+ 151              		.loc 1 52 34
+ 152 0056 064B     		ldr	r3, .L5+4
+ 153 0058 0B40     		ands	r3, r3, r1
+ 154              		.loc 1 52 7
+ 155 005a D21A     		subs	r2, r2, r3
+ 156 005c 7B68     		ldr	r3, [r7, #4]
+ 157 005e 1A60     		str	r2, [r3]
+  53:rounding.c    ****   return a1;
+ 158              		.loc 1 53 10
+ 159 0060 FB68     		ldr	r3, [r7, #12]
+  54:rounding.c    **** }
+ 160              		.loc 1 54 1
+ 161 0062 1846     		mov	r0, r3
+ 162 0064 1437     		adds	r7, r7, #20
+ 163              	.LCFI9:
+ 164              		.cfi_def_cfa_offset 4
+ 165 0066 BD46     		mov	sp, r7
+ 166              	.LCFI10:
+ 167              		.cfi_def_cfa_register 13
+ 168              		@ sp needed
+ 169 0068 80BC     		pop	{r7}
+ 170              	.LCFI11:
+ 171              		.cfi_restore 7
+ 172              		.cfi_def_cfa_offset 0
+ 173 006a 7047     		bx	lr
+ 174              	.L6:
+ 175              		.align	2
+ 176              	.L5:
+ 177 006c 0018FDFF 		.word	-190464
+ 178 0070 01E07F00 		.word	8380417
+ 179              		.cfi_endproc
+ 180              	.LFE1:
+ 182              		.section	.text.pqcrystals_dilithium2_ref_make_hint,"ax",%progbits
+ 183              		.align	1
+ 184              		.global	pqcrystals_dilithium2_ref_make_hint
+ 185              		.syntax unified
+ 186              		.thumb
+ 187              		.thumb_func
+ 188              		.fpu softvfp
+ 190              	pqcrystals_dilithium2_ref_make_hint:
+ 191              	.LFB2:
+  55:rounding.c    **** 
+  56:rounding.c    **** /*************************************************
+  57:rounding.c    **** * Name:        make_hint
+  58:rounding.c    **** *
+  59:rounding.c    **** * Description: Compute hint bit indicating whether the low bits of the
+  60:rounding.c    **** *              input element overflow into the high bits. Inputs assumed
+  61:rounding.c    **** *              to be standard representatives.
+  62:rounding.c    **** *
+  63:rounding.c    **** * Arguments:   - int32_t a0: low bits of input element
+  64:rounding.c    **** *              - int32_t a1: high bits of input element
+  65:rounding.c    **** *
+  66:rounding.c    **** * Returns 1 if overflow.
+  67:rounding.c    **** **************************************************/
+  68:rounding.c    **** unsigned int make_hint(int32_t a0, int32_t a1) {
+ 192              		.loc 1 68 48
+ 193              		.cfi_startproc
+ 194              		@ args = 0, pretend = 0, frame = 8
+ 195              		@ frame_needed = 1, uses_anonymous_args = 0
+ 196              		@ link register save eliminated.
+ 197 0000 80B4     		push	{r7}
+ 198              	.LCFI12:
+ 199              		.cfi_def_cfa_offset 4
+ 200              		.cfi_offset 7, -4
+ 201 0002 83B0     		sub	sp, sp, #12
+ 202              	.LCFI13:
+ 203              		.cfi_def_cfa_offset 16
+ 204 0004 00AF     		add	r7, sp, #0
+ 205              	.LCFI14:
+ 206              		.cfi_def_cfa_register 7
+ 207 0006 7860     		str	r0, [r7, #4]
+ 208 0008 3960     		str	r1, [r7]
+  69:rounding.c    ****   if(a0 <= GAMMA2 || a0 > Q - GAMMA2 || (a0 == Q - GAMMA2 && a1 == 0))
+ 209              		.loc 1 69 5
+ 210 000a 7B68     		ldr	r3, [r7, #4]
+ 211 000c B3F5BA3F 		cmp	r3, #95232
+ 212 0010 0ADD     		ble	.L8
+ 213              		.loc 1 69 19 discriminator 1
+ 214 0012 7B68     		ldr	r3, [r7, #4]
+ 215 0014 084A     		ldr	r2, .L11
+ 216 0016 9342     		cmp	r3, r2
+ 217 0018 06DC     		bgt	.L8
+ 218              		.loc 1 69 38 discriminator 2
+ 219 001a 7B68     		ldr	r3, [r7, #4]
+ 220 001c 064A     		ldr	r2, .L11
+ 221 001e 9342     		cmp	r3, r2
+ 222 0020 04D1     		bne	.L9
+ 223              		.loc 1 69 59 discriminator 3
+ 224 0022 3B68     		ldr	r3, [r7]
+ 225 0024 002B     		cmp	r3, #0
+ 226 0026 01D1     		bne	.L9
+ 227              	.L8:
+  70:rounding.c    ****     return 0;
+ 228              		.loc 1 70 12
+ 229 0028 0023     		movs	r3, #0
+ 230 002a 00E0     		b	.L10
+ 231              	.L9:
+  71:rounding.c    **** 
+  72:rounding.c    ****   return 1;
+ 232              		.loc 1 72 10
+ 233 002c 0123     		movs	r3, #1
+ 234              	.L10:
+  73:rounding.c    **** }
+ 235              		.loc 1 73 1
+ 236 002e 1846     		mov	r0, r3
+ 237 0030 0C37     		adds	r7, r7, #12
+ 238              	.LCFI15:
+ 239              		.cfi_def_cfa_offset 4
+ 240 0032 BD46     		mov	sp, r7
+ 241              	.LCFI16:
+ 242              		.cfi_def_cfa_register 13
+ 243              		@ sp needed
+ 244 0034 80BC     		pop	{r7}
+ 245              	.LCFI17:
+ 246              		.cfi_restore 7
+ 247              		.cfi_def_cfa_offset 0
+ 248 0036 7047     		bx	lr
+ 249              	.L12:
+ 250              		.align	2
+ 251              	.L11:
+ 252 0038 016C7E00 		.word	8285185
+ 253              		.cfi_endproc
+ 254              	.LFE2:
+ 256              		.section	.text.pqcrystals_dilithium2_ref_use_hint,"ax",%progbits
+ 257              		.align	1
+ 258              		.global	pqcrystals_dilithium2_ref_use_hint
+ 259              		.syntax unified
+ 260              		.thumb
+ 261              		.thumb_func
+ 262              		.fpu softvfp
+ 264              	pqcrystals_dilithium2_ref_use_hint:
+ 265              	.LFB3:
+  74:rounding.c    **** 
+  75:rounding.c    **** /*************************************************
+  76:rounding.c    **** * Name:        use_hint
+  77:rounding.c    **** *
+  78:rounding.c    **** * Description: Correct high bits according to hint.
+  79:rounding.c    **** *
+  80:rounding.c    **** * Arguments:   - int32_t a: input element
+  81:rounding.c    **** *              - unsigned int hint: hint bit
+  82:rounding.c    **** *
+  83:rounding.c    **** * Returns corrected high bits.
+  84:rounding.c    **** **************************************************/
+  85:rounding.c    **** int32_t use_hint(int32_t a, unsigned int hint) {
+ 266              		.loc 1 85 48
+ 267              		.cfi_startproc
+ 268              		@ args = 0, pretend = 0, frame = 16
+ 269              		@ frame_needed = 1, uses_anonymous_args = 0
+ 270 0000 80B5     		push	{r7, lr}
+ 271              	.LCFI18:
+ 272              		.cfi_def_cfa_offset 8
+ 273              		.cfi_offset 7, -8
+ 274              		.cfi_offset 14, -4
+ 275 0002 84B0     		sub	sp, sp, #16
+ 276              	.LCFI19:
+ 277              		.cfi_def_cfa_offset 24
+ 278 0004 00AF     		add	r7, sp, #0
+ 279              	.LCFI20:
+ 280              		.cfi_def_cfa_register 7
+ 281 0006 7860     		str	r0, [r7, #4]
+ 282 0008 3960     		str	r1, [r7]
+  86:rounding.c    ****   int32_t a0, a1;
+  87:rounding.c    **** 
+  88:rounding.c    ****   a1 = decompose(&a0, a);
+ 283              		.loc 1 88 8
+ 284 000a 07F10803 		add	r3, r7, #8
+ 285 000e 7968     		ldr	r1, [r7, #4]
+ 286 0010 1846     		mov	r0, r3
+ 287 0012 FFF7FEFF 		bl	pqcrystals_dilithium2_ref_decompose
+ 288 0016 F860     		str	r0, [r7, #12]
+  89:rounding.c    ****   if(hint == 0)
+ 289              		.loc 1 89 5
+ 290 0018 3B68     		ldr	r3, [r7]
+ 291 001a 002B     		cmp	r3, #0
+ 292 001c 01D1     		bne	.L14
+  90:rounding.c    ****     return a1;
+ 293              		.loc 1 90 12
+ 294 001e FB68     		ldr	r3, [r7, #12]
+ 295 0020 11E0     		b	.L21
+ 296              	.L14:
+  91:rounding.c    **** 
+  92:rounding.c    **** #if GAMMA2 == (Q-1)/32
+  93:rounding.c    ****   if(a0 > 0)
+  94:rounding.c    ****     return (a1 + 1) & 15;
+  95:rounding.c    ****   else
+  96:rounding.c    ****     return (a1 - 1) & 15;
+  97:rounding.c    **** #elif GAMMA2 == (Q-1)/88
+  98:rounding.c    ****   if(a0 > 0)
+ 297              		.loc 1 98 9
+ 298 0022 BB68     		ldr	r3, [r7, #8]
+ 299              		.loc 1 98 5
+ 300 0024 002B     		cmp	r3, #0
+ 301 0026 07DD     		ble	.L16
+  99:rounding.c    ****     return (a1 == 43) ?  0 : a1 + 1;
+ 302              		.loc 1 99 28
+ 303 0028 FB68     		ldr	r3, [r7, #12]
+ 304 002a 2B2B     		cmp	r3, #43
+ 305 002c 02D0     		beq	.L17
+ 306              		.loc 1 99 28 is_stmt 0 discriminator 1
+ 307 002e FB68     		ldr	r3, [r7, #12]
+ 308 0030 0133     		adds	r3, r3, #1
+ 309 0032 08E0     		b	.L21
+ 310              	.L17:
+ 311              		.loc 1 99 28 discriminator 2
+ 312 0034 0023     		movs	r3, #0
+ 313 0036 06E0     		b	.L21
+ 314              	.L16:
+ 100:rounding.c    ****   else
+ 101:rounding.c    ****     return (a1 ==  0) ? 43 : a1 - 1;
+ 315              		.loc 1 101 28 is_stmt 1
+ 316 0038 FB68     		ldr	r3, [r7, #12]
+ 317 003a 002B     		cmp	r3, #0
+ 318 003c 02D0     		beq	.L19
+ 319              		.loc 1 101 28 is_stmt 0 discriminator 1
+ 320 003e FB68     		ldr	r3, [r7, #12]
+ 321 0040 013B     		subs	r3, r3, #1
+ 322 0042 00E0     		b	.L21
+ 323              	.L19:
+ 324              		.loc 1 101 28 discriminator 2
+ 325 0044 2B23     		movs	r3, #43
+ 326              	.L21:
+ 102:rounding.c    **** #endif
+ 103:rounding.c    **** }
+ 327              		.loc 1 103 1 is_stmt 1 discriminator 1
+ 328 0046 1846     		mov	r0, r3
+ 329 0048 1037     		adds	r7, r7, #16
+ 330              	.LCFI21:
+ 331              		.cfi_def_cfa_offset 8
+ 332 004a BD46     		mov	sp, r7
+ 333              	.LCFI22:
+ 334              		.cfi_def_cfa_register 13
+ 335              		@ sp needed
+ 336 004c 80BD     		pop	{r7, pc}
+ 337              		.cfi_endproc
+ 338              	.LFE3:
+ 340              		.text
+ 341              	.Letext0:
+ 342              		.file 2 "c:\\users\\h3c\\chipwh~1\\cw\\home\\portable\\armgcc\\arm-none-eabi\\include\\machine\\_d
+ 343              		.file 3 "c:\\users\\h3c\\chipwh~1\\cw\\home\\portable\\armgcc\\arm-none-eabi\\include\\sys\\_stdin
+DEFINED SYMBOLS
+                            *ABS*:00000000 rounding.c
+C:\Users\H3C\AppData\Local\Temp\cczpLazf.s:16     .text.pqcrystals_dilithium2_ref_power2round:00000000 $t
+C:\Users\H3C\AppData\Local\Temp\cczpLazf.s:24     .text.pqcrystals_dilithium2_ref_power2round:00000000 pqcrystals_dilithium2_ref_power2round
+C:\Users\H3C\AppData\Local\Temp\cczpLazf.s:79     .text.pqcrystals_dilithium2_ref_decompose:00000000 $t
+C:\Users\H3C\AppData\Local\Temp\cczpLazf.s:86     .text.pqcrystals_dilithium2_ref_decompose:00000000 pqcrystals_dilithium2_ref_decompose
+C:\Users\H3C\AppData\Local\Temp\cczpLazf.s:177    .text.pqcrystals_dilithium2_ref_decompose:0000006c $d
+C:\Users\H3C\AppData\Local\Temp\cczpLazf.s:183    .text.pqcrystals_dilithium2_ref_make_hint:00000000 $t
+C:\Users\H3C\AppData\Local\Temp\cczpLazf.s:190    .text.pqcrystals_dilithium2_ref_make_hint:00000000 pqcrystals_dilithium2_ref_make_hint
+C:\Users\H3C\AppData\Local\Temp\cczpLazf.s:252    .text.pqcrystals_dilithium2_ref_make_hint:00000038 $d
+C:\Users\H3C\AppData\Local\Temp\cczpLazf.s:257    .text.pqcrystals_dilithium2_ref_use_hint:00000000 $t
+C:\Users\H3C\AppData\Local\Temp\cczpLazf.s:264    .text.pqcrystals_dilithium2_ref_use_hint:00000000 pqcrystals_dilithium2_ref_use_hint
+
+NO UNDEFINED SYMBOLS

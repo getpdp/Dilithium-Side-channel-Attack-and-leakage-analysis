@@ -1,0 +1,842 @@
+   1              		.cpu cortex-m4
+   2              		.eabi_attribute 20, 1
+   3              		.eabi_attribute 21, 1
+   4              		.eabi_attribute 23, 3
+   5              		.eabi_attribute 24, 1
+   6              		.eabi_attribute 25, 1
+   7              		.eabi_attribute 26, 1
+   8              		.eabi_attribute 30, 6
+   9              		.eabi_attribute 34, 1
+  10              		.eabi_attribute 18, 4
+  11              		.file	"ntt.c"
+  12              		.text
+  13              	.Ltext0:
+  14              		.cfi_sections	.debug_frame
+  15              		.section	.rodata
+  16              		.align	2
+  19              	zetas:
+  20 0000 00000000 		.word	0
+  21 0004 F7640000 		.word	25847
+  22 0008 0231D8FF 		.word	-2608894
+  23 000c 0315F8FF 		.word	-518909
+  24 0010 449E0300 		.word	237124
+  25 0014 1821F4FF 		.word	-777960
+  26 0018 28A1F2FF 		.word	-876248
+  27 001c 241E0700 		.word	466468
+  28 0020 2BDE1B00 		.word	1826347
+  29 0024 2BE92300 		.word	2353451
+  30 0028 AD84FAFF 		.word	-359251
+  31 002c 7F14E0FF 		.word	-2091905
+  32 0030 759A2F00 		.word	3119733
+  33 0034 09FBD3FF 		.word	-2884855
+  34 0038 497A2F00 		.word	3111497
+  35 003c 27E52800 		.word	2680103
+  36 0040 58962900 		.word	2725464
+  37 0044 70A00F00 		.word	1024112
+  38 0048 A485EFFF 		.word	-1079900
+  39 004c 88B73600 		.word	3585928
+  40 0050 909DF7FF 		.word	-549488
+  41 0054 A0EAEEFF 		.word	-1119584
+  42 0058 68F92700 		.word	2619752
+  43 005c 7BD3DFFF 		.word	-2108549
+  44 0060 D6ADDFFF 		.word	-2118186
+  45 0064 E71AC5FF 		.word	-3859737
+  46 0068 F7A4EAFF 		.word	-1399561
+  47 006c 98FCCDFF 		.word	-3277672
+  48 0070 35D01A00 		.word	1757237
+  49 0074 22B4FFFF 		.word	-19422
+  50 0078 01323D00 		.word	4010497
+  51 007c C5450400 		.word	280005
+  52 0080 674A2900 		.word	2706023
+  53 0084 20760100 		.word	95776
+  54 0088 CDF42E00 		.word	3077325
+  55 008c C5DE3500 		.word	3530437
+  56 0090 03A5E6FF 		.word	-1661693
+  57 0094 2C30C9FF 		.word	-3592148
+  58 0098 D447D9FF 		.word	-2537516
+  59 009c AFBE3B00 		.word	3915439
+  60 00a0 8515C5FF 		.word	-3861115
+  61 00a4 7C8ED1FF 		.word	-3043716
+  62 00a8 968A3600 		.word	3574422
+  63 00ac 413ED4FF 		.word	-2867647
+  64 00b0 00043600 		.word	3539968
+  65 00b4 4D6AFBFF 		.word	-300467
+  66 00b8 9CD62300 		.word	2348700
+  67 00bc 5DC5F7FF 		.word	-539299
+  68 00c0 3D12E6FF 		.word	-1699267
+  69 00c4 D6EAE6FF 		.word	-1643818
+  70 00c8 1E7E3500 		.word	3505694
+  71 00cc 59AFC5FF 		.word	-3821735
+  72 00d0 3F843500 		.word	3507263
+  73 00d4 1756DFFF 		.word	-2140649
+  74 00d8 5C94E7FF 		.word	-1600420
+  75 00dc 8C733800 		.word	3699596
+  76 00e0 A8630C00 		.word	811944
+  77 00e4 9A1B0800 		.word	531354
+  78 00e8 768F0E00 		.word	954230
+  79 00ec 53383B00 		.word	3881043
+  80 00f0 34853B00 		.word	3900724
+  81 00f4 30FCD8FF 		.word	-2556880
+  82 00f8 549D1F00 		.word	2071892
+  83 00fc 2D4FD5FF 		.word	-2797779
+  84 0100 E506C4FF 		.word	-3930395
+  85 0104 81ACE8FF 		.word	-1528703
+  86 0108 CFE1C7FF 		.word	-3677745
+  87 010c 1998D1FF 		.word	-3041255
+  88 0110 5DD6E9FF 		.word	-1452451
+  89 0114 EE093500 		.word	3475950
+  90 0118 C7352100 		.word	2176455
+  91 011c BBCFE7FF 		.word	-1585221
+  92 0120 75CFECFF 		.word	-1257611
+  93 0124 72971D00 		.word	1939314
+  94 0128 72B0C1FF 		.word	-4083598
+  95 012c F6BCF0FF 		.word	-1000202
+  96 0130 8052CFFF 		.word	-3190144
+  97 0134 AED2CFFF 		.word	-3157330
+  98 0138 E090C8FF 		.word	-3632928
+  99 013c CAEF0100 		.word	126922
+ 100 0140 F2103400 		.word	3412210
+ 101 0144 85FEF0FF 		.word	-983419
+ 102 0148 38C62000 		.word	2147896
+ 103 014c 9F6E2900 		.word	2715295
+ 104 0150 A3B7D2FF 		.word	-2967645
+ 105 0154 4BA4C7FF 		.word	-3693493
+ 106 0158 6DBAF9FF 		.word	-411027
+ 107 015c 0934DAFF 		.word	-2477047
+ 108 0160 82C2F5FF 		.word	-671102
+ 109 0164 1341EDFF 		.word	-1228525
+ 110 0168 3BA6FFFF 		.word	-22981
+ 111 016c F709ECFF 		.word	-1308169
+ 112 0170 DD2BFAFF 		.word	-381987
+ 113 0174 D4951400 		.word	1349076
+ 114 0178 63451C00 		.word	1852771
+ 115 017c 622CEAFF 		.word	-1430430
+ 116 0180 E9FBCCFF 		.word	-3343383
+ 117 0184 F00A0400 		.word	264944
+ 118 0188 17C40700 		.word	508951
+ 119 018c 88452F00 		.word	3097992
+ 120 0190 00AD0000 		.word	44288
+ 121 0194 BE36EFFF 		.word	-1100098
+ 122 0198 44CD0D00 		.word	904516
+ 123 019c 5A673C00 		.word	3958618
+ 124 01a0 CA2BC7FF 		.word	-3724342
+ 125 01a4 7EDEFFFF 		.word	-8578
+ 126 01a8 48391900 		.word	1653064
+ 127 01ac C069CEFF 		.word	-3249728
+ 128 01b0 6C752400 		.word	2389356
+ 129 01b4 DFC7FCFF 		.word	-210977
+ 130 01b8 A1980B00 		.word	759969
+ 131 01bc 08E8EBFF 		.word	-1316856
+ 132 01c0 6CE40200 		.word	189548
+ 133 01c4 08C8C9FF 		.word	-3553272
+ 134 01c8 C2363000 		.word	3159746
+ 135 01cc F6BFE3FF 		.word	-1851402
+ 136 01d0 933CDBFF 		.word	-2409325
+ 137 01d4 E04AFDFF 		.word	-177440
+ 138 01d8 05131400 		.word	1315589
+ 139 01dc 92771400 		.word	1341330
+ 140 01e0 259E1300 		.word	1285669
+ 141 01e4 E0D0E7FF 		.word	-1584928
+ 142 01e8 4499F3FF 		.word	-812732
+ 143 01ec 0208EAFF 		.word	-1439742
+ 144 01f0 A2EED1FF 		.word	-3019102
+ 145 01f4 9CC7C4FF 		.word	-3881060
+ 146 01f8 57A0C8FF 		.word	-3628969
+ 147 01fc D9973A00 		.word	3839961
+ 148 0200 93EA1F00 		.word	2091667
+ 149 0204 5AFF3300 		.word	3407706
+ 150 0208 D4582300 		.word	2316500
+ 151 020c F8413A00 		.word	3817976
+ 152 0210 72FFCCFF 		.word	-3342478
+ 153 0214 FB3D2200 		.word	2244091
+ 154 0218 9FABDAFF 		.word	-2446433
+ 155 021c 22A4C9FF 		.word	-3562462
+ 156 0220 F5120400 		.word	266997
+ 157 0224 87252500 		.word	2434439
+ 158 0228 F024EDFF 		.word	-1235728
+ 159 022c 5D9B3500 		.word	3513181
+ 160 0230 A048CAFF 		.word	-3520352
+ 161 0234 FCA2C6FF 		.word	-3759364
+ 162 0238 56BBEDFF 		.word	-1197226
+ 163 023c DE45CFFF 		.word	-3193378
+ 164 0240 5EBE0D00 		.word	900702
+ 165 0244 1A5E1C00 		.word	1859098
+ 166 0248 E6E00D00 		.word	909542
+ 167 024c 5A7F0C00 		.word	819034
+ 168 0250 838F0700 		.word	495491
+ 169 0254 8A62E7FF 		.word	-1613174
+ 170 0258 0457FFFF 		.word	-43260
+ 171 025c FC06F8FF 		.word	-522500
+ 172 0260 2100F6FF 		.word	-655327
+ 173 0264 F65AD0FF 		.word	-3122442
+ 174 0268 84001F00 		.word	2031748
+ 175 026c 86EF3000 		.word	3207046
+ 176 0270 7DB9C9FF 		.word	-3556995
+ 177 0274 D6FCF7FF 		.word	-525098
+ 178 0278 9245F4FF 		.word	-768622
+ 179 027c C221C9FF 		.word	-3595838
+ 180 0280 19390500 		.word	342297
+ 181 0284 0C610400 		.word	286988
+ 182 0288 41CDDAFF 		.word	-2437823
+ 183 028c 1BB03E00 		.word	4108315
+ 184 0290 E7723400 		.word	3437287
+ 185 0294 3B00CDFF 		.word	-3342277
+ 186 0298 C77C1A00 		.word	1735879
+ 187 029c 24190300 		.word	203044
+ 188 02a0 E55E2B00 		.word	2842341
+ 189 02a4 99112900 		.word	2691481
+ 190 02a8 3A7AD8FF 		.word	-2590150
+ 191 02ac 714D1300 		.word	1265009
+ 192 02b0 1CE13D00 		.word	4055324
+ 193 02b4 84091300 		.word	1247620
+ 194 02b8 51F02500 		.word	2486353
+ 195 02bc 465A1800 		.word	1595974
+ 196 02c0 1885C6FF 		.word	-3767016
+ 197 02c4 BE141300 		.word	1250494
+ 198 02c8 91382800 		.word	2635921
+ 199 02cc 90DBC9FF 		.word	-3548272
+ 200 02d0 8950D2FF 		.word	-2994039
+ 201 02d4 3F851C00 		.word	1869119
+ 202 02d8 4B0B1D00 		.word	1903435
+ 203 02dc A6F6EFFF 		.word	-1050970
+ 204 02e0 BEA8EBFF 		.word	-1333058
+ 205 02e4 1BE11200 		.word	1237275
+ 206 02e8 3E5ECDFF 		.word	-3318210
+ 207 02ec 2F2DEAFF 		.word	-1430225
+ 208 02f0 E41DF9FF 		.word	-451100
+ 209 02f4 C7061400 		.word	1312455
+ 210 02f8 83723200 		.word	3306115
+ 211 02fc 6E0DE2FF 		.word	-1962642
+ 212 0300 5379ECFF 		.word	-1279661
+ 213 0304 99401D00 		.word	1917081
+ 214 0308 7825D9FF 		.word	-2546312
+ 215 030c AD05EBFF 		.word	-1374803
+ 216 0310 05E41600 		.word	1500165
+ 217 0314 E7DB0B00 		.word	777191
+ 218 0318 E81D2200 		.word	2235880
+ 219 031c CFF83300 		.word	3406031
+ 220 0320 34B9F7FF 		.word	-542412
+ 221 0324 0CCAD4FF 		.word	-2831860
+ 222 0328 F87FE6FF 		.word	-1671176
+ 223 032c 57D1E3FF 		.word	-1846953
+ 224 0330 1B91D8FF 		.word	-2584293
+ 225 0334 122CC7FF 		.word	-3724270
+ 226 0338 D8100900 		.word	594136
+ 227 033c 1F5EC6FF 		.word	-3776993
+ 228 0340 5846E1FF 		.word	-2013608
+ 229 0344 8B1D2500 		.word	2432395
+ 230 0348 B7732500 		.word	2454455
+ 231 034c 8F7CFDFF 		.word	-164721
+ 232 0350 98DD1D00 		.word	1957272
+ 233 0354 98683300 		.word	3369112
+ 234 0358 BBD40200 		.word	185531
+ 235 035c A793EDFF 		.word	-1207385
+ 236 0360 BE6CCFFF 		.word	-3183426
+ 237 0364 1C7C0200 		.word	162844
+ 238 0368 08AA1800 		.word	1616392
+ 239 036c 71FD2D00 		.word	3014001
+ 240 0370 A55C0C00 		.word	810149
+ 241 0374 9A371900 		.word	1652634
+ 242 0378 67A1C7FF 		.word	-3694233
+ 243 037c 3D8CE4FF 		.word	-1799107
+ 244 0380 3CA1D1FF 		.word	-3038916
+ 245 0384 39C53500 		.word	3523897
+ 246 0388 15013B00 		.word	3866901
+ 247 038c C01D0400 		.word	269760
+ 248 0390 F7C42100 		.word	2213111
+ 249 0394 F41BF1FF 		.word	-975884
+ 250 0398 E7351A00 		.word	1717735
+ 251 039c 0E340700 		.word	472078
+ 252 03a0 457DF9FF 		.word	-426683
+ 253 03a4 D04C1A00 		.word	1723600
+ 254 03a8 AE7CE4FF 		.word	-1803090
+ 255 03ac 68261D00 		.word	1910376
+ 256 03b0 988EE6FF 		.word	-1667432
+ 257 03b4 3326EFFF 		.word	-1104333
+ 258 03b8 DA05FCFF 		.word	-260646
+ 259 03bc DB7FC5FF 		.word	-3833893
+ 260 03c0 6427D3FF 		.word	-2939036
+ 261 03c4 AFE1DDFF 		.word	-2235985
+ 262 03c8 DD93F9FF 		.word	-420899
+ 263 03cc 091DDDFF 		.word	-2286327
+ 264 03d0 93CC0200 		.word	183443
+ 265 03d4 0518F1FF 		.word	-976891
+ 266 03d8 2A9C1800 		.word	1612842
+ 267 03dc A9E5C9FF 		.word	-3545687
+ 268 03e0 508AF7FF 		.word	-554416
+ 269 03e4 2CCF3B00 		.word	3919660
+ 270 03e8 4E43FFFF 		.word	-48306
+ 271 03ec DF36EBFF 		.word	-1362209
+ 272 03f0 CA153C00 		.word	3937738
+ 273 03f4 685E1500 		.word	1400424
+ 274 03f8 B616F3FF 		.word	-846154
+ 275 03fc CE291E00 		.word	1976782
+ 276              		.section	.text.pqcrystals_dilithium2_ref_ntt,"ax",%progbits
+ 277              		.align	1
+ 278              		.global	pqcrystals_dilithium2_ref_ntt
+ 279              		.arch armv7e-m
+ 280              		.syntax unified
+ 281              		.thumb
+ 282              		.thumb_func
+ 283              		.fpu softvfp
+ 285              	pqcrystals_dilithium2_ref_ntt:
+ 286              	.LFB0:
+ 287              		.file 1 "ntt.c"
+   1:ntt.c         **** #include <stdint.h>
+   2:ntt.c         **** #include "params.h"
+   3:ntt.c         **** #include "ntt.h"
+   4:ntt.c         **** #include "reduce.h"
+   5:ntt.c         **** 
+   6:ntt.c         **** static const int32_t zetas[N] = {
+   7:ntt.c         ****          0,    25847, -2608894,  -518909,   237124,  -777960,  -876248,   466468,
+   8:ntt.c         ****    1826347,  2353451,  -359251, -2091905,  3119733, -2884855,  3111497,  2680103,
+   9:ntt.c         ****    2725464,  1024112, -1079900,  3585928,  -549488, -1119584,  2619752, -2108549,
+  10:ntt.c         ****   -2118186, -3859737, -1399561, -3277672,  1757237,   -19422,  4010497,   280005,
+  11:ntt.c         ****    2706023,    95776,  3077325,  3530437, -1661693, -3592148, -2537516,  3915439,
+  12:ntt.c         ****   -3861115, -3043716,  3574422, -2867647,  3539968,  -300467,  2348700,  -539299,
+  13:ntt.c         ****   -1699267, -1643818,  3505694, -3821735,  3507263, -2140649, -1600420,  3699596,
+  14:ntt.c         ****     811944,   531354,   954230,  3881043,  3900724, -2556880,  2071892, -2797779,
+  15:ntt.c         ****   -3930395, -1528703, -3677745, -3041255, -1452451,  3475950,  2176455, -1585221,
+  16:ntt.c         ****   -1257611,  1939314, -4083598, -1000202, -3190144, -3157330, -3632928,   126922,
+  17:ntt.c         ****    3412210,  -983419,  2147896,  2715295, -2967645, -3693493,  -411027, -2477047,
+  18:ntt.c         ****    -671102, -1228525,   -22981, -1308169,  -381987,  1349076,  1852771, -1430430,
+  19:ntt.c         ****   -3343383,   264944,   508951,  3097992,    44288, -1100098,   904516,  3958618,
+  20:ntt.c         ****   -3724342,    -8578,  1653064, -3249728,  2389356,  -210977,   759969, -1316856,
+  21:ntt.c         ****     189548, -3553272,  3159746, -1851402, -2409325,  -177440,  1315589,  1341330,
+  22:ntt.c         ****    1285669, -1584928,  -812732, -1439742, -3019102, -3881060, -3628969,  3839961,
+  23:ntt.c         ****    2091667,  3407706,  2316500,  3817976, -3342478,  2244091, -2446433, -3562462,
+  24:ntt.c         ****     266997,  2434439, -1235728,  3513181, -3520352, -3759364, -1197226, -3193378,
+  25:ntt.c         ****     900702,  1859098,   909542,   819034,   495491, -1613174,   -43260,  -522500,
+  26:ntt.c         ****    -655327, -3122442,  2031748,  3207046, -3556995,  -525098,  -768622, -3595838,
+  27:ntt.c         ****     342297,   286988, -2437823,  4108315,  3437287, -3342277,  1735879,   203044,
+  28:ntt.c         ****    2842341,  2691481, -2590150,  1265009,  4055324,  1247620,  2486353,  1595974,
+  29:ntt.c         ****   -3767016,  1250494,  2635921, -3548272, -2994039,  1869119,  1903435, -1050970,
+  30:ntt.c         ****   -1333058,  1237275, -3318210, -1430225,  -451100,  1312455,  3306115, -1962642,
+  31:ntt.c         ****   -1279661,  1917081, -2546312, -1374803,  1500165,   777191,  2235880,  3406031,
+  32:ntt.c         ****    -542412, -2831860, -1671176, -1846953, -2584293, -3724270,   594136, -3776993,
+  33:ntt.c         ****   -2013608,  2432395,  2454455,  -164721,  1957272,  3369112,   185531, -1207385,
+  34:ntt.c         ****   -3183426,   162844,  1616392,  3014001,   810149,  1652634, -3694233, -1799107,
+  35:ntt.c         ****   -3038916,  3523897,  3866901,   269760,  2213111,  -975884,  1717735,   472078,
+  36:ntt.c         ****    -426683,  1723600, -1803090,  1910376, -1667432, -1104333,  -260646, -3833893,
+  37:ntt.c         ****   -2939036, -2235985,  -420899, -2286327,   183443,  -976891,  1612842, -3545687,
+  38:ntt.c         ****    -554416,  3919660,   -48306, -1362209,  3937738,  1400424,  -846154,  1976782
+  39:ntt.c         **** };
+  40:ntt.c         **** 
+  41:ntt.c         **** /*************************************************
+  42:ntt.c         **** * Name:        ntt
+  43:ntt.c         **** *
+  44:ntt.c         **** * Description: Forward NTT, in-place. No modular reduction is performed after
+  45:ntt.c         **** *              additions or subtractions. Output vector is in bitreversed order.
+  46:ntt.c         **** *
+  47:ntt.c         **** * Arguments:   - uint32_t p[N]: input/output coefficient array
+  48:ntt.c         **** **************************************************/
+  49:ntt.c         **** void ntt(int32_t a[N]) {
+ 288              		.loc 1 49 24
+ 289              		.cfi_startproc
+ 290              		@ args = 0, pretend = 0, frame = 32
+ 291              		@ frame_needed = 1, uses_anonymous_args = 0
+ 292 0000 2DE9B04F 		push	{r4, r5, r7, r8, r9, r10, fp, lr}
+ 293              	.LCFI0:
+ 294              		.cfi_def_cfa_offset 32
+ 295              		.cfi_offset 4, -32
+ 296              		.cfi_offset 5, -28
+ 297              		.cfi_offset 7, -24
+ 298              		.cfi_offset 8, -20
+ 299              		.cfi_offset 9, -16
+ 300              		.cfi_offset 10, -12
+ 301              		.cfi_offset 11, -8
+ 302              		.cfi_offset 14, -4
+ 303 0004 88B0     		sub	sp, sp, #32
+ 304              	.LCFI1:
+ 305              		.cfi_def_cfa_offset 64
+ 306 0006 00AF     		add	r7, sp, #0
+ 307              	.LCFI2:
+ 308              		.cfi_def_cfa_register 7
+ 309 0008 7860     		str	r0, [r7, #4]
+  50:ntt.c         ****   unsigned int len, start, j, k;
+  51:ntt.c         ****   int32_t zeta, t;
+  52:ntt.c         **** 
+  53:ntt.c         ****   k = 0;
+ 310              		.loc 1 53 5
+ 311 000a 0023     		movs	r3, #0
+ 312 000c 3B61     		str	r3, [r7, #16]
+  54:ntt.c         ****   for(len = 128; len > 0; len >>= 1) {
+ 313              		.loc 1 54 11
+ 314 000e 8023     		movs	r3, #128
+ 315 0010 FB61     		str	r3, [r7, #28]
+ 316              		.loc 1 54 3
+ 317 0012 56E0     		b	.L2
+ 318              	.L7:
+  55:ntt.c         ****     for(start = 0; start < N; start = j + len) {
+ 319              		.loc 1 55 15
+ 320 0014 0023     		movs	r3, #0
+ 321 0016 BB61     		str	r3, [r7, #24]
+ 322              		.loc 1 55 5
+ 323 0018 4DE0     		b	.L3
+ 324              	.L6:
+  56:ntt.c         ****       zeta = zetas[++k];
+ 325              		.loc 1 56 12
+ 326 001a 3B69     		ldr	r3, [r7, #16]
+ 327 001c 0133     		adds	r3, r3, #1
+ 328 001e 3B61     		str	r3, [r7, #16]
+ 329 0020 2C4A     		ldr	r2, .L8
+ 330 0022 3B69     		ldr	r3, [r7, #16]
+ 331 0024 52F82330 		ldr	r3, [r2, r3, lsl #2]
+ 332 0028 FB60     		str	r3, [r7, #12]
+  57:ntt.c         ****       for(j = start; j < start + len; ++j) {
+ 333              		.loc 1 57 13
+ 334 002a BB69     		ldr	r3, [r7, #24]
+ 335 002c 7B61     		str	r3, [r7, #20]
+ 336              		.loc 1 57 7
+ 337 002e 38E0     		b	.L4
+ 338              	.L5:
+  58:ntt.c         ****         t = montgomery_reduce((int64_t)zeta * a[j + len]);
+ 339              		.loc 1 58 31 discriminator 3
+ 340 0030 FB68     		ldr	r3, [r7, #12]
+ 341 0032 DA17     		asrs	r2, r3, #31
+ 342 0034 9846     		mov	r8, r3
+ 343 0036 9146     		mov	r9, r2
+ 344              		.loc 1 58 51 discriminator 3
+ 345 0038 7A69     		ldr	r2, [r7, #20]
+ 346 003a FB69     		ldr	r3, [r7, #28]
+ 347 003c 1344     		add	r3, r3, r2
+ 348              		.loc 1 58 48 discriminator 3
+ 349 003e 9B00     		lsls	r3, r3, #2
+ 350 0040 7A68     		ldr	r2, [r7, #4]
+ 351 0042 1344     		add	r3, r3, r2
+ 352 0044 1B68     		ldr	r3, [r3]
+ 353 0046 DA17     		asrs	r2, r3, #31
+ 354 0048 9A46     		mov	r10, r3
+ 355 004a 9346     		mov	fp, r2
+ 356              		.loc 1 58 13 discriminator 3
+ 357 004c 0AFB09F2 		mul	r2, r10, r9
+ 358 0050 08FB0BF3 		mul	r3, r8, fp
+ 359 0054 1344     		add	r3, r3, r2
+ 360 0056 A8FB0A45 		umull	r4, r5, r8, r10
+ 361 005a 2B44     		add	r3, r3, r5
+ 362 005c 1D46     		mov	r5, r3
+ 363 005e 2046     		mov	r0, r4
+ 364 0060 2946     		mov	r1, r5
+ 365 0062 FFF7FEFF 		bl	pqcrystals_dilithium2_ref_montgomery_reduce
+ 366 0066 B860     		str	r0, [r7, #8]
+  59:ntt.c         ****         a[j + len] = a[j] - t;
+ 367              		.loc 1 59 23 discriminator 3
+ 368 0068 7B69     		ldr	r3, [r7, #20]
+ 369 006a 9B00     		lsls	r3, r3, #2
+ 370 006c 7A68     		ldr	r2, [r7, #4]
+ 371 006e 1344     		add	r3, r3, r2
+ 372 0070 1968     		ldr	r1, [r3]
+ 373              		.loc 1 59 13 discriminator 3
+ 374 0072 7A69     		ldr	r2, [r7, #20]
+ 375 0074 FB69     		ldr	r3, [r7, #28]
+ 376 0076 1344     		add	r3, r3, r2
+ 377              		.loc 1 59 10 discriminator 3
+ 378 0078 9B00     		lsls	r3, r3, #2
+ 379 007a 7A68     		ldr	r2, [r7, #4]
+ 380 007c 1344     		add	r3, r3, r2
+ 381              		.loc 1 59 27 discriminator 3
+ 382 007e BA68     		ldr	r2, [r7, #8]
+ 383 0080 8A1A     		subs	r2, r1, r2
+ 384              		.loc 1 59 20 discriminator 3
+ 385 0082 1A60     		str	r2, [r3]
+  60:ntt.c         ****         a[j] = a[j] + t;
+ 386              		.loc 1 60 17 discriminator 3
+ 387 0084 7B69     		ldr	r3, [r7, #20]
+ 388 0086 9B00     		lsls	r3, r3, #2
+ 389 0088 7A68     		ldr	r2, [r7, #4]
+ 390 008a 1344     		add	r3, r3, r2
+ 391 008c 1968     		ldr	r1, [r3]
+ 392              		.loc 1 60 10 discriminator 3
+ 393 008e 7B69     		ldr	r3, [r7, #20]
+ 394 0090 9B00     		lsls	r3, r3, #2
+ 395 0092 7A68     		ldr	r2, [r7, #4]
+ 396 0094 1344     		add	r3, r3, r2
+ 397              		.loc 1 60 21 discriminator 3
+ 398 0096 BA68     		ldr	r2, [r7, #8]
+ 399 0098 0A44     		add	r2, r2, r1
+ 400              		.loc 1 60 14 discriminator 3
+ 401 009a 1A60     		str	r2, [r3]
+  57:ntt.c         ****         t = montgomery_reduce((int64_t)zeta * a[j + len]);
+ 402              		.loc 1 57 39 discriminator 3
+ 403 009c 7B69     		ldr	r3, [r7, #20]
+ 404 009e 0133     		adds	r3, r3, #1
+ 405 00a0 7B61     		str	r3, [r7, #20]
+ 406              	.L4:
+  57:ntt.c         ****         t = montgomery_reduce((int64_t)zeta * a[j + len]);
+ 407              		.loc 1 57 32 discriminator 1
+ 408 00a2 BA69     		ldr	r2, [r7, #24]
+ 409 00a4 FB69     		ldr	r3, [r7, #28]
+ 410 00a6 1344     		add	r3, r3, r2
+  57:ntt.c         ****         t = montgomery_reduce((int64_t)zeta * a[j + len]);
+ 411              		.loc 1 57 7 discriminator 1
+ 412 00a8 7A69     		ldr	r2, [r7, #20]
+ 413 00aa 9A42     		cmp	r2, r3
+ 414 00ac C0D3     		bcc	.L5
+  55:ntt.c         ****       zeta = zetas[++k];
+ 415              		.loc 1 55 37 discriminator 2
+ 416 00ae 7A69     		ldr	r2, [r7, #20]
+ 417 00b0 FB69     		ldr	r3, [r7, #28]
+ 418 00b2 1344     		add	r3, r3, r2
+ 419 00b4 BB61     		str	r3, [r7, #24]
+ 420              	.L3:
+  55:ntt.c         ****       zeta = zetas[++k];
+ 421              		.loc 1 55 5 discriminator 1
+ 422 00b6 BB69     		ldr	r3, [r7, #24]
+ 423 00b8 FF2B     		cmp	r3, #255
+ 424 00ba AED9     		bls	.L6
+  54:ntt.c         ****     for(start = 0; start < N; start = j + len) {
+ 425              		.loc 1 54 31 discriminator 2
+ 426 00bc FB69     		ldr	r3, [r7, #28]
+ 427 00be 5B08     		lsrs	r3, r3, #1
+ 428 00c0 FB61     		str	r3, [r7, #28]
+ 429              	.L2:
+  54:ntt.c         ****     for(start = 0; start < N; start = j + len) {
+ 430              		.loc 1 54 3 discriminator 1
+ 431 00c2 FB69     		ldr	r3, [r7, #28]
+ 432 00c4 002B     		cmp	r3, #0
+ 433 00c6 A5D1     		bne	.L7
+  61:ntt.c         ****       }
+  62:ntt.c         ****     }
+  63:ntt.c         ****   }
+  64:ntt.c         **** }
+ 434              		.loc 1 64 1
+ 435 00c8 00BF     		nop
+ 436 00ca 00BF     		nop
+ 437 00cc 2037     		adds	r7, r7, #32
+ 438              	.LCFI3:
+ 439              		.cfi_def_cfa_offset 32
+ 440 00ce BD46     		mov	sp, r7
+ 441              	.LCFI4:
+ 442              		.cfi_def_cfa_register 13
+ 443              		@ sp needed
+ 444 00d0 BDE8B08F 		pop	{r4, r5, r7, r8, r9, r10, fp, pc}
+ 445              	.L9:
+ 446              		.align	2
+ 447              	.L8:
+ 448 00d4 00000000 		.word	zetas
+ 449              		.cfi_endproc
+ 450              	.LFE0:
+ 452              		.section	.text.pqcrystals_dilithium2_ref_invntt_tomont,"ax",%progbits
+ 453              		.align	1
+ 454              		.global	pqcrystals_dilithium2_ref_invntt_tomont
+ 455              		.syntax unified
+ 456              		.thumb
+ 457              		.thumb_func
+ 458              		.fpu softvfp
+ 460              	pqcrystals_dilithium2_ref_invntt_tomont:
+ 461              	.LFB1:
+  65:ntt.c         **** 
+  66:ntt.c         **** /*************************************************
+  67:ntt.c         **** * Name:        invntt_tomont
+  68:ntt.c         **** *
+  69:ntt.c         **** * Description: Inverse NTT and multiplication by Montgomery factor 2^32.
+  70:ntt.c         **** *              In-place. No modular reductions after additions or
+  71:ntt.c         **** *              subtractions; input coefficients need to be smaller than
+  72:ntt.c         **** *              Q in absolute value. Output coefficient are smaller than Q in
+  73:ntt.c         **** *              absolute value.
+  74:ntt.c         **** *
+  75:ntt.c         **** * Arguments:   - uint32_t p[N]: input/output coefficient array
+  76:ntt.c         **** **************************************************/
+  77:ntt.c         **** void invntt_tomont(int32_t a[N]) {
+ 462              		.loc 1 77 34
+ 463              		.cfi_startproc
+ 464              		@ args = 0, pretend = 0, frame = 64
+ 465              		@ frame_needed = 1, uses_anonymous_args = 0
+ 466 0000 2DE9F04F 		push	{r4, r5, r6, r7, r8, r9, r10, fp, lr}
+ 467              	.LCFI5:
+ 468              		.cfi_def_cfa_offset 36
+ 469              		.cfi_offset 4, -36
+ 470              		.cfi_offset 5, -32
+ 471              		.cfi_offset 6, -28
+ 472              		.cfi_offset 7, -24
+ 473              		.cfi_offset 8, -20
+ 474              		.cfi_offset 9, -16
+ 475              		.cfi_offset 10, -12
+ 476              		.cfi_offset 11, -8
+ 477              		.cfi_offset 14, -4
+ 478 0004 91B0     		sub	sp, sp, #68
+ 479              	.LCFI6:
+ 480              		.cfi_def_cfa_offset 104
+ 481 0006 00AF     		add	r7, sp, #0
+ 482              	.LCFI7:
+ 483              		.cfi_def_cfa_register 7
+ 484 0008 F861     		str	r0, [r7, #28]
+  78:ntt.c         ****   unsigned int start, len, j, k;
+  79:ntt.c         ****   int32_t t, zeta;
+  80:ntt.c         ****   const int32_t f = 41978; // mont^2/256
+ 485              		.loc 1 80 17
+ 486 000a 4AF2FA33 		movw	r3, #41978
+ 487 000e FB62     		str	r3, [r7, #44]
+  81:ntt.c         **** 
+  82:ntt.c         ****   k = 256;
+ 488              		.loc 1 82 5
+ 489 0010 4FF48073 		mov	r3, #256
+ 490 0014 3B63     		str	r3, [r7, #48]
+  83:ntt.c         ****   for(len = 1; len < N; len <<= 1) {
+ 491              		.loc 1 83 11
+ 492 0016 0123     		movs	r3, #1
+ 493 0018 BB63     		str	r3, [r7, #56]
+ 494              		.loc 1 83 3
+ 495 001a 73E0     		b	.L11
+ 496              	.L16:
+  84:ntt.c         ****     for(start = 0; start < N; start = j + len) {
+ 497              		.loc 1 84 15
+ 498 001c 0023     		movs	r3, #0
+ 499 001e FB63     		str	r3, [r7, #60]
+ 500              		.loc 1 84 5
+ 501 0020 6AE0     		b	.L12
+ 502              	.L15:
+  85:ntt.c         ****       zeta = -zetas[--k];
+ 503              		.loc 1 85 12
+ 504 0022 3B6B     		ldr	r3, [r7, #48]
+ 505 0024 013B     		subs	r3, r3, #1
+ 506 0026 3B63     		str	r3, [r7, #48]
+ 507              		.loc 1 85 20
+ 508 0028 514A     		ldr	r2, .L19
+ 509 002a 3B6B     		ldr	r3, [r7, #48]
+ 510 002c 52F82330 		ldr	r3, [r2, r3, lsl #2]
+ 511              		.loc 1 85 12
+ 512 0030 5B42     		rsbs	r3, r3, #0
+ 513 0032 BB62     		str	r3, [r7, #40]
+  86:ntt.c         ****       for(j = start; j < start + len; ++j) {
+ 514              		.loc 1 86 13
+ 515 0034 FB6B     		ldr	r3, [r7, #60]
+ 516 0036 7B63     		str	r3, [r7, #52]
+ 517              		.loc 1 86 7
+ 518 0038 54E0     		b	.L13
+ 519              	.L14:
+  87:ntt.c         ****         t = a[j];
+ 520              		.loc 1 87 14 discriminator 3
+ 521 003a 7B6B     		ldr	r3, [r7, #52]
+ 522 003c 9B00     		lsls	r3, r3, #2
+ 523 003e FA69     		ldr	r2, [r7, #28]
+ 524 0040 1344     		add	r3, r3, r2
+ 525              		.loc 1 87 11 discriminator 3
+ 526 0042 1B68     		ldr	r3, [r3]
+ 527 0044 7B62     		str	r3, [r7, #36]
+  88:ntt.c         ****         a[j] = t + a[j + len];
+ 528              		.loc 1 88 24 discriminator 3
+ 529 0046 7A6B     		ldr	r2, [r7, #52]
+ 530 0048 BB6B     		ldr	r3, [r7, #56]
+ 531 004a 1344     		add	r3, r3, r2
+ 532              		.loc 1 88 21 discriminator 3
+ 533 004c 9B00     		lsls	r3, r3, #2
+ 534 004e FA69     		ldr	r2, [r7, #28]
+ 535 0050 1344     		add	r3, r3, r2
+ 536 0052 1968     		ldr	r1, [r3]
+ 537              		.loc 1 88 10 discriminator 3
+ 538 0054 7B6B     		ldr	r3, [r7, #52]
+ 539 0056 9A00     		lsls	r2, r3, #2
+ 540 0058 FB69     		ldr	r3, [r7, #28]
+ 541 005a 1A44     		add	r2, r2, r3
+ 542              		.loc 1 88 18 discriminator 3
+ 543 005c 7B6A     		ldr	r3, [r7, #36]
+ 544 005e 0B44     		add	r3, r3, r1
+ 545              		.loc 1 88 14 discriminator 3
+ 546 0060 1360     		str	r3, [r2]
+  89:ntt.c         ****         a[j + len] = t - a[j + len];
+ 547              		.loc 1 89 30 discriminator 3
+ 548 0062 7A6B     		ldr	r2, [r7, #52]
+ 549 0064 BB6B     		ldr	r3, [r7, #56]
+ 550 0066 1344     		add	r3, r3, r2
+ 551              		.loc 1 89 27 discriminator 3
+ 552 0068 9B00     		lsls	r3, r3, #2
+ 553 006a FA69     		ldr	r2, [r7, #28]
+ 554 006c 1344     		add	r3, r3, r2
+ 555 006e 1968     		ldr	r1, [r3]
+ 556              		.loc 1 89 13 discriminator 3
+ 557 0070 7A6B     		ldr	r2, [r7, #52]
+ 558 0072 BB6B     		ldr	r3, [r7, #56]
+ 559 0074 1344     		add	r3, r3, r2
+ 560              		.loc 1 89 10 discriminator 3
+ 561 0076 9A00     		lsls	r2, r3, #2
+ 562 0078 FB69     		ldr	r3, [r7, #28]
+ 563 007a 1A44     		add	r2, r2, r3
+ 564              		.loc 1 89 24 discriminator 3
+ 565 007c 7B6A     		ldr	r3, [r7, #36]
+ 566 007e 5B1A     		subs	r3, r3, r1
+ 567              		.loc 1 89 20 discriminator 3
+ 568 0080 1360     		str	r3, [r2]
+  90:ntt.c         ****         a[j + len] = montgomery_reduce((int64_t)zeta * a[j + len]);
+ 569              		.loc 1 90 40 discriminator 3
+ 570 0082 BB6A     		ldr	r3, [r7, #40]
+ 571 0084 DA17     		asrs	r2, r3, #31
+ 572 0086 BB60     		str	r3, [r7, #8]
+ 573 0088 FA60     		str	r2, [r7, #12]
+ 574              		.loc 1 90 60 discriminator 3
+ 575 008a 7A6B     		ldr	r2, [r7, #52]
+ 576 008c BB6B     		ldr	r3, [r7, #56]
+ 577 008e 1344     		add	r3, r3, r2
+ 578              		.loc 1 90 57 discriminator 3
+ 579 0090 9B00     		lsls	r3, r3, #2
+ 580 0092 FA69     		ldr	r2, [r7, #28]
+ 581 0094 1344     		add	r3, r3, r2
+ 582 0096 1B68     		ldr	r3, [r3]
+ 583 0098 DA17     		asrs	r2, r3, #31
+ 584 009a 3B61     		str	r3, [r7, #16]
+ 585 009c 7A61     		str	r2, [r7, #20]
+ 586              		.loc 1 90 22 discriminator 3
+ 587 009e D7E90201 		ldrd	r0, [r7, #8]
+ 588 00a2 0A46     		mov	r2, r1
+ 589 00a4 D7E90434 		ldrd	r3, [r7, #16]
+ 590 00a8 9C46     		mov	ip, r3
+ 591 00aa 0CFB02F2 		mul	r2, ip, r2
+ 592 00ae C7E90434 		strd	r3, [r7, #16]
+ 593 00b2 8446     		mov	ip, r0
+ 594 00b4 0CFB04F3 		mul	r3, ip, r4
+ 595 00b8 1344     		add	r3, r3, r2
+ 596 00ba 0246     		mov	r2, r0
+ 597 00bc 3969     		ldr	r1, [r7, #16]
+ 598 00be A2FB01AB 		umull	r10, fp, r2, r1
+ 599 00c2 5B44     		add	r3, r3, fp
+ 600 00c4 9B46     		mov	fp, r3
+ 601              		.loc 1 90 13 discriminator 3
+ 602 00c6 7A6B     		ldr	r2, [r7, #52]
+ 603 00c8 BB6B     		ldr	r3, [r7, #56]
+ 604 00ca 1344     		add	r3, r3, r2
+ 605              		.loc 1 90 10 discriminator 3
+ 606 00cc 9B00     		lsls	r3, r3, #2
+ 607 00ce FA69     		ldr	r2, [r7, #28]
+ 608 00d0 D418     		adds	r4, r2, r3
+ 609              		.loc 1 90 22 discriminator 3
+ 610 00d2 5046     		mov	r0, r10
+ 611 00d4 5946     		mov	r1, fp
+ 612 00d6 FFF7FEFF 		bl	pqcrystals_dilithium2_ref_montgomery_reduce
+ 613 00da 0346     		mov	r3, r0
+ 614              		.loc 1 90 20 discriminator 3
+ 615 00dc 2360     		str	r3, [r4]
+  86:ntt.c         ****         t = a[j];
+ 616              		.loc 1 86 39 discriminator 3
+ 617 00de 7B6B     		ldr	r3, [r7, #52]
+ 618 00e0 0133     		adds	r3, r3, #1
+ 619 00e2 7B63     		str	r3, [r7, #52]
+ 620              	.L13:
+  86:ntt.c         ****         t = a[j];
+ 621              		.loc 1 86 32 discriminator 1
+ 622 00e4 FA6B     		ldr	r2, [r7, #60]
+ 623 00e6 BB6B     		ldr	r3, [r7, #56]
+ 624 00e8 1344     		add	r3, r3, r2
+  86:ntt.c         ****         t = a[j];
+ 625              		.loc 1 86 7 discriminator 1
+ 626 00ea 7A6B     		ldr	r2, [r7, #52]
+ 627 00ec 9A42     		cmp	r2, r3
+ 628 00ee A4D3     		bcc	.L14
+  84:ntt.c         ****       zeta = -zetas[--k];
+ 629              		.loc 1 84 37 discriminator 2
+ 630 00f0 7A6B     		ldr	r2, [r7, #52]
+ 631 00f2 BB6B     		ldr	r3, [r7, #56]
+ 632 00f4 1344     		add	r3, r3, r2
+ 633 00f6 FB63     		str	r3, [r7, #60]
+ 634              	.L12:
+  84:ntt.c         ****       zeta = -zetas[--k];
+ 635              		.loc 1 84 5 discriminator 1
+ 636 00f8 FB6B     		ldr	r3, [r7, #60]
+ 637 00fa FF2B     		cmp	r3, #255
+ 638 00fc 91D9     		bls	.L15
+  83:ntt.c         ****     for(start = 0; start < N; start = j + len) {
+ 639              		.loc 1 83 29 discriminator 2
+ 640 00fe BB6B     		ldr	r3, [r7, #56]
+ 641 0100 5B00     		lsls	r3, r3, #1
+ 642 0102 BB63     		str	r3, [r7, #56]
+ 643              	.L11:
+  83:ntt.c         ****     for(start = 0; start < N; start = j + len) {
+ 644              		.loc 1 83 3 discriminator 1
+ 645 0104 BB6B     		ldr	r3, [r7, #56]
+ 646 0106 FF2B     		cmp	r3, #255
+ 647 0108 88D9     		bls	.L16
+  91:ntt.c         ****       }
+  92:ntt.c         ****     }
+  93:ntt.c         ****   }
+  94:ntt.c         **** 
+  95:ntt.c         ****   for(j = 0; j < N; ++j) {
+ 648              		.loc 1 95 9
+ 649 010a 0023     		movs	r3, #0
+ 650 010c 7B63     		str	r3, [r7, #52]
+ 651              		.loc 1 95 3
+ 652 010e 26E0     		b	.L17
+ 653              	.L18:
+  96:ntt.c         ****     a[j] = montgomery_reduce((int64_t)f * a[j]);
+ 654              		.loc 1 96 30 discriminator 3
+ 655 0110 FB6A     		ldr	r3, [r7, #44]
+ 656 0112 DA17     		asrs	r2, r3, #31
+ 657 0114 1D46     		mov	r5, r3
+ 658 0116 1646     		mov	r6, r2
+ 659              		.loc 1 96 44 discriminator 3
+ 660 0118 7B6B     		ldr	r3, [r7, #52]
+ 661 011a 9B00     		lsls	r3, r3, #2
+ 662 011c FA69     		ldr	r2, [r7, #28]
+ 663 011e 1344     		add	r3, r3, r2
+ 664 0120 1B68     		ldr	r3, [r3]
+ 665 0122 DA17     		asrs	r2, r3, #31
+ 666 0124 3B60     		str	r3, [r7]
+ 667 0126 7A60     		str	r2, [r7, #4]
+ 668              		.loc 1 96 12 discriminator 3
+ 669 0128 D7E90001 		ldrd	r0, [r7]
+ 670 012c 0346     		mov	r3, r0
+ 671 012e 03FB06F2 		mul	r2, r3, r6
+ 672 0132 0B46     		mov	r3, r1
+ 673 0134 05FB03F3 		mul	r3, r5, r3
+ 674 0138 1344     		add	r3, r3, r2
+ 675 013a 0246     		mov	r2, r0
+ 676 013c A5FB0289 		umull	r8, r9, r5, r2
+ 677 0140 4B44     		add	r3, r3, r9
+ 678 0142 9946     		mov	r9, r3
+ 679              		.loc 1 96 6 discriminator 3
+ 680 0144 7B6B     		ldr	r3, [r7, #52]
+ 681 0146 9B00     		lsls	r3, r3, #2
+ 682 0148 FA69     		ldr	r2, [r7, #28]
+ 683 014a D418     		adds	r4, r2, r3
+ 684              		.loc 1 96 12 discriminator 3
+ 685 014c 4046     		mov	r0, r8
+ 686 014e 4946     		mov	r1, r9
+ 687 0150 FFF7FEFF 		bl	pqcrystals_dilithium2_ref_montgomery_reduce
+ 688 0154 0346     		mov	r3, r0
+ 689              		.loc 1 96 10 discriminator 3
+ 690 0156 2360     		str	r3, [r4]
+  95:ntt.c         ****     a[j] = montgomery_reduce((int64_t)f * a[j]);
+ 691              		.loc 1 95 21 discriminator 3
+ 692 0158 7B6B     		ldr	r3, [r7, #52]
+ 693 015a 0133     		adds	r3, r3, #1
+ 694 015c 7B63     		str	r3, [r7, #52]
+ 695              	.L17:
+  95:ntt.c         ****     a[j] = montgomery_reduce((int64_t)f * a[j]);
+ 696              		.loc 1 95 3 discriminator 1
+ 697 015e 7B6B     		ldr	r3, [r7, #52]
+ 698 0160 FF2B     		cmp	r3, #255
+ 699 0162 D5D9     		bls	.L18
+  97:ntt.c         ****   }
+  98:ntt.c         **** }
+ 700              		.loc 1 98 1
+ 701 0164 00BF     		nop
+ 702 0166 00BF     		nop
+ 703 0168 4437     		adds	r7, r7, #68
+ 704              	.LCFI8:
+ 705              		.cfi_def_cfa_offset 36
+ 706 016a BD46     		mov	sp, r7
+ 707              	.LCFI9:
+ 708              		.cfi_def_cfa_register 13
+ 709              		@ sp needed
+ 710 016c BDE8F08F 		pop	{r4, r5, r6, r7, r8, r9, r10, fp, pc}
+ 711              	.L20:
+ 712              		.align	2
+ 713              	.L19:
+ 714 0170 00000000 		.word	zetas
+ 715              		.cfi_endproc
+ 716              	.LFE1:
+ 718              		.text
+ 719              	.Letext0:
+ 720              		.file 2 "c:\\users\\h3c\\chipwh~1\\cw\\home\\portable\\armgcc\\arm-none-eabi\\include\\machine\\_d
+ 721              		.file 3 "c:\\users\\h3c\\chipwh~1\\cw\\home\\portable\\armgcc\\arm-none-eabi\\include\\sys\\_stdin
+DEFINED SYMBOLS
+                            *ABS*:00000000 ntt.c
+C:\Users\H3C\AppData\Local\Temp\ccK1CwLK.s:16     .rodata:00000000 $d
+C:\Users\H3C\AppData\Local\Temp\ccK1CwLK.s:19     .rodata:00000000 zetas
+C:\Users\H3C\AppData\Local\Temp\ccK1CwLK.s:277    .text.pqcrystals_dilithium2_ref_ntt:00000000 $t
+C:\Users\H3C\AppData\Local\Temp\ccK1CwLK.s:285    .text.pqcrystals_dilithium2_ref_ntt:00000000 pqcrystals_dilithium2_ref_ntt
+C:\Users\H3C\AppData\Local\Temp\ccK1CwLK.s:448    .text.pqcrystals_dilithium2_ref_ntt:000000d4 $d
+C:\Users\H3C\AppData\Local\Temp\ccK1CwLK.s:453    .text.pqcrystals_dilithium2_ref_invntt_tomont:00000000 $t
+C:\Users\H3C\AppData\Local\Temp\ccK1CwLK.s:460    .text.pqcrystals_dilithium2_ref_invntt_tomont:00000000 pqcrystals_dilithium2_ref_invntt_tomont
+C:\Users\H3C\AppData\Local\Temp\ccK1CwLK.s:714    .text.pqcrystals_dilithium2_ref_invntt_tomont:00000170 $d
+
+UNDEFINED SYMBOLS
+pqcrystals_dilithium2_ref_montgomery_reduce

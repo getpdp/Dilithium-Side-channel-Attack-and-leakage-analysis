@@ -1,0 +1,570 @@
+   1              		.cpu cortex-m4
+   2              		.eabi_attribute 20, 1
+   3              		.eabi_attribute 21, 1
+   4              		.eabi_attribute 23, 3
+   5              		.eabi_attribute 24, 1
+   6              		.eabi_attribute 25, 1
+   7              		.eabi_attribute 26, 1
+   8              		.eabi_attribute 30, 6
+   9              		.eabi_attribute 34, 1
+  10              		.eabi_attribute 18, 4
+  11              		.file	"main.c"
+  12              		.text
+  13              	.Ltext0:
+  14              		.cfi_sections	.debug_frame
+  15              		.global	m
+  16              		.bss
+  17              		.align	2
+  20              	m:
+  21 0000 00000000 		.space	33
+  21      00000000 
+  21      00000000 
+  21      00000000 
+  21      00000000 
+  22              		.global	sm
+  23 0021 000000   		.align	2
+  26              	sm:
+  27 0024 00000000 		.space	2453
+  27      00000000 
+  27      00000000 
+  27      00000000 
+  27      00000000 
+  28              		.global	m2
+  29 09b9 000000   		.align	2
+  32              	m2:
+  33 09bc 00000000 		.space	2453
+  33      00000000 
+  33      00000000 
+  33      00000000 
+  33      00000000 
+  34              		.global	pk
+  35 1351 000000   		.align	2
+  38              	pk:
+  39 1354 00000000 		.space	1312
+  39      00000000 
+  39      00000000 
+  39      00000000 
+  39      00000000 
+  40              		.global	sk
+  41              		.align	2
+  44              	sk:
+  45 1874 00000000 		.space	2544
+  45      00000000 
+  45      00000000 
+  45      00000000 
+  45      00000000 
+  46              		.global	SEED
+  47              		.data
+  48              		.align	2
+  51              	SEED:
+  52 0000 3E809EC8 		.ascii	">\200\236\310\335\017\354\015\221\032N?\254 \367\017"
+  52      DD0FEC0D 
+  52      911A4E3F 
+  52      AC20F70F 
+  53 0010 BB128C5D 		.ascii	"\273\022\214]\351M\307\030L\2471\012\351\025z\230"
+  53      E94DC718 
+  53      4CA7310A 
+  53      E9157A98 
+  54              		.section	.text.recv_0,"ax",%progbits
+  55              		.align	1
+  56              		.global	recv_0
+  57              		.arch armv7e-m
+  58              		.syntax unified
+  59              		.thumb
+  60              		.thumb_func
+  61              		.fpu softvfp
+  63              	recv_0:
+  64              	.LFB3:
+  65              		.file 1 "main.c"
+   1:main.c        **** #include <stddef.h>
+   2:main.c        **** #include <stdlib.h>
+   3:main.c        **** #include <stdint.h>
+   4:main.c        **** #include <stdio.h>
+   5:main.c        **** #include <string.h>
+   6:main.c        **** #include "randombytes.h"
+   7:main.c        **** #include "sign.h"
+   8:main.c        **** #include "polyvec.h"
+   9:main.c        **** 
+  10:main.c        **** #include "hal.h"
+  11:main.c        **** #include "simpleserial.h"
+  12:main.c        **** 
+  13:main.c        **** #define MLEN 33
+  14:main.c        **** #define NTESTS 1
+  15:main.c        **** 
+  16:main.c        ****   //这是官方的消息用来验证
+  17:main.c        ****   //uint8_t m[MLEN] = {0xD8,0x1C,0x4D,0x8D,0x73,0x4F,0xCB,0xFB,0xEA,0xDE,0x3D,0x3F,0x8A,0x03,0x9F,0
+  18:main.c        ****   uint8_t m[MLEN] = {0};//这里不要修改
+  19:main.c        ****   uint8_t sm[MLEN + CRYPTO_BYTES]; //签名后的 2420 + MLEN = 2453
+  20:main.c        ****   uint8_t m2[MLEN + CRYPTO_BYTES];
+  21:main.c        ****   uint8_t pk[CRYPTO_PUBLICKEYBYTES];//1312 = 5* 255+37
+  22:main.c        ****   uint8_t sk[CRYPTO_SECRETKEYBYTES];//2544
+  23:main.c        ****   //这是官方的seed用来验证
+  24:main.c        ****   //uint8_t SEED[SEEDBYTES]={0x7c,0x99,0x35,0xa0,0xb0,0x76,0x94,0xaa,0x0c,0x6d,0x10,0xe4,0xdb,0x6b,
+  25:main.c        **** 
+  26:main.c        ****   //这是batch0的seed
+  27:main.c        ****   //uint8_t SEED[SEEDBYTES] = {0x06,0x10,0x67,0x8f,0xf4,0xdc,0x31,0x28,0xe1,0x61,0x9f,0x91,0x5d,0xc
+  28:main.c        ****   //uint8_t SEED[SEEDBYTES] = {0xef,0x99,0x22,0x4a,0x03,0xa8,0x5a,0x46,0xef,0x11,0x54,0x74,0xec,0x5
+  29:main.c        ****   //uint8_t SEED[SEEDBYTES] = {0x9f,0x52,0xaf,0x92,0xca,0x16,0x5f,0xdc,0x38,0x78,0x8f,0x2b,0x59,0xb
+  30:main.c        ****   //uint8_t SEED[SEEDBYTES] = {0x61,0x0a,0xfb,0x64,0xbe,0x8c,0xc1,0xdf,0x28,0x8c,0xfb,0x01,0x6e,0xe
+  31:main.c        ****     uint8_t SEED[SEEDBYTES] = {0x3e,0x80,0x9e,0xc8,0xdd,0x0f,0xec,0x0d,0x91,0x1a,0x4e,0x3f,0xac,0x2
+  32:main.c        **** uint8_t recv_0(uint8_t* data, uint8_t dlen)
+  33:main.c        **** {
+  66              		.loc 1 33 1
+  67              		.cfi_startproc
+  68              		@ args = 0, pretend = 0, frame = 8
+  69              		@ frame_needed = 1, uses_anonymous_args = 0
+  70 0000 80B5     		push	{r7, lr}
+  71              	.LCFI0:
+  72              		.cfi_def_cfa_offset 8
+  73              		.cfi_offset 7, -8
+  74              		.cfi_offset 14, -4
+  75 0002 82B0     		sub	sp, sp, #8
+  76              	.LCFI1:
+  77              		.cfi_def_cfa_offset 16
+  78 0004 00AF     		add	r7, sp, #0
+  79              	.LCFI2:
+  80              		.cfi_def_cfa_register 7
+  81 0006 7860     		str	r0, [r7, #4]
+  82 0008 0B46     		mov	r3, r1
+  83 000a FB70     		strb	r3, [r7, #3]
+  34:main.c        ****   simpleserial_put('1', 4, sm+255*0);
+  84              		.loc 1 34 3
+  85 000c 044A     		ldr	r2, .L3
+  86 000e 0421     		movs	r1, #4
+  87 0010 3120     		movs	r0, #49
+  88 0012 FFF7FEFF 		bl	simpleserial_put
+  35:main.c        ****   return 0;
+  89              		.loc 1 35 10
+  90 0016 0023     		movs	r3, #0
+  36:main.c        **** }
+  91              		.loc 1 36 1
+  92 0018 1846     		mov	r0, r3
+  93 001a 0837     		adds	r7, r7, #8
+  94              	.LCFI3:
+  95              		.cfi_def_cfa_offset 8
+  96 001c BD46     		mov	sp, r7
+  97              	.LCFI4:
+  98              		.cfi_def_cfa_register 13
+  99              		@ sp needed
+ 100 001e 80BD     		pop	{r7, pc}
+ 101              	.L4:
+ 102              		.align	2
+ 103              	.L3:
+ 104 0020 00000000 		.word	sm
+ 105              		.cfi_endproc
+ 106              	.LFE3:
+ 108              		.section	.text.recv_9,"ax",%progbits
+ 109              		.align	1
+ 110              		.global	recv_9
+ 111              		.syntax unified
+ 112              		.thumb
+ 113              		.thumb_func
+ 114              		.fpu softvfp
+ 116              	recv_9:
+ 117              	.LFB4:
+  37:main.c        **** 
+  38:main.c        **** 
+  39:main.c        **** uint8_t recv_9(uint8_t* data, uint8_t dlen)
+  40:main.c        **** {
+ 118              		.loc 1 40 1
+ 119              		.cfi_startproc
+ 120              		@ args = 0, pretend = 0, frame = 8
+ 121              		@ frame_needed = 1, uses_anonymous_args = 0
+ 122 0000 80B5     		push	{r7, lr}
+ 123              	.LCFI5:
+ 124              		.cfi_def_cfa_offset 8
+ 125              		.cfi_offset 7, -8
+ 126              		.cfi_offset 14, -4
+ 127 0002 82B0     		sub	sp, sp, #8
+ 128              	.LCFI6:
+ 129              		.cfi_def_cfa_offset 16
+ 130 0004 00AF     		add	r7, sp, #0
+ 131              	.LCFI7:
+ 132              		.cfi_def_cfa_register 7
+ 133 0006 7860     		str	r0, [r7, #4]
+ 134 0008 0B46     		mov	r3, r1
+ 135 000a FB70     		strb	r3, [r7, #3]
+  41:main.c        ****   simpleserial_put('k', 4, sm+MLEN + CRYPTO_BYTES - 4);
+ 136              		.loc 1 41 3
+ 137 000c 054B     		ldr	r3, .L7
+ 138 000e 1A46     		mov	r2, r3
+ 139 0010 0421     		movs	r1, #4
+ 140 0012 6B20     		movs	r0, #107
+ 141 0014 FFF7FEFF 		bl	simpleserial_put
+  42:main.c        ****   return 0;
+ 142              		.loc 1 42 10
+ 143 0018 0023     		movs	r3, #0
+  43:main.c        **** }
+ 144              		.loc 1 43 1
+ 145 001a 1846     		mov	r0, r3
+ 146 001c 0837     		adds	r7, r7, #8
+ 147              	.LCFI8:
+ 148              		.cfi_def_cfa_offset 8
+ 149 001e BD46     		mov	sp, r7
+ 150              	.LCFI9:
+ 151              		.cfi_def_cfa_register 13
+ 152              		@ sp needed
+ 153 0020 80BD     		pop	{r7, pc}
+ 154              	.L8:
+ 155 0022 00BF     		.align	2
+ 156              	.L7:
+ 157 0024 91090000 		.word	sm+2449
+ 158              		.cfi_endproc
+ 159              	.LFE4:
+ 161              		.section	.text.recv_final,"ax",%progbits
+ 162              		.align	1
+ 163              		.global	recv_final
+ 164              		.syntax unified
+ 165              		.thumb
+ 166              		.thumb_func
+ 167              		.fpu softvfp
+ 169              	recv_final:
+ 170              	.LFB5:
+  44:main.c        **** 
+  45:main.c        **** uint8_t recv_final(uint8_t* data, uint8_t dlen)
+  46:main.c        **** { 
+ 171              		.loc 1 46 1
+ 172              		.cfi_startproc
+ 173              		@ args = 0, pretend = 0, frame = 16
+ 174              		@ frame_needed = 1, uses_anonymous_args = 0
+ 175 0000 80B5     		push	{r7, lr}
+ 176              	.LCFI10:
+ 177              		.cfi_def_cfa_offset 8
+ 178              		.cfi_offset 7, -8
+ 179              		.cfi_offset 14, -4
+ 180 0002 84B0     		sub	sp, sp, #16
+ 181              	.LCFI11:
+ 182              		.cfi_def_cfa_offset 24
+ 183 0004 00AF     		add	r7, sp, #0
+ 184              	.LCFI12:
+ 185              		.cfi_def_cfa_register 7
+ 186 0006 7860     		str	r0, [r7, #4]
+ 187 0008 0B46     		mov	r3, r1
+ 188 000a FB70     		strb	r3, [r7, #3]
+  47:main.c        ****   uint8_t dst[8] = {0};
+ 189              		.loc 1 47 11
+ 190 000c 0023     		movs	r3, #0
+ 191 000e BB60     		str	r3, [r7, #8]
+ 192 0010 0023     		movs	r3, #0
+ 193 0012 FB60     		str	r3, [r7, #12]
+ 194 0014 0A4B     		ldr	r3, .L11
+ 195 0016 1B68     		ldr	r3, [r3]
+  48:main.c        ****   memcpy(dst, sm+255*0, 4);
+ 196              		.loc 1 48 3
+ 197 0018 BB60     		str	r3, [r7, #8]
+  49:main.c        ****   memcpy(dst+4, sm+MLEN + CRYPTO_BYTES - 4, 4);
+ 198              		.loc 1 49 3
+ 199 001a 07F10803 		add	r3, r7, #8
+ 200 001e 0433     		adds	r3, r3, #4
+ 201 0020 084A     		ldr	r2, .L11+4
+ 202 0022 1268     		ldr	r2, [r2]	@ unaligned
+ 203 0024 1A60     		str	r2, [r3]	@ unaligned
+  50:main.c        ****   simpleserial_put('c', 8, dst);
+ 204              		.loc 1 50 3
+ 205 0026 07F10803 		add	r3, r7, #8
+ 206 002a 1A46     		mov	r2, r3
+ 207 002c 0821     		movs	r1, #8
+ 208 002e 6320     		movs	r0, #99
+ 209 0030 FFF7FEFF 		bl	simpleserial_put
+  51:main.c        ****   return 0;
+ 210              		.loc 1 51 10
+ 211 0034 0023     		movs	r3, #0
+  52:main.c        **** }
+ 212              		.loc 1 52 1
+ 213 0036 1846     		mov	r0, r3
+ 214 0038 1037     		adds	r7, r7, #16
+ 215              	.LCFI13:
+ 216              		.cfi_def_cfa_offset 8
+ 217 003a BD46     		mov	sp, r7
+ 218              	.LCFI14:
+ 219              		.cfi_def_cfa_register 13
+ 220              		@ sp needed
+ 221 003c 80BD     		pop	{r7, pc}
+ 222              	.L12:
+ 223 003e 00BF     		.align	2
+ 224              	.L11:
+ 225 0040 00000000 		.word	sm
+ 226 0044 91090000 		.word	sm+2449
+ 227              		.cfi_endproc
+ 228              	.LFE5:
+ 230              		.global	dst
+ 231              		.bss
+ 232              		.align	2
+ 235              	dst:
+ 236 2264 00000000 		.space	8
+ 236      00000000 
+ 237              		.global	rhoprime
+ 238              		.align	2
+ 241              	rhoprime:
+ 242 226c 00000000 		.space	48
+ 242      00000000 
+ 242      00000000 
+ 242      00000000 
+ 242      00000000 
+ 243              		.global	y
+ 244              		.align	2
+ 247              	y:
+ 248 229c 00000000 		.space	1024
+ 248      00000000 
+ 248      00000000 
+ 248      00000000 
+ 248      00000000 
+ 249              		.section	.text.main_func,"ax",%progbits
+ 250              		.align	1
+ 251              		.global	main_func
+ 252              		.syntax unified
+ 253              		.thumb
+ 254              		.thumb_func
+ 255              		.fpu softvfp
+ 257              	main_func:
+ 258              	.LFB6:
+  53:main.c        **** 
+  54:main.c        **** 
+  55:main.c        **** //////////////////////////////
+  56:main.c        **** 
+  57:main.c        **** uint8_t dst[8] = {0};
+  58:main.c        **** uint8_t rhoprime[CRHBYTES];
+  59:main.c        **** poly y;
+  60:main.c        **** uint8_t main_func(uint8_t* data, uint8_t dlen)
+  61:main.c        **** {
+ 259              		.loc 1 61 1
+ 260              		.cfi_startproc
+ 261              		@ args = 0, pretend = 0, frame = 16
+ 262              		@ frame_needed = 1, uses_anonymous_args = 0
+ 263 0000 F0B5     		push	{r4, r5, r6, r7, lr}
+ 264              	.LCFI15:
+ 265              		.cfi_def_cfa_offset 20
+ 266              		.cfi_offset 4, -20
+ 267              		.cfi_offset 5, -16
+ 268              		.cfi_offset 6, -12
+ 269              		.cfi_offset 7, -8
+ 270              		.cfi_offset 14, -4
+ 271 0002 85B0     		sub	sp, sp, #20
+ 272              	.LCFI16:
+ 273              		.cfi_def_cfa_offset 40
+ 274 0004 00AF     		add	r7, sp, #0
+ 275              	.LCFI17:
+ 276              		.cfi_def_cfa_register 7
+ 277 0006 7860     		str	r0, [r7, #4]
+ 278 0008 0B46     		mov	r3, r1
+ 279 000a FB70     		strb	r3, [r7, #3]
+  62:main.c        ****   
+  63:main.c        ****   unsigned int i, j;
+  64:main.c        ****   int ret;
+  65:main.c        ****   size_t mlen, smlen;
+  66:main.c        ****   uint16_t nonce=0;
+ 280              		.loc 1 66 12
+ 281 000c 0023     		movs	r3, #0
+ 282 000e FB81     		strh	r3, [r7, #14]	@ movhi
+  67:main.c        ****   
+  68:main.c        **** 
+  69:main.c        ****   ////////////////////////
+  70:main.c        ****   //!!!!!!!!!!!!!!!!!!!!!!!L*nonce + i
+  71:main.c        ****   
+  72:main.c        ****     //randombytes(m, MLEN); 随机数
+  73:main.c        ****     memcpy(rhoprime, data, CRHBYTES);
+ 283              		.loc 1 73 5
+ 284 0010 184A     		ldr	r2, .L16
+ 285 0012 7B68     		ldr	r3, [r7, #4]
+ 286 0014 1C46     		mov	r4, r3
+ 287 0016 1646     		mov	r6, r2
+ 288 0018 04F1300C 		add	ip, r4, #48
+ 289              	.L14:
+ 290 001c 3546     		mov	r5, r6
+ 291 001e 2346     		mov	r3, r4
+ 292 0020 1868     		ldr	r0, [r3]	@ unaligned
+ 293 0022 5968     		ldr	r1, [r3, #4]	@ unaligned
+ 294 0024 9A68     		ldr	r2, [r3, #8]	@ unaligned
+ 295 0026 DB68     		ldr	r3, [r3, #12]	@ unaligned
+ 296 0028 0FC5     		stmia	r5!, {r0, r1, r2, r3}
+ 297 002a 1034     		adds	r4, r4, #16
+ 298 002c 1036     		adds	r6, r6, #16
+ 299 002e 6445     		cmp	r4, ip
+ 300 0030 F4D1     		bne	.L14
+  74:main.c        ****     memcpy((uint8_t*)&nonce, data+CRHBYTES, 2);
+ 301              		.loc 1 74 34
+ 302 0032 7B68     		ldr	r3, [r7, #4]
+ 303 0034 3033     		adds	r3, r3, #48
+ 304 0036 1B88     		ldrh	r3, [r3]	@ unaligned
+ 305 0038 9BB2     		uxth	r3, r3
+ 306              		.loc 1 74 5
+ 307 003a FB81     		strh	r3, [r7, #14]	@ movhi
+  75:main.c        **** 
+  76:main.c        ****    
+  77:main.c        ****     poly_uniform_gamma1(&y, rhoprime, nonce);
+ 308              		.loc 1 77 5
+ 309 003c FB89     		ldrh	r3, [r7, #14]
+ 310 003e 1A46     		mov	r2, r3
+ 311 0040 0C49     		ldr	r1, .L16
+ 312 0042 0D48     		ldr	r0, .L16+4
+ 313 0044 FFF7FEFF 		bl	pqcrystals_dilithium2_ref_poly_uniform_gamma1
+  78:main.c        **** 
+  79:main.c        ****   
+  80:main.c        **** 
+  81:main.c        ****  
+  82:main.c        **** 
+  83:main.c        ****   	//simpleserial_put('r', 4, (uint8_t*)sm);// 这个没有问题
+  84:main.c        **** 
+  85:main.c        ****     
+  86:main.c        ****     memcpy(dst, (uint8_t *)y.coeffs, 16);
+ 314              		.loc 1 86 5
+ 315 0048 1022     		movs	r2, #16
+ 316 004a 0B49     		ldr	r1, .L16+4
+ 317 004c 0B48     		ldr	r0, .L16+8
+ 318 004e FFF7FEFF 		bl	memcpy
+  87:main.c        ****     memcpy(dst+16, (uint8_t *)y.coeffs + 256 * 4 - 16, 16);
+ 319              		.loc 1 87 5
+ 320 0052 0B4B     		ldr	r3, .L16+12
+ 321 0054 0B49     		ldr	r1, .L16+16
+ 322 0056 1022     		movs	r2, #16
+ 323 0058 1846     		mov	r0, r3
+ 324 005a FFF7FEFF 		bl	memcpy
+  88:main.c        ****     simpleserial_put('r', 32, (uint8_t *)dst);
+ 325              		.loc 1 88 5
+ 326 005e 074A     		ldr	r2, .L16+8
+ 327 0060 2021     		movs	r1, #32
+ 328 0062 7220     		movs	r0, #114
+ 329 0064 FFF7FEFF 		bl	simpleserial_put
+  89:main.c        ****     
+  90:main.c        ****   return 0;
+ 330              		.loc 1 90 10
+ 331 0068 0023     		movs	r3, #0
+  91:main.c        **** }
+ 332              		.loc 1 91 1
+ 333 006a 1846     		mov	r0, r3
+ 334 006c 1437     		adds	r7, r7, #20
+ 335              	.LCFI18:
+ 336              		.cfi_def_cfa_offset 20
+ 337 006e BD46     		mov	sp, r7
+ 338              	.LCFI19:
+ 339              		.cfi_def_cfa_register 13
+ 340              		@ sp needed
+ 341 0070 F0BD     		pop	{r4, r5, r6, r7, pc}
+ 342              	.L17:
+ 343 0072 00BF     		.align	2
+ 344              	.L16:
+ 345 0074 00000000 		.word	rhoprime
+ 346 0078 00000000 		.word	y
+ 347 007c 00000000 		.word	dst
+ 348 0080 10000000 		.word	dst+16
+ 349 0084 F0030000 		.word	y+1008
+ 350              		.cfi_endproc
+ 351              	.LFE6:
+ 353              		.section	.text.main,"ax",%progbits
+ 354              		.align	1
+ 355              		.global	main
+ 356              		.syntax unified
+ 357              		.thumb
+ 358              		.thumb_func
+ 359              		.fpu softvfp
+ 361              	main:
+ 362              	.LFB7:
+  92:main.c        **** 
+  93:main.c        **** 
+  94:main.c        **** int main(void)
+  95:main.c        **** {	
+ 363              		.loc 1 95 1
+ 364              		.cfi_startproc
+ 365              		@ args = 0, pretend = 0, frame = 0
+ 366              		@ frame_needed = 1, uses_anonymous_args = 0
+ 367 0000 80B5     		push	{r7, lr}
+ 368              	.LCFI20:
+ 369              		.cfi_def_cfa_offset 8
+ 370              		.cfi_offset 7, -8
+ 371              		.cfi_offset 14, -4
+ 372 0002 00AF     		add	r7, sp, #0
+ 373              	.LCFI21:
+ 374              		.cfi_def_cfa_register 7
+  96:main.c        **** 	platform_init();
+ 375              		.loc 1 96 2
+ 376 0004 FFF7FEFF 		bl	platform_init
+  97:main.c        **** 	init_uart();
+ 377              		.loc 1 97 2
+ 378 0008 FFF7FEFF 		bl	init_uart
+  98:main.c        **** 	trigger_setup();	
+ 379              		.loc 1 98 2
+ 380 000c FFF7FEFF 		bl	trigger_setup
+  99:main.c        **** 	simpleserial_init();
+ 381              		.loc 1 99 2
+ 382 0010 FFF7FEFF 		bl	simpleserial_init
+ 100:main.c        ****   
+ 101:main.c        ****   //59 + 32 = 91
+ 102:main.c        **** 	simpleserial_addcmd('z', 50, main_func);
+ 383              		.loc 1 102 2
+ 384 0014 034A     		ldr	r2, .L20
+ 385 0016 3221     		movs	r1, #50
+ 386 0018 7A20     		movs	r0, #122
+ 387 001a FFF7FEFF 		bl	simpleserial_addcmd
+ 388              	.L19:
+ 103:main.c        ****   //simpleserial_addcmd('a', 1, recv_0);
+ 104:main.c        ****   // simpleserial_addcmd('b', 1, recv_1);
+ 105:main.c        ****   // simpleserial_addcmd('c', 1, recv_2);
+ 106:main.c        ****   // simpleserial_addcmd('d', 1, recv_3);
+ 107:main.c        ****   // simpleserial_addcmd('e', 1, recv_4);
+ 108:main.c        ****   // simpleserial_addcmd('f', 1, recv_5);
+ 109:main.c        ****   // simpleserial_addcmd('g', 1, recv_6);
+ 110:main.c        ****   // simpleserial_addcmd('h', 1, recv_7);
+ 111:main.c        ****   // simpleserial_addcmd('i', 1, recv_8);
+ 112:main.c        ****   // simpleserial_addcmd('j', 1, recv_9);
+ 113:main.c        ****   // simpleserial_addcmd('b', 1, recv_final);
+ 114:main.c        **** 
+ 115:main.c        **** 
+ 116:main.c        **** 
+ 117:main.c        **** //  uint8_t data[2] = {1,0};
+ 118:main.c        **** // 	test(data);
+ 119:main.c        **** 	while(1)
+ 120:main.c        **** 		simpleserial_get();
+ 389              		.loc 1 120 3 discriminator 1
+ 390 001e FFF7FEFF 		bl	simpleserial_get
+ 391 0022 FCE7     		b	.L19
+ 392              	.L21:
+ 393              		.align	2
+ 394              	.L20:
+ 395 0024 00000000 		.word	main_func
+ 396              		.cfi_endproc
+ 397              	.LFE7:
+ 399              		.text
+ 400              	.Letext0:
+ 401              		.file 2 "c:\\users\\h3c\\chipwh~1\\cw\\home\\portable\\armgcc\\lib\\gcc\\arm-none-eabi\\10.2.1\\in
+ 402              		.file 3 "c:\\users\\h3c\\chipwh~1\\cw\\home\\portable\\armgcc\\arm-none-eabi\\include\\machine\\_d
+ 403              		.file 4 "c:\\users\\h3c\\chipwh~1\\cw\\home\\portable\\armgcc\\arm-none-eabi\\include\\sys\\_stdin
+ 404              		.file 5 "poly.h"
+DEFINED SYMBOLS
+                            *ABS*:00000000 main.c
+C:\Users\H3C\AppData\Local\Temp\ccwzPxkV.s:20     .bss:00000000 m
+C:\Users\H3C\AppData\Local\Temp\ccwzPxkV.s:17     .bss:00000000 $d
+C:\Users\H3C\AppData\Local\Temp\ccwzPxkV.s:26     .bss:00000024 sm
+C:\Users\H3C\AppData\Local\Temp\ccwzPxkV.s:32     .bss:000009bc m2
+C:\Users\H3C\AppData\Local\Temp\ccwzPxkV.s:38     .bss:00001354 pk
+C:\Users\H3C\AppData\Local\Temp\ccwzPxkV.s:44     .bss:00001874 sk
+C:\Users\H3C\AppData\Local\Temp\ccwzPxkV.s:51     .data:00000000 SEED
+C:\Users\H3C\AppData\Local\Temp\ccwzPxkV.s:48     .data:00000000 $d
+C:\Users\H3C\AppData\Local\Temp\ccwzPxkV.s:55     .text.recv_0:00000000 $t
+C:\Users\H3C\AppData\Local\Temp\ccwzPxkV.s:63     .text.recv_0:00000000 recv_0
+C:\Users\H3C\AppData\Local\Temp\ccwzPxkV.s:104    .text.recv_0:00000020 $d
+C:\Users\H3C\AppData\Local\Temp\ccwzPxkV.s:109    .text.recv_9:00000000 $t
+C:\Users\H3C\AppData\Local\Temp\ccwzPxkV.s:116    .text.recv_9:00000000 recv_9
+C:\Users\H3C\AppData\Local\Temp\ccwzPxkV.s:157    .text.recv_9:00000024 $d
+C:\Users\H3C\AppData\Local\Temp\ccwzPxkV.s:162    .text.recv_final:00000000 $t
+C:\Users\H3C\AppData\Local\Temp\ccwzPxkV.s:169    .text.recv_final:00000000 recv_final
+C:\Users\H3C\AppData\Local\Temp\ccwzPxkV.s:225    .text.recv_final:00000040 $d
+C:\Users\H3C\AppData\Local\Temp\ccwzPxkV.s:235    .bss:00002264 dst
+C:\Users\H3C\AppData\Local\Temp\ccwzPxkV.s:241    .bss:0000226c rhoprime
+C:\Users\H3C\AppData\Local\Temp\ccwzPxkV.s:247    .bss:0000229c y
+C:\Users\H3C\AppData\Local\Temp\ccwzPxkV.s:250    .text.main_func:00000000 $t
+C:\Users\H3C\AppData\Local\Temp\ccwzPxkV.s:257    .text.main_func:00000000 main_func
+C:\Users\H3C\AppData\Local\Temp\ccwzPxkV.s:345    .text.main_func:00000074 $d
+C:\Users\H3C\AppData\Local\Temp\ccwzPxkV.s:354    .text.main:00000000 $t
+C:\Users\H3C\AppData\Local\Temp\ccwzPxkV.s:361    .text.main:00000000 main
+C:\Users\H3C\AppData\Local\Temp\ccwzPxkV.s:395    .text.main:00000024 $d
+
+UNDEFINED SYMBOLS
+simpleserial_put
+pqcrystals_dilithium2_ref_poly_uniform_gamma1
+memcpy
+platform_init
+init_uart
+trigger_setup
+simpleserial_init
+simpleserial_addcmd
+simpleserial_get

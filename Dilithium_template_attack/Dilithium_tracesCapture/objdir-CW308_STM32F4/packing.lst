@@ -1,0 +1,1478 @@
+   1              		.cpu cortex-m4
+   2              		.eabi_attribute 20, 1
+   3              		.eabi_attribute 21, 1
+   4              		.eabi_attribute 23, 3
+   5              		.eabi_attribute 24, 1
+   6              		.eabi_attribute 25, 1
+   7              		.eabi_attribute 26, 1
+   8              		.eabi_attribute 30, 6
+   9              		.eabi_attribute 34, 1
+  10              		.eabi_attribute 18, 4
+  11              		.file	"packing.c"
+  12              		.text
+  13              	.Ltext0:
+  14              		.cfi_sections	.debug_frame
+  15              		.section	.text.pqcrystals_dilithium2_ref_pack_pk,"ax",%progbits
+  16              		.align	1
+  17              		.global	pqcrystals_dilithium2_ref_pack_pk
+  18              		.arch armv7e-m
+  19              		.syntax unified
+  20              		.thumb
+  21              		.thumb_func
+  22              		.fpu softvfp
+  24              	pqcrystals_dilithium2_ref_pack_pk:
+  25              	.LFB0:
+  26              		.file 1 "packing.c"
+   1:packing.c     **** #include "params.h"
+   2:packing.c     **** #include "packing.h"
+   3:packing.c     **** #include "polyvec.h"
+   4:packing.c     **** #include "poly.h"
+   5:packing.c     **** 
+   6:packing.c     **** /*************************************************
+   7:packing.c     **** * Name:        pack_pk
+   8:packing.c     **** *
+   9:packing.c     **** * Description: Bit-pack public key pk = (rho, t1).
+  10:packing.c     **** *
+  11:packing.c     **** * Arguments:   - uint8_t pk[]: output byte array
+  12:packing.c     **** *              - const uint8_t rho[]: byte array containing rho
+  13:packing.c     **** *              - const polyveck *t1: pointer to vector t1
+  14:packing.c     **** **************************************************/
+  15:packing.c     **** void pack_pk(uint8_t pk[CRYPTO_PUBLICKEYBYTES],
+  16:packing.c     ****              const uint8_t rho[SEEDBYTES],
+  17:packing.c     ****              const polyveck *t1)
+  18:packing.c     **** {
+  27              		.loc 1 18 1
+  28              		.cfi_startproc
+  29              		@ args = 0, pretend = 0, frame = 24
+  30              		@ frame_needed = 1, uses_anonymous_args = 0
+  31 0000 80B5     		push	{r7, lr}
+  32              	.LCFI0:
+  33              		.cfi_def_cfa_offset 8
+  34              		.cfi_offset 7, -8
+  35              		.cfi_offset 14, -4
+  36 0002 86B0     		sub	sp, sp, #24
+  37              	.LCFI1:
+  38              		.cfi_def_cfa_offset 32
+  39 0004 00AF     		add	r7, sp, #0
+  40              	.LCFI2:
+  41              		.cfi_def_cfa_register 7
+  42 0006 F860     		str	r0, [r7, #12]
+  43 0008 B960     		str	r1, [r7, #8]
+  44 000a 7A60     		str	r2, [r7, #4]
+  19:packing.c     ****   unsigned int i;
+  20:packing.c     **** 
+  21:packing.c     ****   for(i = 0; i < SEEDBYTES; ++i)
+  45              		.loc 1 21 9
+  46 000c 0023     		movs	r3, #0
+  47 000e 7B61     		str	r3, [r7, #20]
+  48              		.loc 1 21 3
+  49 0010 0AE0     		b	.L2
+  50              	.L3:
+  22:packing.c     ****     pk[i] = rho[i];
+  51              		.loc 1 22 16 discriminator 3
+  52 0012 BA68     		ldr	r2, [r7, #8]
+  53 0014 7B69     		ldr	r3, [r7, #20]
+  54 0016 1A44     		add	r2, r2, r3
+  55              		.loc 1 22 7 discriminator 3
+  56 0018 F968     		ldr	r1, [r7, #12]
+  57 001a 7B69     		ldr	r3, [r7, #20]
+  58 001c 0B44     		add	r3, r3, r1
+  59              		.loc 1 22 16 discriminator 3
+  60 001e 1278     		ldrb	r2, [r2]	@ zero_extendqisi2
+  61              		.loc 1 22 11 discriminator 3
+  62 0020 1A70     		strb	r2, [r3]
+  21:packing.c     ****     pk[i] = rho[i];
+  63              		.loc 1 21 29 discriminator 3
+  64 0022 7B69     		ldr	r3, [r7, #20]
+  65 0024 0133     		adds	r3, r3, #1
+  66 0026 7B61     		str	r3, [r7, #20]
+  67              	.L2:
+  21:packing.c     ****     pk[i] = rho[i];
+  68              		.loc 1 21 3 discriminator 1
+  69 0028 7B69     		ldr	r3, [r7, #20]
+  70 002a 1F2B     		cmp	r3, #31
+  71 002c F1D9     		bls	.L3
+  23:packing.c     ****   pk += SEEDBYTES;
+  72              		.loc 1 23 6
+  73 002e FB68     		ldr	r3, [r7, #12]
+  74 0030 2033     		adds	r3, r3, #32
+  75 0032 FB60     		str	r3, [r7, #12]
+  24:packing.c     **** 
+  25:packing.c     ****   for(i = 0; i < K; ++i)
+  76              		.loc 1 25 9
+  77 0034 0023     		movs	r3, #0
+  78 0036 7B61     		str	r3, [r7, #20]
+  79              		.loc 1 25 3
+  80 0038 11E0     		b	.L4
+  81              	.L5:
+  26:packing.c     ****     polyt1_pack(pk + i*POLYT1_PACKEDBYTES, &t1->vec[i]);
+  82              		.loc 1 26 23 discriminator 3
+  83 003a 7A69     		ldr	r2, [r7, #20]
+  84 003c 1346     		mov	r3, r2
+  85 003e 9B00     		lsls	r3, r3, #2
+  86 0040 1344     		add	r3, r3, r2
+  87 0042 9B01     		lsls	r3, r3, #6
+  88 0044 1A46     		mov	r2, r3
+  89              		.loc 1 26 5 discriminator 3
+  90 0046 FB68     		ldr	r3, [r7, #12]
+  91 0048 9818     		adds	r0, r3, r2
+  92 004a 7B69     		ldr	r3, [r7, #20]
+  93 004c 9B02     		lsls	r3, r3, #10
+  94 004e 7A68     		ldr	r2, [r7, #4]
+  95 0050 1344     		add	r3, r3, r2
+  96 0052 1946     		mov	r1, r3
+  97 0054 FFF7FEFF 		bl	pqcrystals_dilithium2_ref_polyt1_pack
+  25:packing.c     ****     polyt1_pack(pk + i*POLYT1_PACKEDBYTES, &t1->vec[i]);
+  98              		.loc 1 25 21 discriminator 3
+  99 0058 7B69     		ldr	r3, [r7, #20]
+ 100 005a 0133     		adds	r3, r3, #1
+ 101 005c 7B61     		str	r3, [r7, #20]
+ 102              	.L4:
+  25:packing.c     ****     polyt1_pack(pk + i*POLYT1_PACKEDBYTES, &t1->vec[i]);
+ 103              		.loc 1 25 3 discriminator 1
+ 104 005e 7B69     		ldr	r3, [r7, #20]
+ 105 0060 032B     		cmp	r3, #3
+ 106 0062 EAD9     		bls	.L5
+  27:packing.c     **** }
+ 107              		.loc 1 27 1
+ 108 0064 00BF     		nop
+ 109 0066 00BF     		nop
+ 110 0068 1837     		adds	r7, r7, #24
+ 111              	.LCFI3:
+ 112              		.cfi_def_cfa_offset 8
+ 113 006a BD46     		mov	sp, r7
+ 114              	.LCFI4:
+ 115              		.cfi_def_cfa_register 13
+ 116              		@ sp needed
+ 117 006c 80BD     		pop	{r7, pc}
+ 118              		.cfi_endproc
+ 119              	.LFE0:
+ 121              		.section	.text.pqcrystals_dilithium2_ref_unpack_pk,"ax",%progbits
+ 122              		.align	1
+ 123              		.global	pqcrystals_dilithium2_ref_unpack_pk
+ 124              		.syntax unified
+ 125              		.thumb
+ 126              		.thumb_func
+ 127              		.fpu softvfp
+ 129              	pqcrystals_dilithium2_ref_unpack_pk:
+ 130              	.LFB1:
+  28:packing.c     **** 
+  29:packing.c     **** /*************************************************
+  30:packing.c     **** * Name:        unpack_pk
+  31:packing.c     **** *
+  32:packing.c     **** * Description: Unpack public key pk = (rho, t1).
+  33:packing.c     **** *
+  34:packing.c     **** * Arguments:   - const uint8_t rho[]: output byte array for rho
+  35:packing.c     **** *              - const polyveck *t1: pointer to output vector t1
+  36:packing.c     **** *              - uint8_t pk[]: byte array containing bit-packed pk
+  37:packing.c     **** **************************************************/
+  38:packing.c     **** void unpack_pk(uint8_t rho[SEEDBYTES],
+  39:packing.c     ****                polyveck *t1,
+  40:packing.c     ****                const uint8_t pk[CRYPTO_PUBLICKEYBYTES])
+  41:packing.c     **** {
+ 131              		.loc 1 41 1
+ 132              		.cfi_startproc
+ 133              		@ args = 0, pretend = 0, frame = 24
+ 134              		@ frame_needed = 1, uses_anonymous_args = 0
+ 135 0000 80B5     		push	{r7, lr}
+ 136              	.LCFI5:
+ 137              		.cfi_def_cfa_offset 8
+ 138              		.cfi_offset 7, -8
+ 139              		.cfi_offset 14, -4
+ 140 0002 86B0     		sub	sp, sp, #24
+ 141              	.LCFI6:
+ 142              		.cfi_def_cfa_offset 32
+ 143 0004 00AF     		add	r7, sp, #0
+ 144              	.LCFI7:
+ 145              		.cfi_def_cfa_register 7
+ 146 0006 F860     		str	r0, [r7, #12]
+ 147 0008 B960     		str	r1, [r7, #8]
+ 148 000a 7A60     		str	r2, [r7, #4]
+  42:packing.c     ****   unsigned int i;
+  43:packing.c     **** 
+  44:packing.c     ****   for(i = 0; i < SEEDBYTES; ++i)
+ 149              		.loc 1 44 9
+ 150 000c 0023     		movs	r3, #0
+ 151 000e 7B61     		str	r3, [r7, #20]
+ 152              		.loc 1 44 3
+ 153 0010 0AE0     		b	.L7
+ 154              	.L8:
+  45:packing.c     ****     rho[i] = pk[i];
+ 155              		.loc 1 45 16 discriminator 3
+ 156 0012 7A68     		ldr	r2, [r7, #4]
+ 157 0014 7B69     		ldr	r3, [r7, #20]
+ 158 0016 1A44     		add	r2, r2, r3
+ 159              		.loc 1 45 8 discriminator 3
+ 160 0018 F968     		ldr	r1, [r7, #12]
+ 161 001a 7B69     		ldr	r3, [r7, #20]
+ 162 001c 0B44     		add	r3, r3, r1
+ 163              		.loc 1 45 16 discriminator 3
+ 164 001e 1278     		ldrb	r2, [r2]	@ zero_extendqisi2
+ 165              		.loc 1 45 12 discriminator 3
+ 166 0020 1A70     		strb	r2, [r3]
+  44:packing.c     ****     rho[i] = pk[i];
+ 167              		.loc 1 44 29 discriminator 3
+ 168 0022 7B69     		ldr	r3, [r7, #20]
+ 169 0024 0133     		adds	r3, r3, #1
+ 170 0026 7B61     		str	r3, [r7, #20]
+ 171              	.L7:
+  44:packing.c     ****     rho[i] = pk[i];
+ 172              		.loc 1 44 3 discriminator 1
+ 173 0028 7B69     		ldr	r3, [r7, #20]
+ 174 002a 1F2B     		cmp	r3, #31
+ 175 002c F1D9     		bls	.L8
+  46:packing.c     ****   pk += SEEDBYTES;
+ 176              		.loc 1 46 6
+ 177 002e 7B68     		ldr	r3, [r7, #4]
+ 178 0030 2033     		adds	r3, r3, #32
+ 179 0032 7B60     		str	r3, [r7, #4]
+  47:packing.c     **** 
+  48:packing.c     ****   for(i = 0; i < K; ++i)
+ 180              		.loc 1 48 9
+ 181 0034 0023     		movs	r3, #0
+ 182 0036 7B61     		str	r3, [r7, #20]
+ 183              		.loc 1 48 3
+ 184 0038 11E0     		b	.L9
+ 185              	.L10:
+  49:packing.c     ****     polyt1_unpack(&t1->vec[i], pk + i*POLYT1_PACKEDBYTES);
+ 186              		.loc 1 49 5 discriminator 3
+ 187 003a 7B69     		ldr	r3, [r7, #20]
+ 188 003c 9B02     		lsls	r3, r3, #10
+ 189 003e BA68     		ldr	r2, [r7, #8]
+ 190 0040 D018     		adds	r0, r2, r3
+ 191              		.loc 1 49 38 discriminator 3
+ 192 0042 7A69     		ldr	r2, [r7, #20]
+ 193 0044 1346     		mov	r3, r2
+ 194 0046 9B00     		lsls	r3, r3, #2
+ 195 0048 1344     		add	r3, r3, r2
+ 196 004a 9B01     		lsls	r3, r3, #6
+ 197 004c 1A46     		mov	r2, r3
+ 198              		.loc 1 49 5 discriminator 3
+ 199 004e 7B68     		ldr	r3, [r7, #4]
+ 200 0050 1344     		add	r3, r3, r2
+ 201 0052 1946     		mov	r1, r3
+ 202 0054 FFF7FEFF 		bl	pqcrystals_dilithium2_ref_polyt1_unpack
+  48:packing.c     ****     polyt1_unpack(&t1->vec[i], pk + i*POLYT1_PACKEDBYTES);
+ 203              		.loc 1 48 21 discriminator 3
+ 204 0058 7B69     		ldr	r3, [r7, #20]
+ 205 005a 0133     		adds	r3, r3, #1
+ 206 005c 7B61     		str	r3, [r7, #20]
+ 207              	.L9:
+  48:packing.c     ****     polyt1_unpack(&t1->vec[i], pk + i*POLYT1_PACKEDBYTES);
+ 208              		.loc 1 48 3 discriminator 1
+ 209 005e 7B69     		ldr	r3, [r7, #20]
+ 210 0060 032B     		cmp	r3, #3
+ 211 0062 EAD9     		bls	.L10
+  50:packing.c     **** }
+ 212              		.loc 1 50 1
+ 213 0064 00BF     		nop
+ 214 0066 00BF     		nop
+ 215 0068 1837     		adds	r7, r7, #24
+ 216              	.LCFI8:
+ 217              		.cfi_def_cfa_offset 8
+ 218 006a BD46     		mov	sp, r7
+ 219              	.LCFI9:
+ 220              		.cfi_def_cfa_register 13
+ 221              		@ sp needed
+ 222 006c 80BD     		pop	{r7, pc}
+ 223              		.cfi_endproc
+ 224              	.LFE1:
+ 226              		.section	.text.pqcrystals_dilithium2_ref_pack_sk,"ax",%progbits
+ 227              		.align	1
+ 228              		.global	pqcrystals_dilithium2_ref_pack_sk
+ 229              		.syntax unified
+ 230              		.thumb
+ 231              		.thumb_func
+ 232              		.fpu softvfp
+ 234              	pqcrystals_dilithium2_ref_pack_sk:
+ 235              	.LFB2:
+  51:packing.c     **** 
+  52:packing.c     **** /*************************************************
+  53:packing.c     **** * Name:        pack_sk
+  54:packing.c     **** *
+  55:packing.c     **** * Description: Bit-pack secret key sk = (rho, tr, key, t0, s1, s2).
+  56:packing.c     **** *
+  57:packing.c     **** * Arguments:   - uint8_t sk[]: output byte array
+  58:packing.c     **** *              - const uint8_t rho[]: byte array containing rho
+  59:packing.c     **** *              - const uint8_t tr[]: byte array containing tr
+  60:packing.c     **** *              - const uint8_t key[]: byte array containing key
+  61:packing.c     **** *              - const polyveck *t0: pointer to vector t0
+  62:packing.c     **** *              - const polyvecl *s1: pointer to vector s1
+  63:packing.c     **** *              - const polyveck *s2: pointer to vector s2
+  64:packing.c     **** **************************************************/
+  65:packing.c     **** void pack_sk(uint8_t sk[CRYPTO_SECRETKEYBYTES],
+  66:packing.c     ****              const uint8_t rho[SEEDBYTES],
+  67:packing.c     ****              const uint8_t tr[CRHBYTES],
+  68:packing.c     ****              const uint8_t key[SEEDBYTES],
+  69:packing.c     ****              const polyveck *t0,
+  70:packing.c     ****              const polyvecl *s1,
+  71:packing.c     ****              const polyveck *s2)
+  72:packing.c     **** {
+ 236              		.loc 1 72 1
+ 237              		.cfi_startproc
+ 238              		@ args = 12, pretend = 0, frame = 24
+ 239              		@ frame_needed = 1, uses_anonymous_args = 0
+ 240 0000 80B5     		push	{r7, lr}
+ 241              	.LCFI10:
+ 242              		.cfi_def_cfa_offset 8
+ 243              		.cfi_offset 7, -8
+ 244              		.cfi_offset 14, -4
+ 245 0002 86B0     		sub	sp, sp, #24
+ 246              	.LCFI11:
+ 247              		.cfi_def_cfa_offset 32
+ 248 0004 00AF     		add	r7, sp, #0
+ 249              	.LCFI12:
+ 250              		.cfi_def_cfa_register 7
+ 251 0006 F860     		str	r0, [r7, #12]
+ 252 0008 B960     		str	r1, [r7, #8]
+ 253 000a 7A60     		str	r2, [r7, #4]
+ 254 000c 3B60     		str	r3, [r7]
+  73:packing.c     ****   unsigned int i;
+  74:packing.c     **** 
+  75:packing.c     ****   for(i = 0; i < SEEDBYTES; ++i)
+ 255              		.loc 1 75 9
+ 256 000e 0023     		movs	r3, #0
+ 257 0010 7B61     		str	r3, [r7, #20]
+ 258              		.loc 1 75 3
+ 259 0012 0AE0     		b	.L12
+ 260              	.L13:
+  76:packing.c     ****     sk[i] = rho[i];
+ 261              		.loc 1 76 16 discriminator 3
+ 262 0014 BA68     		ldr	r2, [r7, #8]
+ 263 0016 7B69     		ldr	r3, [r7, #20]
+ 264 0018 1A44     		add	r2, r2, r3
+ 265              		.loc 1 76 7 discriminator 3
+ 266 001a F968     		ldr	r1, [r7, #12]
+ 267 001c 7B69     		ldr	r3, [r7, #20]
+ 268 001e 0B44     		add	r3, r3, r1
+ 269              		.loc 1 76 16 discriminator 3
+ 270 0020 1278     		ldrb	r2, [r2]	@ zero_extendqisi2
+ 271              		.loc 1 76 11 discriminator 3
+ 272 0022 1A70     		strb	r2, [r3]
+  75:packing.c     ****     sk[i] = rho[i];
+ 273              		.loc 1 75 29 discriminator 3
+ 274 0024 7B69     		ldr	r3, [r7, #20]
+ 275 0026 0133     		adds	r3, r3, #1
+ 276 0028 7B61     		str	r3, [r7, #20]
+ 277              	.L12:
+  75:packing.c     ****     sk[i] = rho[i];
+ 278              		.loc 1 75 3 discriminator 1
+ 279 002a 7B69     		ldr	r3, [r7, #20]
+ 280 002c 1F2B     		cmp	r3, #31
+ 281 002e F1D9     		bls	.L13
+  77:packing.c     ****   sk += SEEDBYTES;
+ 282              		.loc 1 77 6
+ 283 0030 FB68     		ldr	r3, [r7, #12]
+ 284 0032 2033     		adds	r3, r3, #32
+ 285 0034 FB60     		str	r3, [r7, #12]
+  78:packing.c     **** 
+  79:packing.c     ****   for(i = 0; i < SEEDBYTES; ++i)
+ 286              		.loc 1 79 9
+ 287 0036 0023     		movs	r3, #0
+ 288 0038 7B61     		str	r3, [r7, #20]
+ 289              		.loc 1 79 3
+ 290 003a 0AE0     		b	.L14
+ 291              	.L15:
+  80:packing.c     ****     sk[i] = key[i];
+ 292              		.loc 1 80 16 discriminator 3
+ 293 003c 3A68     		ldr	r2, [r7]
+ 294 003e 7B69     		ldr	r3, [r7, #20]
+ 295 0040 1A44     		add	r2, r2, r3
+ 296              		.loc 1 80 7 discriminator 3
+ 297 0042 F968     		ldr	r1, [r7, #12]
+ 298 0044 7B69     		ldr	r3, [r7, #20]
+ 299 0046 0B44     		add	r3, r3, r1
+ 300              		.loc 1 80 16 discriminator 3
+ 301 0048 1278     		ldrb	r2, [r2]	@ zero_extendqisi2
+ 302              		.loc 1 80 11 discriminator 3
+ 303 004a 1A70     		strb	r2, [r3]
+  79:packing.c     ****     sk[i] = key[i];
+ 304              		.loc 1 79 29 discriminator 3
+ 305 004c 7B69     		ldr	r3, [r7, #20]
+ 306 004e 0133     		adds	r3, r3, #1
+ 307 0050 7B61     		str	r3, [r7, #20]
+ 308              	.L14:
+  79:packing.c     ****     sk[i] = key[i];
+ 309              		.loc 1 79 3 discriminator 1
+ 310 0052 7B69     		ldr	r3, [r7, #20]
+ 311 0054 1F2B     		cmp	r3, #31
+ 312 0056 F1D9     		bls	.L15
+  81:packing.c     ****   sk += SEEDBYTES;
+ 313              		.loc 1 81 6
+ 314 0058 FB68     		ldr	r3, [r7, #12]
+ 315 005a 2033     		adds	r3, r3, #32
+ 316 005c FB60     		str	r3, [r7, #12]
+  82:packing.c     **** 
+  83:packing.c     ****   for(i = 0; i < CRHBYTES; ++i)
+ 317              		.loc 1 83 9
+ 318 005e 0023     		movs	r3, #0
+ 319 0060 7B61     		str	r3, [r7, #20]
+ 320              		.loc 1 83 3
+ 321 0062 0AE0     		b	.L16
+ 322              	.L17:
+  84:packing.c     ****     sk[i] = tr[i];
+ 323              		.loc 1 84 15 discriminator 3
+ 324 0064 7A68     		ldr	r2, [r7, #4]
+ 325 0066 7B69     		ldr	r3, [r7, #20]
+ 326 0068 1A44     		add	r2, r2, r3
+ 327              		.loc 1 84 7 discriminator 3
+ 328 006a F968     		ldr	r1, [r7, #12]
+ 329 006c 7B69     		ldr	r3, [r7, #20]
+ 330 006e 0B44     		add	r3, r3, r1
+ 331              		.loc 1 84 15 discriminator 3
+ 332 0070 1278     		ldrb	r2, [r2]	@ zero_extendqisi2
+ 333              		.loc 1 84 11 discriminator 3
+ 334 0072 1A70     		strb	r2, [r3]
+  83:packing.c     ****     sk[i] = tr[i];
+ 335              		.loc 1 83 28 discriminator 3
+ 336 0074 7B69     		ldr	r3, [r7, #20]
+ 337 0076 0133     		adds	r3, r3, #1
+ 338 0078 7B61     		str	r3, [r7, #20]
+ 339              	.L16:
+  83:packing.c     ****     sk[i] = tr[i];
+ 340              		.loc 1 83 3 discriminator 1
+ 341 007a 7B69     		ldr	r3, [r7, #20]
+ 342 007c 2F2B     		cmp	r3, #47
+ 343 007e F1D9     		bls	.L17
+  85:packing.c     ****   sk += CRHBYTES;
+ 344              		.loc 1 85 6
+ 345 0080 FB68     		ldr	r3, [r7, #12]
+ 346 0082 3033     		adds	r3, r3, #48
+ 347 0084 FB60     		str	r3, [r7, #12]
+  86:packing.c     **** 
+  87:packing.c     ****   for(i = 0; i < L; ++i)
+ 348              		.loc 1 87 9
+ 349 0086 0023     		movs	r3, #0
+ 350 0088 7B61     		str	r3, [r7, #20]
+ 351              		.loc 1 87 3
+ 352 008a 11E0     		b	.L18
+ 353              	.L19:
+  88:packing.c     ****     polyeta_pack(sk + i*POLYETA_PACKEDBYTES, &s1->vec[i]);
+ 354              		.loc 1 88 24 discriminator 3
+ 355 008c 7A69     		ldr	r2, [r7, #20]
+ 356 008e 1346     		mov	r3, r2
+ 357 0090 5B00     		lsls	r3, r3, #1
+ 358 0092 1344     		add	r3, r3, r2
+ 359 0094 5B01     		lsls	r3, r3, #5
+ 360 0096 1A46     		mov	r2, r3
+ 361              		.loc 1 88 5 discriminator 3
+ 362 0098 FB68     		ldr	r3, [r7, #12]
+ 363 009a 9818     		adds	r0, r3, r2
+ 364 009c 7B69     		ldr	r3, [r7, #20]
+ 365 009e 9B02     		lsls	r3, r3, #10
+ 366 00a0 7A6A     		ldr	r2, [r7, #36]
+ 367 00a2 1344     		add	r3, r3, r2
+ 368 00a4 1946     		mov	r1, r3
+ 369 00a6 FFF7FEFF 		bl	pqcrystals_dilithium2_ref_polyeta_pack
+  87:packing.c     ****     polyeta_pack(sk + i*POLYETA_PACKEDBYTES, &s1->vec[i]);
+ 370              		.loc 1 87 21 discriminator 3
+ 371 00aa 7B69     		ldr	r3, [r7, #20]
+ 372 00ac 0133     		adds	r3, r3, #1
+ 373 00ae 7B61     		str	r3, [r7, #20]
+ 374              	.L18:
+  87:packing.c     ****     polyeta_pack(sk + i*POLYETA_PACKEDBYTES, &s1->vec[i]);
+ 375              		.loc 1 87 3 discriminator 1
+ 376 00b0 7B69     		ldr	r3, [r7, #20]
+ 377 00b2 032B     		cmp	r3, #3
+ 378 00b4 EAD9     		bls	.L19
+  89:packing.c     ****   sk += L*POLYETA_PACKEDBYTES;
+ 379              		.loc 1 89 6
+ 380 00b6 FB68     		ldr	r3, [r7, #12]
+ 381 00b8 03F5C073 		add	r3, r3, #384
+ 382 00bc FB60     		str	r3, [r7, #12]
+  90:packing.c     **** 
+  91:packing.c     ****   for(i = 0; i < K; ++i)
+ 383              		.loc 1 91 9
+ 384 00be 0023     		movs	r3, #0
+ 385 00c0 7B61     		str	r3, [r7, #20]
+ 386              		.loc 1 91 3
+ 387 00c2 11E0     		b	.L20
+ 388              	.L21:
+  92:packing.c     ****     polyeta_pack(sk + i*POLYETA_PACKEDBYTES, &s2->vec[i]);
+ 389              		.loc 1 92 24 discriminator 3
+ 390 00c4 7A69     		ldr	r2, [r7, #20]
+ 391 00c6 1346     		mov	r3, r2
+ 392 00c8 5B00     		lsls	r3, r3, #1
+ 393 00ca 1344     		add	r3, r3, r2
+ 394 00cc 5B01     		lsls	r3, r3, #5
+ 395 00ce 1A46     		mov	r2, r3
+ 396              		.loc 1 92 5 discriminator 3
+ 397 00d0 FB68     		ldr	r3, [r7, #12]
+ 398 00d2 9818     		adds	r0, r3, r2
+ 399 00d4 7B69     		ldr	r3, [r7, #20]
+ 400 00d6 9B02     		lsls	r3, r3, #10
+ 401 00d8 BA6A     		ldr	r2, [r7, #40]
+ 402 00da 1344     		add	r3, r3, r2
+ 403 00dc 1946     		mov	r1, r3
+ 404 00de FFF7FEFF 		bl	pqcrystals_dilithium2_ref_polyeta_pack
+  91:packing.c     ****     polyeta_pack(sk + i*POLYETA_PACKEDBYTES, &s2->vec[i]);
+ 405              		.loc 1 91 21 discriminator 3
+ 406 00e2 7B69     		ldr	r3, [r7, #20]
+ 407 00e4 0133     		adds	r3, r3, #1
+ 408 00e6 7B61     		str	r3, [r7, #20]
+ 409              	.L20:
+  91:packing.c     ****     polyeta_pack(sk + i*POLYETA_PACKEDBYTES, &s2->vec[i]);
+ 410              		.loc 1 91 3 discriminator 1
+ 411 00e8 7B69     		ldr	r3, [r7, #20]
+ 412 00ea 032B     		cmp	r3, #3
+ 413 00ec EAD9     		bls	.L21
+  93:packing.c     ****   sk += K*POLYETA_PACKEDBYTES;
+ 414              		.loc 1 93 6
+ 415 00ee FB68     		ldr	r3, [r7, #12]
+ 416 00f0 03F5C073 		add	r3, r3, #384
+ 417 00f4 FB60     		str	r3, [r7, #12]
+  94:packing.c     **** 
+  95:packing.c     ****   for(i = 0; i < K; ++i)
+ 418              		.loc 1 95 9
+ 419 00f6 0023     		movs	r3, #0
+ 420 00f8 7B61     		str	r3, [r7, #20]
+ 421              		.loc 1 95 3
+ 422 00fa 10E0     		b	.L22
+ 423              	.L23:
+  96:packing.c     ****     polyt0_pack(sk + i*POLYT0_PACKEDBYTES, &t0->vec[i]);
+ 424              		.loc 1 96 23 discriminator 3
+ 425 00fc 7B69     		ldr	r3, [r7, #20]
+ 426 00fe 4FF4D072 		mov	r2, #416
+ 427 0102 02FB03F3 		mul	r3, r2, r3
+ 428              		.loc 1 96 5 discriminator 3
+ 429 0106 FA68     		ldr	r2, [r7, #12]
+ 430 0108 D018     		adds	r0, r2, r3
+ 431 010a 7B69     		ldr	r3, [r7, #20]
+ 432 010c 9B02     		lsls	r3, r3, #10
+ 433 010e 3A6A     		ldr	r2, [r7, #32]
+ 434 0110 1344     		add	r3, r3, r2
+ 435 0112 1946     		mov	r1, r3
+ 436 0114 FFF7FEFF 		bl	pqcrystals_dilithium2_ref_polyt0_pack
+  95:packing.c     ****     polyt0_pack(sk + i*POLYT0_PACKEDBYTES, &t0->vec[i]);
+ 437              		.loc 1 95 21 discriminator 3
+ 438 0118 7B69     		ldr	r3, [r7, #20]
+ 439 011a 0133     		adds	r3, r3, #1
+ 440 011c 7B61     		str	r3, [r7, #20]
+ 441              	.L22:
+  95:packing.c     ****     polyt0_pack(sk + i*POLYT0_PACKEDBYTES, &t0->vec[i]);
+ 442              		.loc 1 95 3 discriminator 1
+ 443 011e 7B69     		ldr	r3, [r7, #20]
+ 444 0120 032B     		cmp	r3, #3
+ 445 0122 EBD9     		bls	.L23
+  97:packing.c     **** }
+ 446              		.loc 1 97 1
+ 447 0124 00BF     		nop
+ 448 0126 00BF     		nop
+ 449 0128 1837     		adds	r7, r7, #24
+ 450              	.LCFI13:
+ 451              		.cfi_def_cfa_offset 8
+ 452 012a BD46     		mov	sp, r7
+ 453              	.LCFI14:
+ 454              		.cfi_def_cfa_register 13
+ 455              		@ sp needed
+ 456 012c 80BD     		pop	{r7, pc}
+ 457              		.cfi_endproc
+ 458              	.LFE2:
+ 460              		.section	.text.pqcrystals_dilithium2_ref_upack_sk,"ax",%progbits
+ 461              		.align	1
+ 462              		.global	pqcrystals_dilithium2_ref_upack_sk
+ 463              		.syntax unified
+ 464              		.thumb
+ 465              		.thumb_func
+ 466              		.fpu softvfp
+ 468              	pqcrystals_dilithium2_ref_upack_sk:
+ 469              	.LFB3:
+  98:packing.c     **** 
+  99:packing.c     **** /*************************************************
+ 100:packing.c     **** * Name:        unpack_sk
+ 101:packing.c     **** *
+ 102:packing.c     **** * Description: Unpack secret key sk = (rho, tr, key, t0, s1, s2).
+ 103:packing.c     **** *
+ 104:packing.c     **** * Arguments:   - const uint8_t rho[]: output byte array for rho
+ 105:packing.c     **** *              - const uint8_t tr[]: output byte array for tr
+ 106:packing.c     **** *              - const uint8_t key[]: output byte array for key
+ 107:packing.c     **** *              - const polyveck *t0: pointer to output vector t0
+ 108:packing.c     **** *              - const polyvecl *s1: pointer to output vector s1
+ 109:packing.c     **** *              - const polyveck *s2: pointer to output vector s2
+ 110:packing.c     **** *              - uint8_t sk[]: byte array containing bit-packed sk
+ 111:packing.c     **** **************************************************/
+ 112:packing.c     **** void unpack_sk(uint8_t rho[SEEDBYTES],
+ 113:packing.c     ****                uint8_t tr[CRHBYTES],
+ 114:packing.c     ****                uint8_t key[SEEDBYTES],
+ 115:packing.c     ****                polyveck *t0,
+ 116:packing.c     ****                polyvecl *s1,
+ 117:packing.c     ****                polyveck *s2,
+ 118:packing.c     ****                const uint8_t sk[CRYPTO_SECRETKEYBYTES])
+ 119:packing.c     **** {
+ 470              		.loc 1 119 1
+ 471              		.cfi_startproc
+ 472              		@ args = 12, pretend = 0, frame = 24
+ 473              		@ frame_needed = 1, uses_anonymous_args = 0
+ 474 0000 80B5     		push	{r7, lr}
+ 475              	.LCFI15:
+ 476              		.cfi_def_cfa_offset 8
+ 477              		.cfi_offset 7, -8
+ 478              		.cfi_offset 14, -4
+ 479 0002 86B0     		sub	sp, sp, #24
+ 480              	.LCFI16:
+ 481              		.cfi_def_cfa_offset 32
+ 482 0004 00AF     		add	r7, sp, #0
+ 483              	.LCFI17:
+ 484              		.cfi_def_cfa_register 7
+ 485 0006 F860     		str	r0, [r7, #12]
+ 486 0008 B960     		str	r1, [r7, #8]
+ 487 000a 7A60     		str	r2, [r7, #4]
+ 488 000c 3B60     		str	r3, [r7]
+ 120:packing.c     ****   unsigned int i;
+ 121:packing.c     **** 
+ 122:packing.c     ****   for(i = 0; i < SEEDBYTES; ++i)
+ 489              		.loc 1 122 9
+ 490 000e 0023     		movs	r3, #0
+ 491 0010 7B61     		str	r3, [r7, #20]
+ 492              		.loc 1 122 3
+ 493 0012 0AE0     		b	.L25
+ 494              	.L26:
+ 123:packing.c     ****     rho[i] = sk[i];
+ 495              		.loc 1 123 16 discriminator 3
+ 496 0014 BA6A     		ldr	r2, [r7, #40]
+ 497 0016 7B69     		ldr	r3, [r7, #20]
+ 498 0018 1A44     		add	r2, r2, r3
+ 499              		.loc 1 123 8 discriminator 3
+ 500 001a F968     		ldr	r1, [r7, #12]
+ 501 001c 7B69     		ldr	r3, [r7, #20]
+ 502 001e 0B44     		add	r3, r3, r1
+ 503              		.loc 1 123 16 discriminator 3
+ 504 0020 1278     		ldrb	r2, [r2]	@ zero_extendqisi2
+ 505              		.loc 1 123 12 discriminator 3
+ 506 0022 1A70     		strb	r2, [r3]
+ 122:packing.c     ****     rho[i] = sk[i];
+ 507              		.loc 1 122 29 discriminator 3
+ 508 0024 7B69     		ldr	r3, [r7, #20]
+ 509 0026 0133     		adds	r3, r3, #1
+ 510 0028 7B61     		str	r3, [r7, #20]
+ 511              	.L25:
+ 122:packing.c     ****     rho[i] = sk[i];
+ 512              		.loc 1 122 3 discriminator 1
+ 513 002a 7B69     		ldr	r3, [r7, #20]
+ 514 002c 1F2B     		cmp	r3, #31
+ 515 002e F1D9     		bls	.L26
+ 124:packing.c     ****   sk += SEEDBYTES;
+ 516              		.loc 1 124 6
+ 517 0030 BB6A     		ldr	r3, [r7, #40]
+ 518 0032 2033     		adds	r3, r3, #32
+ 519 0034 BB62     		str	r3, [r7, #40]
+ 125:packing.c     **** 
+ 126:packing.c     ****   for(i = 0; i < SEEDBYTES; ++i)
+ 520              		.loc 1 126 9
+ 521 0036 0023     		movs	r3, #0
+ 522 0038 7B61     		str	r3, [r7, #20]
+ 523              		.loc 1 126 3
+ 524 003a 0AE0     		b	.L27
+ 525              	.L28:
+ 127:packing.c     ****     key[i] = sk[i];
+ 526              		.loc 1 127 16 discriminator 3
+ 527 003c BA6A     		ldr	r2, [r7, #40]
+ 528 003e 7B69     		ldr	r3, [r7, #20]
+ 529 0040 1A44     		add	r2, r2, r3
+ 530              		.loc 1 127 8 discriminator 3
+ 531 0042 7968     		ldr	r1, [r7, #4]
+ 532 0044 7B69     		ldr	r3, [r7, #20]
+ 533 0046 0B44     		add	r3, r3, r1
+ 534              		.loc 1 127 16 discriminator 3
+ 535 0048 1278     		ldrb	r2, [r2]	@ zero_extendqisi2
+ 536              		.loc 1 127 12 discriminator 3
+ 537 004a 1A70     		strb	r2, [r3]
+ 126:packing.c     ****     key[i] = sk[i];
+ 538              		.loc 1 126 29 discriminator 3
+ 539 004c 7B69     		ldr	r3, [r7, #20]
+ 540 004e 0133     		adds	r3, r3, #1
+ 541 0050 7B61     		str	r3, [r7, #20]
+ 542              	.L27:
+ 126:packing.c     ****     key[i] = sk[i];
+ 543              		.loc 1 126 3 discriminator 1
+ 544 0052 7B69     		ldr	r3, [r7, #20]
+ 545 0054 1F2B     		cmp	r3, #31
+ 546 0056 F1D9     		bls	.L28
+ 128:packing.c     ****   sk += SEEDBYTES;
+ 547              		.loc 1 128 6
+ 548 0058 BB6A     		ldr	r3, [r7, #40]
+ 549 005a 2033     		adds	r3, r3, #32
+ 550 005c BB62     		str	r3, [r7, #40]
+ 129:packing.c     **** 
+ 130:packing.c     ****   for(i = 0; i < CRHBYTES; ++i)
+ 551              		.loc 1 130 9
+ 552 005e 0023     		movs	r3, #0
+ 553 0060 7B61     		str	r3, [r7, #20]
+ 554              		.loc 1 130 3
+ 555 0062 0AE0     		b	.L29
+ 556              	.L30:
+ 131:packing.c     ****     tr[i] = sk[i];
+ 557              		.loc 1 131 15 discriminator 3
+ 558 0064 BA6A     		ldr	r2, [r7, #40]
+ 559 0066 7B69     		ldr	r3, [r7, #20]
+ 560 0068 1A44     		add	r2, r2, r3
+ 561              		.loc 1 131 7 discriminator 3
+ 562 006a B968     		ldr	r1, [r7, #8]
+ 563 006c 7B69     		ldr	r3, [r7, #20]
+ 564 006e 0B44     		add	r3, r3, r1
+ 565              		.loc 1 131 15 discriminator 3
+ 566 0070 1278     		ldrb	r2, [r2]	@ zero_extendqisi2
+ 567              		.loc 1 131 11 discriminator 3
+ 568 0072 1A70     		strb	r2, [r3]
+ 130:packing.c     ****     tr[i] = sk[i];
+ 569              		.loc 1 130 28 discriminator 3
+ 570 0074 7B69     		ldr	r3, [r7, #20]
+ 571 0076 0133     		adds	r3, r3, #1
+ 572 0078 7B61     		str	r3, [r7, #20]
+ 573              	.L29:
+ 130:packing.c     ****     tr[i] = sk[i];
+ 574              		.loc 1 130 3 discriminator 1
+ 575 007a 7B69     		ldr	r3, [r7, #20]
+ 576 007c 2F2B     		cmp	r3, #47
+ 577 007e F1D9     		bls	.L30
+ 132:packing.c     ****   sk += CRHBYTES;
+ 578              		.loc 1 132 6
+ 579 0080 BB6A     		ldr	r3, [r7, #40]
+ 580 0082 3033     		adds	r3, r3, #48
+ 581 0084 BB62     		str	r3, [r7, #40]
+ 133:packing.c     **** 
+ 134:packing.c     ****   for(i=0; i < L; ++i)
+ 582              		.loc 1 134 8
+ 583 0086 0023     		movs	r3, #0
+ 584 0088 7B61     		str	r3, [r7, #20]
+ 585              		.loc 1 134 3
+ 586 008a 11E0     		b	.L31
+ 587              	.L32:
+ 135:packing.c     ****     polyeta_unpack(&s1->vec[i], sk + i*POLYETA_PACKEDBYTES);
+ 588              		.loc 1 135 5 discriminator 3
+ 589 008c 7B69     		ldr	r3, [r7, #20]
+ 590 008e 9B02     		lsls	r3, r3, #10
+ 591 0090 3A6A     		ldr	r2, [r7, #32]
+ 592 0092 D018     		adds	r0, r2, r3
+ 593              		.loc 1 135 39 discriminator 3
+ 594 0094 7A69     		ldr	r2, [r7, #20]
+ 595 0096 1346     		mov	r3, r2
+ 596 0098 5B00     		lsls	r3, r3, #1
+ 597 009a 1344     		add	r3, r3, r2
+ 598 009c 5B01     		lsls	r3, r3, #5
+ 599 009e 1A46     		mov	r2, r3
+ 600              		.loc 1 135 5 discriminator 3
+ 601 00a0 BB6A     		ldr	r3, [r7, #40]
+ 602 00a2 1344     		add	r3, r3, r2
+ 603 00a4 1946     		mov	r1, r3
+ 604 00a6 FFF7FEFF 		bl	pqcrystals_dilithium2_ref_polyeta_unpack
+ 134:packing.c     ****     polyeta_unpack(&s1->vec[i], sk + i*POLYETA_PACKEDBYTES);
+ 605              		.loc 1 134 19 discriminator 3
+ 606 00aa 7B69     		ldr	r3, [r7, #20]
+ 607 00ac 0133     		adds	r3, r3, #1
+ 608 00ae 7B61     		str	r3, [r7, #20]
+ 609              	.L31:
+ 134:packing.c     ****     polyeta_unpack(&s1->vec[i], sk + i*POLYETA_PACKEDBYTES);
+ 610              		.loc 1 134 3 discriminator 1
+ 611 00b0 7B69     		ldr	r3, [r7, #20]
+ 612 00b2 032B     		cmp	r3, #3
+ 613 00b4 EAD9     		bls	.L32
+ 136:packing.c     ****   sk += L*POLYETA_PACKEDBYTES;
+ 614              		.loc 1 136 6
+ 615 00b6 BB6A     		ldr	r3, [r7, #40]
+ 616 00b8 03F5C073 		add	r3, r3, #384
+ 617 00bc BB62     		str	r3, [r7, #40]
+ 137:packing.c     **** 
+ 138:packing.c     ****   for(i=0; i < K; ++i)
+ 618              		.loc 1 138 8
+ 619 00be 0023     		movs	r3, #0
+ 620 00c0 7B61     		str	r3, [r7, #20]
+ 621              		.loc 1 138 3
+ 622 00c2 11E0     		b	.L33
+ 623              	.L34:
+ 139:packing.c     ****     polyeta_unpack(&s2->vec[i], sk + i*POLYETA_PACKEDBYTES);
+ 624              		.loc 1 139 5 discriminator 3
+ 625 00c4 7B69     		ldr	r3, [r7, #20]
+ 626 00c6 9B02     		lsls	r3, r3, #10
+ 627 00c8 7A6A     		ldr	r2, [r7, #36]
+ 628 00ca D018     		adds	r0, r2, r3
+ 629              		.loc 1 139 39 discriminator 3
+ 630 00cc 7A69     		ldr	r2, [r7, #20]
+ 631 00ce 1346     		mov	r3, r2
+ 632 00d0 5B00     		lsls	r3, r3, #1
+ 633 00d2 1344     		add	r3, r3, r2
+ 634 00d4 5B01     		lsls	r3, r3, #5
+ 635 00d6 1A46     		mov	r2, r3
+ 636              		.loc 1 139 5 discriminator 3
+ 637 00d8 BB6A     		ldr	r3, [r7, #40]
+ 638 00da 1344     		add	r3, r3, r2
+ 639 00dc 1946     		mov	r1, r3
+ 640 00de FFF7FEFF 		bl	pqcrystals_dilithium2_ref_polyeta_unpack
+ 138:packing.c     ****     polyeta_unpack(&s2->vec[i], sk + i*POLYETA_PACKEDBYTES);
+ 641              		.loc 1 138 19 discriminator 3
+ 642 00e2 7B69     		ldr	r3, [r7, #20]
+ 643 00e4 0133     		adds	r3, r3, #1
+ 644 00e6 7B61     		str	r3, [r7, #20]
+ 645              	.L33:
+ 138:packing.c     ****     polyeta_unpack(&s2->vec[i], sk + i*POLYETA_PACKEDBYTES);
+ 646              		.loc 1 138 3 discriminator 1
+ 647 00e8 7B69     		ldr	r3, [r7, #20]
+ 648 00ea 032B     		cmp	r3, #3
+ 649 00ec EAD9     		bls	.L34
+ 140:packing.c     ****   sk += K*POLYETA_PACKEDBYTES;
+ 650              		.loc 1 140 6
+ 651 00ee BB6A     		ldr	r3, [r7, #40]
+ 652 00f0 03F5C073 		add	r3, r3, #384
+ 653 00f4 BB62     		str	r3, [r7, #40]
+ 141:packing.c     **** 
+ 142:packing.c     ****   for(i=0; i < K; ++i)
+ 654              		.loc 1 142 8
+ 655 00f6 0023     		movs	r3, #0
+ 656 00f8 7B61     		str	r3, [r7, #20]
+ 657              		.loc 1 142 3
+ 658 00fa 10E0     		b	.L35
+ 659              	.L36:
+ 143:packing.c     ****     polyt0_unpack(&t0->vec[i], sk + i*POLYT0_PACKEDBYTES);
+ 660              		.loc 1 143 5 discriminator 3
+ 661 00fc 7B69     		ldr	r3, [r7, #20]
+ 662 00fe 9B02     		lsls	r3, r3, #10
+ 663 0100 3A68     		ldr	r2, [r7]
+ 664 0102 D018     		adds	r0, r2, r3
+ 665              		.loc 1 143 38 discriminator 3
+ 666 0104 7B69     		ldr	r3, [r7, #20]
+ 667 0106 4FF4D072 		mov	r2, #416
+ 668 010a 02FB03F3 		mul	r3, r2, r3
+ 669              		.loc 1 143 5 discriminator 3
+ 670 010e BA6A     		ldr	r2, [r7, #40]
+ 671 0110 1344     		add	r3, r3, r2
+ 672 0112 1946     		mov	r1, r3
+ 673 0114 FFF7FEFF 		bl	pqcrystals_dilithium2_ref_polyt0_unpack
+ 142:packing.c     ****     polyt0_unpack(&t0->vec[i], sk + i*POLYT0_PACKEDBYTES);
+ 674              		.loc 1 142 19 discriminator 3
+ 675 0118 7B69     		ldr	r3, [r7, #20]
+ 676 011a 0133     		adds	r3, r3, #1
+ 677 011c 7B61     		str	r3, [r7, #20]
+ 678              	.L35:
+ 142:packing.c     ****     polyt0_unpack(&t0->vec[i], sk + i*POLYT0_PACKEDBYTES);
+ 679              		.loc 1 142 3 discriminator 1
+ 680 011e 7B69     		ldr	r3, [r7, #20]
+ 681 0120 032B     		cmp	r3, #3
+ 682 0122 EBD9     		bls	.L36
+ 144:packing.c     **** }
+ 683              		.loc 1 144 1
+ 684 0124 00BF     		nop
+ 685 0126 00BF     		nop
+ 686 0128 1837     		adds	r7, r7, #24
+ 687              	.LCFI18:
+ 688              		.cfi_def_cfa_offset 8
+ 689 012a BD46     		mov	sp, r7
+ 690              	.LCFI19:
+ 691              		.cfi_def_cfa_register 13
+ 692              		@ sp needed
+ 693 012c 80BD     		pop	{r7, pc}
+ 694              		.cfi_endproc
+ 695              	.LFE3:
+ 697              		.section	.text.pqcrystals_dilithium2_ref_pack_sig,"ax",%progbits
+ 698              		.align	1
+ 699              		.global	pqcrystals_dilithium2_ref_pack_sig
+ 700              		.syntax unified
+ 701              		.thumb
+ 702              		.thumb_func
+ 703              		.fpu softvfp
+ 705              	pqcrystals_dilithium2_ref_pack_sig:
+ 706              	.LFB4:
+ 145:packing.c     **** 
+ 146:packing.c     **** /*************************************************
+ 147:packing.c     **** * Name:        pack_sig
+ 148:packing.c     **** *
+ 149:packing.c     **** * Description: Bit-pack signature sig = (c, z, h).
+ 150:packing.c     **** *
+ 151:packing.c     **** * Arguments:   - uint8_t sig[]: output byte array
+ 152:packing.c     **** *              - const uint8_t *c: pointer to challenge hash length SEEDBYTES
+ 153:packing.c     **** *              - const polyvecl *z: pointer to vector z
+ 154:packing.c     **** *              - const polyveck *h: pointer to hint vector h
+ 155:packing.c     **** **************************************************/
+ 156:packing.c     **** void pack_sig(uint8_t sig[CRYPTO_BYTES],
+ 157:packing.c     ****               const uint8_t c[SEEDBYTES],
+ 158:packing.c     ****               const polyvecl *z,
+ 159:packing.c     ****               const polyveck *h)
+ 160:packing.c     **** {
+ 707              		.loc 1 160 1
+ 708              		.cfi_startproc
+ 709              		@ args = 0, pretend = 0, frame = 32
+ 710              		@ frame_needed = 1, uses_anonymous_args = 0
+ 711 0000 80B5     		push	{r7, lr}
+ 712              	.LCFI20:
+ 713              		.cfi_def_cfa_offset 8
+ 714              		.cfi_offset 7, -8
+ 715              		.cfi_offset 14, -4
+ 716 0002 88B0     		sub	sp, sp, #32
+ 717              	.LCFI21:
+ 718              		.cfi_def_cfa_offset 40
+ 719 0004 00AF     		add	r7, sp, #0
+ 720              	.LCFI22:
+ 721              		.cfi_def_cfa_register 7
+ 722 0006 F860     		str	r0, [r7, #12]
+ 723 0008 B960     		str	r1, [r7, #8]
+ 724 000a 7A60     		str	r2, [r7, #4]
+ 725 000c 3B60     		str	r3, [r7]
+ 161:packing.c     ****   unsigned int i, j, k;
+ 162:packing.c     **** 
+ 163:packing.c     ****   for(i=0; i < SEEDBYTES; ++i)
+ 726              		.loc 1 163 8
+ 727 000e 0023     		movs	r3, #0
+ 728 0010 FB61     		str	r3, [r7, #28]
+ 729              		.loc 1 163 3
+ 730 0012 0AE0     		b	.L38
+ 731              	.L39:
+ 164:packing.c     ****     sig[i] = c[i];
+ 732              		.loc 1 164 15 discriminator 3
+ 733 0014 BA68     		ldr	r2, [r7, #8]
+ 734 0016 FB69     		ldr	r3, [r7, #28]
+ 735 0018 1A44     		add	r2, r2, r3
+ 736              		.loc 1 164 8 discriminator 3
+ 737 001a F968     		ldr	r1, [r7, #12]
+ 738 001c FB69     		ldr	r3, [r7, #28]
+ 739 001e 0B44     		add	r3, r3, r1
+ 740              		.loc 1 164 15 discriminator 3
+ 741 0020 1278     		ldrb	r2, [r2]	@ zero_extendqisi2
+ 742              		.loc 1 164 12 discriminator 3
+ 743 0022 1A70     		strb	r2, [r3]
+ 163:packing.c     ****     sig[i] = c[i];
+ 744              		.loc 1 163 27 discriminator 3
+ 745 0024 FB69     		ldr	r3, [r7, #28]
+ 746 0026 0133     		adds	r3, r3, #1
+ 747 0028 FB61     		str	r3, [r7, #28]
+ 748              	.L38:
+ 163:packing.c     ****     sig[i] = c[i];
+ 749              		.loc 1 163 3 discriminator 1
+ 750 002a FB69     		ldr	r3, [r7, #28]
+ 751 002c 1F2B     		cmp	r3, #31
+ 752 002e F1D9     		bls	.L39
+ 165:packing.c     ****   sig += SEEDBYTES;
+ 753              		.loc 1 165 7
+ 754 0030 FB68     		ldr	r3, [r7, #12]
+ 755 0032 2033     		adds	r3, r3, #32
+ 756 0034 FB60     		str	r3, [r7, #12]
+ 166:packing.c     **** 
+ 167:packing.c     ****   for(i = 0; i < L; ++i)
+ 757              		.loc 1 167 9
+ 758 0036 0023     		movs	r3, #0
+ 759 0038 FB61     		str	r3, [r7, #28]
+ 760              		.loc 1 167 3
+ 761 003a 11E0     		b	.L40
+ 762              	.L41:
+ 168:packing.c     ****     polyz_pack(sig + i*POLYZ_PACKEDBYTES, &z->vec[i]);
+ 763              		.loc 1 168 23 discriminator 3
+ 764 003c FA69     		ldr	r2, [r7, #28]
+ 765 003e 1346     		mov	r3, r2
+ 766 0040 DB00     		lsls	r3, r3, #3
+ 767 0042 1344     		add	r3, r3, r2
+ 768 0044 9B01     		lsls	r3, r3, #6
+ 769 0046 1A46     		mov	r2, r3
+ 770              		.loc 1 168 5 discriminator 3
+ 771 0048 FB68     		ldr	r3, [r7, #12]
+ 772 004a 9818     		adds	r0, r3, r2
+ 773 004c FB69     		ldr	r3, [r7, #28]
+ 774 004e 9B02     		lsls	r3, r3, #10
+ 775 0050 7A68     		ldr	r2, [r7, #4]
+ 776 0052 1344     		add	r3, r3, r2
+ 777 0054 1946     		mov	r1, r3
+ 778 0056 FFF7FEFF 		bl	pqcrystals_dilithium2_ref_polyz_pack
+ 167:packing.c     ****     polyz_pack(sig + i*POLYZ_PACKEDBYTES, &z->vec[i]);
+ 779              		.loc 1 167 21 discriminator 3
+ 780 005a FB69     		ldr	r3, [r7, #28]
+ 781 005c 0133     		adds	r3, r3, #1
+ 782 005e FB61     		str	r3, [r7, #28]
+ 783              	.L40:
+ 167:packing.c     ****     polyz_pack(sig + i*POLYZ_PACKEDBYTES, &z->vec[i]);
+ 784              		.loc 1 167 3 discriminator 1
+ 785 0060 FB69     		ldr	r3, [r7, #28]
+ 786 0062 032B     		cmp	r3, #3
+ 787 0064 EAD9     		bls	.L41
+ 169:packing.c     ****   sig += L*POLYZ_PACKEDBYTES;
+ 788              		.loc 1 169 7
+ 789 0066 FB68     		ldr	r3, [r7, #12]
+ 790 0068 03F51063 		add	r3, r3, #2304
+ 791 006c FB60     		str	r3, [r7, #12]
+ 170:packing.c     **** 
+ 171:packing.c     ****   /* Encode h */
+ 172:packing.c     ****   for(i = 0; i < OMEGA + K; ++i)
+ 792              		.loc 1 172 9
+ 793 006e 0023     		movs	r3, #0
+ 794 0070 FB61     		str	r3, [r7, #28]
+ 795              		.loc 1 172 3
+ 796 0072 07E0     		b	.L42
+ 797              	.L43:
+ 173:packing.c     ****     sig[i] = 0;
+ 798              		.loc 1 173 8 discriminator 3
+ 799 0074 FA68     		ldr	r2, [r7, #12]
+ 800 0076 FB69     		ldr	r3, [r7, #28]
+ 801 0078 1344     		add	r3, r3, r2
+ 802              		.loc 1 173 12 discriminator 3
+ 803 007a 0022     		movs	r2, #0
+ 804 007c 1A70     		strb	r2, [r3]
+ 172:packing.c     ****     sig[i] = 0;
+ 805              		.loc 1 172 29 discriminator 3
+ 806 007e FB69     		ldr	r3, [r7, #28]
+ 807 0080 0133     		adds	r3, r3, #1
+ 808 0082 FB61     		str	r3, [r7, #28]
+ 809              	.L42:
+ 172:packing.c     ****     sig[i] = 0;
+ 810              		.loc 1 172 3 discriminator 1
+ 811 0084 FB69     		ldr	r3, [r7, #28]
+ 812 0086 532B     		cmp	r3, #83
+ 813 0088 F4D9     		bls	.L43
+ 174:packing.c     **** 
+ 175:packing.c     ****   k = 0;
+ 814              		.loc 1 175 5
+ 815 008a 0023     		movs	r3, #0
+ 816 008c 7B61     		str	r3, [r7, #20]
+ 176:packing.c     ****   for(i = 0; i < K; ++i) {
+ 817              		.loc 1 176 9
+ 818 008e 0023     		movs	r3, #0
+ 819 0090 FB61     		str	r3, [r7, #28]
+ 820              		.loc 1 176 3
+ 821 0092 23E0     		b	.L44
+ 822              	.L48:
+ 177:packing.c     ****     for(j = 0; j < N; ++j)
+ 823              		.loc 1 177 11
+ 824 0094 0023     		movs	r3, #0
+ 825 0096 BB61     		str	r3, [r7, #24]
+ 826              		.loc 1 177 5
+ 827 0098 13E0     		b	.L45
+ 828              	.L47:
+ 178:packing.c     ****       if(h->vec[i].coeffs[j] != 0)
+ 829              		.loc 1 178 26
+ 830 009a 3B68     		ldr	r3, [r7]
+ 831 009c FA69     		ldr	r2, [r7, #28]
+ 832 009e 1102     		lsls	r1, r2, #8
+ 833 00a0 BA69     		ldr	r2, [r7, #24]
+ 834 00a2 0A44     		add	r2, r2, r1
+ 835 00a4 53F82230 		ldr	r3, [r3, r2, lsl #2]
+ 836              		.loc 1 178 9
+ 837 00a8 002B     		cmp	r3, #0
+ 838 00aa 07D0     		beq	.L46
+ 179:packing.c     ****         sig[k++] = j;
+ 839              		.loc 1 179 14
+ 840 00ac 7B69     		ldr	r3, [r7, #20]
+ 841 00ae 5A1C     		adds	r2, r3, #1
+ 842 00b0 7A61     		str	r2, [r7, #20]
+ 843              		.loc 1 179 12
+ 844 00b2 FA68     		ldr	r2, [r7, #12]
+ 845 00b4 1344     		add	r3, r3, r2
+ 846              		.loc 1 179 18
+ 847 00b6 BA69     		ldr	r2, [r7, #24]
+ 848 00b8 D2B2     		uxtb	r2, r2
+ 849 00ba 1A70     		strb	r2, [r3]
+ 850              	.L46:
+ 177:packing.c     ****     for(j = 0; j < N; ++j)
+ 851              		.loc 1 177 23 discriminator 2
+ 852 00bc BB69     		ldr	r3, [r7, #24]
+ 853 00be 0133     		adds	r3, r3, #1
+ 854 00c0 BB61     		str	r3, [r7, #24]
+ 855              	.L45:
+ 177:packing.c     ****     for(j = 0; j < N; ++j)
+ 856              		.loc 1 177 5 discriminator 1
+ 857 00c2 BB69     		ldr	r3, [r7, #24]
+ 858 00c4 FF2B     		cmp	r3, #255
+ 859 00c6 E8D9     		bls	.L47
+ 180:packing.c     **** 
+ 181:packing.c     ****     sig[OMEGA + i] = k;
+ 860              		.loc 1 181 15 discriminator 2
+ 861 00c8 FB69     		ldr	r3, [r7, #28]
+ 862 00ca 5033     		adds	r3, r3, #80
+ 863              		.loc 1 181 8 discriminator 2
+ 864 00cc FA68     		ldr	r2, [r7, #12]
+ 865 00ce 1344     		add	r3, r3, r2
+ 866              		.loc 1 181 20 discriminator 2
+ 867 00d0 7A69     		ldr	r2, [r7, #20]
+ 868 00d2 D2B2     		uxtb	r2, r2
+ 869 00d4 1A70     		strb	r2, [r3]
+ 176:packing.c     ****     for(j = 0; j < N; ++j)
+ 870              		.loc 1 176 21 discriminator 2
+ 871 00d6 FB69     		ldr	r3, [r7, #28]
+ 872 00d8 0133     		adds	r3, r3, #1
+ 873 00da FB61     		str	r3, [r7, #28]
+ 874              	.L44:
+ 176:packing.c     ****     for(j = 0; j < N; ++j)
+ 875              		.loc 1 176 3 discriminator 1
+ 876 00dc FB69     		ldr	r3, [r7, #28]
+ 877 00de 032B     		cmp	r3, #3
+ 878 00e0 D8D9     		bls	.L48
+ 182:packing.c     ****   }
+ 183:packing.c     **** }
+ 879              		.loc 1 183 1
+ 880 00e2 00BF     		nop
+ 881 00e4 00BF     		nop
+ 882 00e6 2037     		adds	r7, r7, #32
+ 883              	.LCFI23:
+ 884              		.cfi_def_cfa_offset 8
+ 885 00e8 BD46     		mov	sp, r7
+ 886              	.LCFI24:
+ 887              		.cfi_def_cfa_register 13
+ 888              		@ sp needed
+ 889 00ea 80BD     		pop	{r7, pc}
+ 890              		.cfi_endproc
+ 891              	.LFE4:
+ 893              		.section	.text.pqcrystals_dilithium2_ref_unpack_sig,"ax",%progbits
+ 894              		.align	1
+ 895              		.global	pqcrystals_dilithium2_ref_unpack_sig
+ 896              		.syntax unified
+ 897              		.thumb
+ 898              		.thumb_func
+ 899              		.fpu softvfp
+ 901              	pqcrystals_dilithium2_ref_unpack_sig:
+ 902              	.LFB5:
+ 184:packing.c     **** 
+ 185:packing.c     **** /*************************************************
+ 186:packing.c     **** * Name:        unpack_sig
+ 187:packing.c     **** *
+ 188:packing.c     **** * Description: Unpack signature sig = (c, z, h).
+ 189:packing.c     **** *
+ 190:packing.c     **** * Arguments:   - uint8_t *c: pointer to output challenge hash
+ 191:packing.c     **** *              - polyvecl *z: pointer to output vector z
+ 192:packing.c     **** *              - polyveck *h: pointer to output hint vector h
+ 193:packing.c     **** *              - const uint8_t sig[]: byte array containing
+ 194:packing.c     **** *                bit-packed signature
+ 195:packing.c     **** *
+ 196:packing.c     **** * Returns 1 in case of malformed signature; otherwise 0.
+ 197:packing.c     **** **************************************************/
+ 198:packing.c     **** int unpack_sig(uint8_t c[SEEDBYTES],
+ 199:packing.c     ****                polyvecl *z,
+ 200:packing.c     ****                polyveck *h,
+ 201:packing.c     ****                const uint8_t sig[CRYPTO_BYTES])
+ 202:packing.c     **** {
+ 903              		.loc 1 202 1
+ 904              		.cfi_startproc
+ 905              		@ args = 0, pretend = 0, frame = 32
+ 906              		@ frame_needed = 1, uses_anonymous_args = 0
+ 907 0000 80B5     		push	{r7, lr}
+ 908              	.LCFI25:
+ 909              		.cfi_def_cfa_offset 8
+ 910              		.cfi_offset 7, -8
+ 911              		.cfi_offset 14, -4
+ 912 0002 88B0     		sub	sp, sp, #32
+ 913              	.LCFI26:
+ 914              		.cfi_def_cfa_offset 40
+ 915 0004 00AF     		add	r7, sp, #0
+ 916              	.LCFI27:
+ 917              		.cfi_def_cfa_register 7
+ 918 0006 F860     		str	r0, [r7, #12]
+ 919 0008 B960     		str	r1, [r7, #8]
+ 920 000a 7A60     		str	r2, [r7, #4]
+ 921 000c 3B60     		str	r3, [r7]
+ 203:packing.c     ****   unsigned int i, j, k;
+ 204:packing.c     **** 
+ 205:packing.c     ****   for(i = 0; i < SEEDBYTES; ++i)
+ 922              		.loc 1 205 9
+ 923 000e 0023     		movs	r3, #0
+ 924 0010 FB61     		str	r3, [r7, #28]
+ 925              		.loc 1 205 3
+ 926 0012 0AE0     		b	.L50
+ 927              	.L51:
+ 206:packing.c     ****     c[i] = sig[i];
+ 928              		.loc 1 206 15 discriminator 3
+ 929 0014 3A68     		ldr	r2, [r7]
+ 930 0016 FB69     		ldr	r3, [r7, #28]
+ 931 0018 1A44     		add	r2, r2, r3
+ 932              		.loc 1 206 6 discriminator 3
+ 933 001a F968     		ldr	r1, [r7, #12]
+ 934 001c FB69     		ldr	r3, [r7, #28]
+ 935 001e 0B44     		add	r3, r3, r1
+ 936              		.loc 1 206 15 discriminator 3
+ 937 0020 1278     		ldrb	r2, [r2]	@ zero_extendqisi2
+ 938              		.loc 1 206 10 discriminator 3
+ 939 0022 1A70     		strb	r2, [r3]
+ 205:packing.c     ****     c[i] = sig[i];
+ 940              		.loc 1 205 29 discriminator 3
+ 941 0024 FB69     		ldr	r3, [r7, #28]
+ 942 0026 0133     		adds	r3, r3, #1
+ 943 0028 FB61     		str	r3, [r7, #28]
+ 944              	.L50:
+ 205:packing.c     ****     c[i] = sig[i];
+ 945              		.loc 1 205 3 discriminator 1
+ 946 002a FB69     		ldr	r3, [r7, #28]
+ 947 002c 1F2B     		cmp	r3, #31
+ 948 002e F1D9     		bls	.L51
+ 207:packing.c     ****   sig += SEEDBYTES;
+ 949              		.loc 1 207 7
+ 950 0030 3B68     		ldr	r3, [r7]
+ 951 0032 2033     		adds	r3, r3, #32
+ 952 0034 3B60     		str	r3, [r7]
+ 208:packing.c     **** 
+ 209:packing.c     ****   for(i = 0; i < L; ++i)
+ 953              		.loc 1 209 9
+ 954 0036 0023     		movs	r3, #0
+ 955 0038 FB61     		str	r3, [r7, #28]
+ 956              		.loc 1 209 3
+ 957 003a 11E0     		b	.L52
+ 958              	.L53:
+ 210:packing.c     ****     polyz_unpack(&z->vec[i], sig + i*POLYZ_PACKEDBYTES);
+ 959              		.loc 1 210 5 discriminator 3
+ 960 003c FB69     		ldr	r3, [r7, #28]
+ 961 003e 9B02     		lsls	r3, r3, #10
+ 962 0040 BA68     		ldr	r2, [r7, #8]
+ 963 0042 D018     		adds	r0, r2, r3
+ 964              		.loc 1 210 37 discriminator 3
+ 965 0044 FA69     		ldr	r2, [r7, #28]
+ 966 0046 1346     		mov	r3, r2
+ 967 0048 DB00     		lsls	r3, r3, #3
+ 968 004a 1344     		add	r3, r3, r2
+ 969 004c 9B01     		lsls	r3, r3, #6
+ 970 004e 1A46     		mov	r2, r3
+ 971              		.loc 1 210 5 discriminator 3
+ 972 0050 3B68     		ldr	r3, [r7]
+ 973 0052 1344     		add	r3, r3, r2
+ 974 0054 1946     		mov	r1, r3
+ 975 0056 FFF7FEFF 		bl	pqcrystals_dilithium2_ref_polyz_unpack
+ 209:packing.c     ****     polyz_unpack(&z->vec[i], sig + i*POLYZ_PACKEDBYTES);
+ 976              		.loc 1 209 21 discriminator 3
+ 977 005a FB69     		ldr	r3, [r7, #28]
+ 978 005c 0133     		adds	r3, r3, #1
+ 979 005e FB61     		str	r3, [r7, #28]
+ 980              	.L52:
+ 209:packing.c     ****     polyz_unpack(&z->vec[i], sig + i*POLYZ_PACKEDBYTES);
+ 981              		.loc 1 209 3 discriminator 1
+ 982 0060 FB69     		ldr	r3, [r7, #28]
+ 983 0062 032B     		cmp	r3, #3
+ 984 0064 EAD9     		bls	.L53
+ 211:packing.c     ****   sig += L*POLYZ_PACKEDBYTES;
+ 985              		.loc 1 211 7
+ 986 0066 3B68     		ldr	r3, [r7]
+ 987 0068 03F51063 		add	r3, r3, #2304
+ 988 006c 3B60     		str	r3, [r7]
+ 212:packing.c     **** 
+ 213:packing.c     ****   /* Decode h */
+ 214:packing.c     ****   k = 0;
+ 989              		.loc 1 214 5
+ 990 006e 0023     		movs	r3, #0
+ 991 0070 7B61     		str	r3, [r7, #20]
+ 215:packing.c     ****   for(i = 0; i < K; ++i) {
+ 992              		.loc 1 215 9
+ 993 0072 0023     		movs	r3, #0
+ 994 0074 FB61     		str	r3, [r7, #28]
+ 995              		.loc 1 215 3
+ 996 0076 57E0     		b	.L54
+ 997              	.L63:
+ 216:packing.c     ****     for(j = 0; j < N; ++j)
+ 998              		.loc 1 216 11
+ 999 0078 0023     		movs	r3, #0
+ 1000 007a BB61     		str	r3, [r7, #24]
+ 1001              		.loc 1 216 5
+ 1002 007c 0AE0     		b	.L55
+ 1003              	.L56:
+ 217:packing.c     ****       h->vec[i].coeffs[j] = 0;
+ 1004              		.loc 1 217 27 discriminator 3
+ 1005 007e 7B68     		ldr	r3, [r7, #4]
+ 1006 0080 FA69     		ldr	r2, [r7, #28]
+ 1007 0082 1102     		lsls	r1, r2, #8
+ 1008 0084 BA69     		ldr	r2, [r7, #24]
+ 1009 0086 0A44     		add	r2, r2, r1
+ 1010 0088 0021     		movs	r1, #0
+ 1011 008a 43F82210 		str	r1, [r3, r2, lsl #2]
+ 216:packing.c     ****     for(j = 0; j < N; ++j)
+ 1012              		.loc 1 216 23 discriminator 3
+ 1013 008e BB69     		ldr	r3, [r7, #24]
+ 1014 0090 0133     		adds	r3, r3, #1
+ 1015 0092 BB61     		str	r3, [r7, #24]
+ 1016              	.L55:
+ 216:packing.c     ****     for(j = 0; j < N; ++j)
+ 1017              		.loc 1 216 5 discriminator 1
+ 1018 0094 BB69     		ldr	r3, [r7, #24]
+ 1019 0096 FF2B     		cmp	r3, #255
+ 1020 0098 F1D9     		bls	.L56
+ 218:packing.c     **** 
+ 219:packing.c     ****     if(sig[OMEGA + i] < k || sig[OMEGA + i] > OMEGA)
+ 1021              		.loc 1 219 18
+ 1022 009a FB69     		ldr	r3, [r7, #28]
+ 1023 009c 5033     		adds	r3, r3, #80
+ 1024              		.loc 1 219 11
+ 1025 009e 3A68     		ldr	r2, [r7]
+ 1026 00a0 1344     		add	r3, r3, r2
+ 1027 00a2 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 1028 00a4 1A46     		mov	r2, r3
+ 1029              		.loc 1 219 7
+ 1030 00a6 7B69     		ldr	r3, [r7, #20]
+ 1031 00a8 9342     		cmp	r3, r2
+ 1032 00aa 06D8     		bhi	.L57
+ 1033              		.loc 1 219 40 discriminator 1
+ 1034 00ac FB69     		ldr	r3, [r7, #28]
+ 1035 00ae 5033     		adds	r3, r3, #80
+ 1036              		.loc 1 219 33 discriminator 1
+ 1037 00b0 3A68     		ldr	r2, [r7]
+ 1038 00b2 1344     		add	r3, r3, r2
+ 1039 00b4 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 1040              		.loc 1 219 27 discriminator 1
+ 1041 00b6 502B     		cmp	r3, #80
+ 1042 00b8 01D9     		bls	.L58
+ 1043              	.L57:
+ 220:packing.c     ****       return 1;
+ 1044              		.loc 1 220 14
+ 1045 00ba 0123     		movs	r3, #1
+ 1046 00bc 49E0     		b	.L59
+ 1047              	.L58:
+ 221:packing.c     **** 
+ 222:packing.c     ****     for(j = k; j < sig[OMEGA + i]; ++j) {
+ 1048              		.loc 1 222 11
+ 1049 00be 7B69     		ldr	r3, [r7, #20]
+ 1050 00c0 BB61     		str	r3, [r7, #24]
+ 1051              		.loc 1 222 5
+ 1052 00c2 1FE0     		b	.L60
+ 1053              	.L62:
+ 223:packing.c     ****       /* Coefficients are ordered for strong unforgeability */
+ 224:packing.c     ****       if(j > k && sig[j] <= sig[j-1]) return 1;
+ 1054              		.loc 1 224 9
+ 1055 00c4 BA69     		ldr	r2, [r7, #24]
+ 1056 00c6 7B69     		ldr	r3, [r7, #20]
+ 1057 00c8 9A42     		cmp	r2, r3
+ 1058 00ca 0CD9     		bls	.L61
+ 1059              		.loc 1 224 22 discriminator 1
+ 1060 00cc 3A68     		ldr	r2, [r7]
+ 1061 00ce BB69     		ldr	r3, [r7, #24]
+ 1062 00d0 1344     		add	r3, r3, r2
+ 1063 00d2 1A78     		ldrb	r2, [r3]	@ zero_extendqisi2
+ 1064              		.loc 1 224 32 discriminator 1
+ 1065 00d4 BB69     		ldr	r3, [r7, #24]
+ 1066 00d6 013B     		subs	r3, r3, #1
+ 1067 00d8 3968     		ldr	r1, [r7]
+ 1068 00da 0B44     		add	r3, r3, r1
+ 1069 00dc 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 1070              		.loc 1 224 16 discriminator 1
+ 1071 00de 9A42     		cmp	r2, r3
+ 1072 00e0 01D8     		bhi	.L61
+ 1073              		.loc 1 224 46 discriminator 2
+ 1074 00e2 0123     		movs	r3, #1
+ 1075 00e4 35E0     		b	.L59
+ 1076              	.L61:
+ 225:packing.c     ****       h->vec[i].coeffs[sig[j]] = 1;
+ 1077              		.loc 1 225 27 discriminator 2
+ 1078 00e6 3A68     		ldr	r2, [r7]
+ 1079 00e8 BB69     		ldr	r3, [r7, #24]
+ 1080 00ea 1344     		add	r3, r3, r2
+ 1081 00ec 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 1082 00ee 1946     		mov	r1, r3
+ 1083              		.loc 1 225 32 discriminator 2
+ 1084 00f0 7B68     		ldr	r3, [r7, #4]
+ 1085 00f2 FA69     		ldr	r2, [r7, #28]
+ 1086 00f4 1202     		lsls	r2, r2, #8
+ 1087 00f6 0A44     		add	r2, r2, r1
+ 1088 00f8 0121     		movs	r1, #1
+ 1089 00fa 43F82210 		str	r1, [r3, r2, lsl #2]
+ 222:packing.c     ****       /* Coefficients are ordered for strong unforgeability */
+ 1090              		.loc 1 222 36 discriminator 2
+ 1091 00fe BB69     		ldr	r3, [r7, #24]
+ 1092 0100 0133     		adds	r3, r3, #1
+ 1093 0102 BB61     		str	r3, [r7, #24]
+ 1094              	.L60:
+ 222:packing.c     ****       /* Coefficients are ordered for strong unforgeability */
+ 1095              		.loc 1 222 30 discriminator 1
+ 1096 0104 FB69     		ldr	r3, [r7, #28]
+ 1097 0106 5033     		adds	r3, r3, #80
+ 222:packing.c     ****       /* Coefficients are ordered for strong unforgeability */
+ 1098              		.loc 1 222 23 discriminator 1
+ 1099 0108 3A68     		ldr	r2, [r7]
+ 1100 010a 1344     		add	r3, r3, r2
+ 1101 010c 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 1102 010e 1A46     		mov	r2, r3
+ 222:packing.c     ****       /* Coefficients are ordered for strong unforgeability */
+ 1103              		.loc 1 222 5 discriminator 1
+ 1104 0110 BB69     		ldr	r3, [r7, #24]
+ 1105 0112 9342     		cmp	r3, r2
+ 1106 0114 D6D3     		bcc	.L62
+ 226:packing.c     ****     }
+ 227:packing.c     **** 
+ 228:packing.c     ****     k = sig[OMEGA + i];
+ 1107              		.loc 1 228 19 discriminator 2
+ 1108 0116 FB69     		ldr	r3, [r7, #28]
+ 1109 0118 5033     		adds	r3, r3, #80
+ 1110              		.loc 1 228 12 discriminator 2
+ 1111 011a 3A68     		ldr	r2, [r7]
+ 1112 011c 1344     		add	r3, r3, r2
+ 1113 011e 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 1114              		.loc 1 228 7 discriminator 2
+ 1115 0120 7B61     		str	r3, [r7, #20]
+ 215:packing.c     ****     for(j = 0; j < N; ++j)
+ 1116              		.loc 1 215 21 discriminator 2
+ 1117 0122 FB69     		ldr	r3, [r7, #28]
+ 1118 0124 0133     		adds	r3, r3, #1
+ 1119 0126 FB61     		str	r3, [r7, #28]
+ 1120              	.L54:
+ 215:packing.c     ****     for(j = 0; j < N; ++j)
+ 1121              		.loc 1 215 3 discriminator 1
+ 1122 0128 FB69     		ldr	r3, [r7, #28]
+ 1123 012a 032B     		cmp	r3, #3
+ 1124 012c A4D9     		bls	.L63
+ 229:packing.c     ****   }
+ 230:packing.c     **** 
+ 231:packing.c     ****   /* Extra indices are zero for strong unforgeability */
+ 232:packing.c     ****   for(j = k; j < OMEGA; ++j)
+ 1125              		.loc 1 232 9
+ 1126 012e 7B69     		ldr	r3, [r7, #20]
+ 1127 0130 BB61     		str	r3, [r7, #24]
+ 1128              		.loc 1 232 3
+ 1129 0132 0AE0     		b	.L64
+ 1130              	.L66:
+ 233:packing.c     ****     if(sig[j])
+ 1131              		.loc 1 233 11
+ 1132 0134 3A68     		ldr	r2, [r7]
+ 1133 0136 BB69     		ldr	r3, [r7, #24]
+ 1134 0138 1344     		add	r3, r3, r2
+ 1135 013a 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 1136              		.loc 1 233 7
+ 1137 013c 002B     		cmp	r3, #0
+ 1138 013e 01D0     		beq	.L65
+ 234:packing.c     ****       return 1;
+ 1139              		.loc 1 234 14
+ 1140 0140 0123     		movs	r3, #1
+ 1141 0142 06E0     		b	.L59
+ 1142              	.L65:
+ 232:packing.c     ****     if(sig[j])
+ 1143              		.loc 1 232 25 discriminator 2
+ 1144 0144 BB69     		ldr	r3, [r7, #24]
+ 1145 0146 0133     		adds	r3, r3, #1
+ 1146 0148 BB61     		str	r3, [r7, #24]
+ 1147              	.L64:
+ 232:packing.c     ****     if(sig[j])
+ 1148              		.loc 1 232 3 discriminator 1
+ 1149 014a BB69     		ldr	r3, [r7, #24]
+ 1150 014c 4F2B     		cmp	r3, #79
+ 1151 014e F1D9     		bls	.L66
+ 235:packing.c     **** 
+ 236:packing.c     ****   return 0;
+ 1152              		.loc 1 236 10
+ 1153 0150 0023     		movs	r3, #0
+ 1154              	.L59:
+ 237:packing.c     **** }
+ 1155              		.loc 1 237 1
+ 1156 0152 1846     		mov	r0, r3
+ 1157 0154 2037     		adds	r7, r7, #32
+ 1158              	.LCFI28:
+ 1159              		.cfi_def_cfa_offset 8
+ 1160 0156 BD46     		mov	sp, r7
+ 1161              	.LCFI29:
+ 1162              		.cfi_def_cfa_register 13
+ 1163              		@ sp needed
+ 1164 0158 80BD     		pop	{r7, pc}
+ 1165              		.cfi_endproc
+ 1166              	.LFE5:
+ 1168              		.text
+ 1169              	.Letext0:
+ 1170              		.file 2 "c:\\users\\h3c\\chipwh~1\\cw\\home\\portable\\armgcc\\arm-none-eabi\\include\\machine\\_d
+ 1171              		.file 3 "c:\\users\\h3c\\chipwh~1\\cw\\home\\portable\\armgcc\\arm-none-eabi\\include\\sys\\_stdin
+ 1172              		.file 4 "poly.h"
+ 1173              		.file 5 "polyvec.h"
+DEFINED SYMBOLS
+                            *ABS*:00000000 packing.c
+C:\Users\H3C\AppData\Local\Temp\ccHeQYlC.s:16     .text.pqcrystals_dilithium2_ref_pack_pk:00000000 $t
+C:\Users\H3C\AppData\Local\Temp\ccHeQYlC.s:24     .text.pqcrystals_dilithium2_ref_pack_pk:00000000 pqcrystals_dilithium2_ref_pack_pk
+C:\Users\H3C\AppData\Local\Temp\ccHeQYlC.s:122    .text.pqcrystals_dilithium2_ref_unpack_pk:00000000 $t
+C:\Users\H3C\AppData\Local\Temp\ccHeQYlC.s:129    .text.pqcrystals_dilithium2_ref_unpack_pk:00000000 pqcrystals_dilithium2_ref_unpack_pk
+C:\Users\H3C\AppData\Local\Temp\ccHeQYlC.s:227    .text.pqcrystals_dilithium2_ref_pack_sk:00000000 $t
+C:\Users\H3C\AppData\Local\Temp\ccHeQYlC.s:234    .text.pqcrystals_dilithium2_ref_pack_sk:00000000 pqcrystals_dilithium2_ref_pack_sk
+C:\Users\H3C\AppData\Local\Temp\ccHeQYlC.s:461    .text.pqcrystals_dilithium2_ref_upack_sk:00000000 $t
+C:\Users\H3C\AppData\Local\Temp\ccHeQYlC.s:468    .text.pqcrystals_dilithium2_ref_upack_sk:00000000 pqcrystals_dilithium2_ref_upack_sk
+C:\Users\H3C\AppData\Local\Temp\ccHeQYlC.s:698    .text.pqcrystals_dilithium2_ref_pack_sig:00000000 $t
+C:\Users\H3C\AppData\Local\Temp\ccHeQYlC.s:705    .text.pqcrystals_dilithium2_ref_pack_sig:00000000 pqcrystals_dilithium2_ref_pack_sig
+C:\Users\H3C\AppData\Local\Temp\ccHeQYlC.s:894    .text.pqcrystals_dilithium2_ref_unpack_sig:00000000 $t
+C:\Users\H3C\AppData\Local\Temp\ccHeQYlC.s:901    .text.pqcrystals_dilithium2_ref_unpack_sig:00000000 pqcrystals_dilithium2_ref_unpack_sig
+
+UNDEFINED SYMBOLS
+pqcrystals_dilithium2_ref_polyt1_pack
+pqcrystals_dilithium2_ref_polyt1_unpack
+pqcrystals_dilithium2_ref_polyeta_pack
+pqcrystals_dilithium2_ref_polyt0_pack
+pqcrystals_dilithium2_ref_polyeta_unpack
+pqcrystals_dilithium2_ref_polyt0_unpack
+pqcrystals_dilithium2_ref_polyz_pack
+pqcrystals_dilithium2_ref_polyz_unpack

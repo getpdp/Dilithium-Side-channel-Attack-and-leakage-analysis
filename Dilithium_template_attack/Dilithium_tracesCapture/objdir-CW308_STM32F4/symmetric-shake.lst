@@ -1,0 +1,201 @@
+   1              		.cpu cortex-m4
+   2              		.eabi_attribute 20, 1
+   3              		.eabi_attribute 21, 1
+   4              		.eabi_attribute 23, 3
+   5              		.eabi_attribute 24, 1
+   6              		.eabi_attribute 25, 1
+   7              		.eabi_attribute 26, 1
+   8              		.eabi_attribute 30, 6
+   9              		.eabi_attribute 34, 1
+  10              		.eabi_attribute 18, 4
+  11              		.file	"symmetric-shake.c"
+  12              		.text
+  13              	.Ltext0:
+  14              		.cfi_sections	.debug_frame
+  15              		.section	.text.pqcrystals_dilithium2_ref_dilithium_shake128_stream_init,"ax",%progbits
+  16              		.align	1
+  17              		.global	pqcrystals_dilithium2_ref_dilithium_shake128_stream_init
+  18              		.arch armv7e-m
+  19              		.syntax unified
+  20              		.thumb
+  21              		.thumb_func
+  22              		.fpu softvfp
+  24              	pqcrystals_dilithium2_ref_dilithium_shake128_stream_init:
+  25              	.LFB0:
+  26              		.file 1 "symmetric-shake.c"
+   1:symmetric-shake.c **** #include <stdint.h>
+   2:symmetric-shake.c **** #include "params.h"
+   3:symmetric-shake.c **** #include "symmetric.h"
+   4:symmetric-shake.c **** #include "fips202.h"
+   5:symmetric-shake.c **** 
+   6:symmetric-shake.c **** void dilithium_shake128_stream_init(keccak_state *state,
+   7:symmetric-shake.c ****                                     const uint8_t seed[SEEDBYTES],
+   8:symmetric-shake.c ****                                     uint16_t nonce)
+   9:symmetric-shake.c **** {
+  27              		.loc 1 9 1
+  28              		.cfi_startproc
+  29              		@ args = 0, pretend = 0, frame = 24
+  30              		@ frame_needed = 1, uses_anonymous_args = 0
+  31 0000 80B5     		push	{r7, lr}
+  32              	.LCFI0:
+  33              		.cfi_def_cfa_offset 8
+  34              		.cfi_offset 7, -8
+  35              		.cfi_offset 14, -4
+  36 0002 86B0     		sub	sp, sp, #24
+  37              	.LCFI1:
+  38              		.cfi_def_cfa_offset 32
+  39 0004 00AF     		add	r7, sp, #0
+  40              	.LCFI2:
+  41              		.cfi_def_cfa_register 7
+  42 0006 F860     		str	r0, [r7, #12]
+  43 0008 B960     		str	r1, [r7, #8]
+  44 000a 1346     		mov	r3, r2
+  45 000c FB80     		strh	r3, [r7, #6]	@ movhi
+  10:symmetric-shake.c ****   uint8_t t[2];
+  11:symmetric-shake.c ****   t[0] = nonce;
+  46              		.loc 1 11 8
+  47 000e FB88     		ldrh	r3, [r7, #6]	@ movhi
+  48 0010 DBB2     		uxtb	r3, r3
+  49 0012 3B75     		strb	r3, [r7, #20]
+  12:symmetric-shake.c ****   t[1] = nonce >> 8;
+  50              		.loc 1 12 8
+  51 0014 FB88     		ldrh	r3, [r7, #6]
+  52 0016 1B0A     		lsrs	r3, r3, #8
+  53 0018 9BB2     		uxth	r3, r3
+  54 001a DBB2     		uxtb	r3, r3
+  55 001c 7B75     		strb	r3, [r7, #21]
+  13:symmetric-shake.c **** 
+  14:symmetric-shake.c ****   shake128_init(state);
+  56              		.loc 1 14 3
+  57 001e F868     		ldr	r0, [r7, #12]
+  58 0020 FFF7FEFF 		bl	pqcrystals_fips202_ref_shake128_init
+  15:symmetric-shake.c ****   shake128_absorb(state, seed, SEEDBYTES);
+  59              		.loc 1 15 3
+  60 0024 2022     		movs	r2, #32
+  61 0026 B968     		ldr	r1, [r7, #8]
+  62 0028 F868     		ldr	r0, [r7, #12]
+  63 002a FFF7FEFF 		bl	pqcrystals_fips202_ref_shake128_absorb
+  16:symmetric-shake.c ****   shake128_absorb(state, t, 2);
+  64              		.loc 1 16 3
+  65 002e 07F11403 		add	r3, r7, #20
+  66 0032 0222     		movs	r2, #2
+  67 0034 1946     		mov	r1, r3
+  68 0036 F868     		ldr	r0, [r7, #12]
+  69 0038 FFF7FEFF 		bl	pqcrystals_fips202_ref_shake128_absorb
+  17:symmetric-shake.c ****   shake128_finalize(state);
+  70              		.loc 1 17 3
+  71 003c F868     		ldr	r0, [r7, #12]
+  72 003e FFF7FEFF 		bl	pqcrystals_fips202_ref_shake128_finalize
+  18:symmetric-shake.c **** }
+  73              		.loc 1 18 1
+  74 0042 00BF     		nop
+  75 0044 1837     		adds	r7, r7, #24
+  76              	.LCFI3:
+  77              		.cfi_def_cfa_offset 8
+  78 0046 BD46     		mov	sp, r7
+  79              	.LCFI4:
+  80              		.cfi_def_cfa_register 13
+  81              		@ sp needed
+  82 0048 80BD     		pop	{r7, pc}
+  83              		.cfi_endproc
+  84              	.LFE0:
+  86              		.section	.text.pqcrystals_dilithium2_ref_dilithium_shake256_stream_init,"ax",%progbits
+  87              		.align	1
+  88              		.global	pqcrystals_dilithium2_ref_dilithium_shake256_stream_init
+  89              		.syntax unified
+  90              		.thumb
+  91              		.thumb_func
+  92              		.fpu softvfp
+  94              	pqcrystals_dilithium2_ref_dilithium_shake256_stream_init:
+  95              	.LFB1:
+  19:symmetric-shake.c **** 
+  20:symmetric-shake.c **** void dilithium_shake256_stream_init(keccak_state *state,
+  21:symmetric-shake.c ****                                     const uint8_t seed[CRHBYTES],
+  22:symmetric-shake.c ****                                     uint16_t nonce)
+  23:symmetric-shake.c **** {
+  96              		.loc 1 23 1
+  97              		.cfi_startproc
+  98              		@ args = 0, pretend = 0, frame = 24
+  99              		@ frame_needed = 1, uses_anonymous_args = 0
+ 100 0000 80B5     		push	{r7, lr}
+ 101              	.LCFI5:
+ 102              		.cfi_def_cfa_offset 8
+ 103              		.cfi_offset 7, -8
+ 104              		.cfi_offset 14, -4
+ 105 0002 86B0     		sub	sp, sp, #24
+ 106              	.LCFI6:
+ 107              		.cfi_def_cfa_offset 32
+ 108 0004 00AF     		add	r7, sp, #0
+ 109              	.LCFI7:
+ 110              		.cfi_def_cfa_register 7
+ 111 0006 F860     		str	r0, [r7, #12]
+ 112 0008 B960     		str	r1, [r7, #8]
+ 113 000a 1346     		mov	r3, r2
+ 114 000c FB80     		strh	r3, [r7, #6]	@ movhi
+  24:symmetric-shake.c ****   uint8_t t[2];
+  25:symmetric-shake.c ****   t[0] = nonce;
+ 115              		.loc 1 25 8
+ 116 000e FB88     		ldrh	r3, [r7, #6]	@ movhi
+ 117 0010 DBB2     		uxtb	r3, r3
+ 118 0012 3B75     		strb	r3, [r7, #20]
+  26:symmetric-shake.c ****   t[1] = nonce >> 8;
+ 119              		.loc 1 26 8
+ 120 0014 FB88     		ldrh	r3, [r7, #6]
+ 121 0016 1B0A     		lsrs	r3, r3, #8
+ 122 0018 9BB2     		uxth	r3, r3
+ 123 001a DBB2     		uxtb	r3, r3
+ 124 001c 7B75     		strb	r3, [r7, #21]
+  27:symmetric-shake.c **** 
+  28:symmetric-shake.c ****   shake256_init(state);
+ 125              		.loc 1 28 3
+ 126 001e F868     		ldr	r0, [r7, #12]
+ 127 0020 FFF7FEFF 		bl	pqcrystals_fips202_ref_shake256_init
+  29:symmetric-shake.c ****   shake256_absorb(state, seed, CRHBYTES);
+ 128              		.loc 1 29 3
+ 129 0024 3022     		movs	r2, #48
+ 130 0026 B968     		ldr	r1, [r7, #8]
+ 131 0028 F868     		ldr	r0, [r7, #12]
+ 132 002a FFF7FEFF 		bl	pqcrystals_fips202_ref_shake256_absorb
+  30:symmetric-shake.c ****   shake256_absorb(state, t, 2);
+ 133              		.loc 1 30 3
+ 134 002e 07F11403 		add	r3, r7, #20
+ 135 0032 0222     		movs	r2, #2
+ 136 0034 1946     		mov	r1, r3
+ 137 0036 F868     		ldr	r0, [r7, #12]
+ 138 0038 FFF7FEFF 		bl	pqcrystals_fips202_ref_shake256_absorb
+  31:symmetric-shake.c ****   shake256_finalize(state);
+ 139              		.loc 1 31 3
+ 140 003c F868     		ldr	r0, [r7, #12]
+ 141 003e FFF7FEFF 		bl	pqcrystals_fips202_ref_shake256_finalize
+  32:symmetric-shake.c **** }
+ 142              		.loc 1 32 1
+ 143 0042 00BF     		nop
+ 144 0044 1837     		adds	r7, r7, #24
+ 145              	.LCFI8:
+ 146              		.cfi_def_cfa_offset 8
+ 147 0046 BD46     		mov	sp, r7
+ 148              	.LCFI9:
+ 149              		.cfi_def_cfa_register 13
+ 150              		@ sp needed
+ 151 0048 80BD     		pop	{r7, pc}
+ 152              		.cfi_endproc
+ 153              	.LFE1:
+ 155              		.text
+ 156              	.Letext0:
+ 157              		.file 2 "c:\\users\\h3c\\chipwh~1\\cw\\home\\portable\\armgcc\\arm-none-eabi\\include\\machine\\_d
+ 158              		.file 3 "c:\\users\\h3c\\chipwh~1\\cw\\home\\portable\\armgcc\\arm-none-eabi\\include\\sys\\_stdin
+ 159              		.file 4 "fips202.h"
+DEFINED SYMBOLS
+                            *ABS*:00000000 symmetric-shake.c
+C:\Users\H3C\AppData\Local\Temp\ccjDTmh5.s:16     .text.pqcrystals_dilithium2_ref_dilithium_shake128_stream_init:00000000 $t
+C:\Users\H3C\AppData\Local\Temp\ccjDTmh5.s:24     .text.pqcrystals_dilithium2_ref_dilithium_shake128_stream_init:00000000 pqcrystals_dilithium2_ref_dilithium_shake128_stream_init
+C:\Users\H3C\AppData\Local\Temp\ccjDTmh5.s:87     .text.pqcrystals_dilithium2_ref_dilithium_shake256_stream_init:00000000 $t
+C:\Users\H3C\AppData\Local\Temp\ccjDTmh5.s:94     .text.pqcrystals_dilithium2_ref_dilithium_shake256_stream_init:00000000 pqcrystals_dilithium2_ref_dilithium_shake256_stream_init
+
+UNDEFINED SYMBOLS
+pqcrystals_fips202_ref_shake128_init
+pqcrystals_fips202_ref_shake128_absorb
+pqcrystals_fips202_ref_shake128_finalize
+pqcrystals_fips202_ref_shake256_init
+pqcrystals_fips202_ref_shake256_absorb
+pqcrystals_fips202_ref_shake256_finalize

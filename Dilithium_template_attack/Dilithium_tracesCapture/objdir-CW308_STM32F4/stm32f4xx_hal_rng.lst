@@ -1,0 +1,1462 @@
+   1              		.cpu cortex-m4
+   2              		.eabi_attribute 20, 1
+   3              		.eabi_attribute 21, 1
+   4              		.eabi_attribute 23, 3
+   5              		.eabi_attribute 24, 1
+   6              		.eabi_attribute 25, 1
+   7              		.eabi_attribute 26, 1
+   8              		.eabi_attribute 30, 6
+   9              		.eabi_attribute 34, 1
+  10              		.eabi_attribute 18, 4
+  11              		.file	"stm32f4xx_hal_rng.c"
+  12              		.text
+  13              	.Ltext0:
+  14              		.cfi_sections	.debug_frame
+  15              		.section	.text.HAL_RNG_Init,"ax",%progbits
+  16              		.align	1
+  17              		.global	HAL_RNG_Init
+  18              		.arch armv7e-m
+  19              		.syntax unified
+  20              		.thumb
+  21              		.thumb_func
+  22              		.fpu softvfp
+  24              	HAL_RNG_Init:
+  25              	.LFB126:
+  26              		.file 1 "../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c"
+   1:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c **** /**
+   2:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   ******************************************************************************
+   3:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   * @file    stm32f4xx_hal_rng.c
+   4:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   * @author  MCD Application Team
+   5:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   * @version V1.7.1
+   6:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   * @date    14-April-2017
+   7:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   * @brief   RNG HAL module driver.
+   8:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   *          This file provides firmware functions to manage the following 
+   9:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   *          functionalities of the Random Number Generator (RNG) peripheral:
+  10:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   *           + Initialization/de-initialization functions
+  11:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   *           + Peripheral Control functions 
+  12:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   *           + Peripheral State functions
+  13:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   *         
+  14:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   @verbatim
+  15:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   ==============================================================================
+  16:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****                      ##### How to use this driver #####
+  17:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   ==============================================================================
+  18:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   [..]
+  19:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****       The RNG HAL driver can be used as follows:
+  20:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c **** 
+  21:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****       (#) Enable the RNG controller clock using __HAL_RCC_RNG_CLK_ENABLE() macro 
+  22:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****           in HAL_RNG_MspInit().
+  23:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****       (#) Activate the RNG peripheral using HAL_RNG_Init() function.
+  24:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****       (#) Wait until the 32 bit Random Number Generator contains a valid 
+  25:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****           random data using (polling/interrupt) mode.   
+  26:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****       (#) Get the 32 bit random number using HAL_RNG_GenerateRandomNumber() function.
+  27:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   
+  28:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   @endverbatim
+  29:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   ******************************************************************************
+  30:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   * @attention
+  31:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   *
+  32:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   * <h2><center>&copy; COPYRIGHT(c) 2017 STMicroelectronics</center></h2>
+  33:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   *
+  34:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   * Redistribution and use in source and binary forms, with or without modification,
+  35:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   * are permitted provided that the following conditions are met:
+  36:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   *   1. Redistributions of source code must retain the above copyright notice,
+  37:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   *      this list of conditions and the following disclaimer.
+  38:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   *   2. Redistributions in binary form must reproduce the above copyright notice,
+  39:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   *      this list of conditions and the following disclaimer in the documentation
+  40:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   *      and/or other materials provided with the distribution.
+  41:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   *   3. Neither the name of STMicroelectronics nor the names of its contributors
+  42:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   *      may be used to endorse or promote products derived from this software
+  43:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   *      without specific prior written permission.
+  44:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   *
+  45:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+  46:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+  47:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+  48:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+  49:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+  50:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+  51:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+  52:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+  53:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+  54:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+  55:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   *
+  56:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   ******************************************************************************
+  57:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   */ 
+  58:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c **** 
+  59:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c **** /* Includes ------------------------------------------------------------------*/
+  60:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c **** //#include "stm32f4xx_hal.h"
+  61:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c **** #include "stm32f4xx_hal_rng.h"
+  62:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c **** 
+  63:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c **** /** @addtogroup STM32F4xx_HAL_Driver
+  64:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   * @{
+  65:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   */
+  66:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c **** 
+  67:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c **** /** @addtogroup RNG 
+  68:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   * @{
+  69:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   */
+  70:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c **** 
+  71:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c **** //#ifdef HAL_RNG_MODULE_ENABLED
+  72:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c **** 
+  73:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c **** #if defined(STM32F405xx) || defined(STM32F415xx) || defined(STM32F407xx) || defined(STM32F417xx) ||
+  74:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****     defined(STM32F427xx) || defined(STM32F437xx) || defined(STM32F429xx) || defined(STM32F439xx) ||
+  75:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****     defined(STM32F410Tx) || defined(STM32F410Cx) || defined(STM32F410Rx) || defined(STM32F469xx) ||
+  76:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****     defined(STM32F479xx) || defined(STM32F412Zx) || defined(STM32F412Vx) || defined(STM32F412Rx) ||
+  77:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****     defined(STM32F412Cx) || defined(STM32F413xx) || defined(STM32F423xx)
+  78:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c **** 
+  79:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c **** 
+  80:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c **** /* Private types -------------------------------------------------------------*/
+  81:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c **** /* Private defines -----------------------------------------------------------*/
+  82:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c **** /* Private variables ---------------------------------------------------------*/
+  83:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c **** /* Private constants ---------------------------------------------------------*/
+  84:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c **** /** @addtogroup RNG_Private_Constants
+  85:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   * @{
+  86:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   */
+  87:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c **** #define RNG_TIMEOUT_VALUE     2U
+  88:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c **** /**
+  89:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   * @}
+  90:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   */ 
+  91:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c **** /* Private macros ------------------------------------------------------------*/
+  92:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c **** /* Private functions prototypes ----------------------------------------------*/
+  93:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c **** /* Private functions ---------------------------------------------------------*/
+  94:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c **** /* Exported functions --------------------------------------------------------*/
+  95:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c **** 
+  96:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c **** /** @addtogroup RNG_Exported_Functions
+  97:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   * @{
+  98:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   */
+  99:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c **** 
+ 100:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c **** /** @addtogroup RNG_Exported_Functions_Group1
+ 101:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****  *  @brief   Initialization and de-initialization functions
+ 102:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****  *
+ 103:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c **** @verbatim
+ 104:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****  ===============================================================================
+ 105:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****           ##### Initialization and de-initialization functions #####
+ 106:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****  ===============================================================================
+ 107:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****     [..]  This section provides functions allowing to:
+ 108:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****       (+) Initialize the RNG according to the specified parameters 
+ 109:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****           in the RNG_InitTypeDef and create the associated handle
+ 110:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****       (+) DeInitialize the RNG peripheral
+ 111:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****       (+) Initialize the RNG MSP
+ 112:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****       (+) DeInitialize RNG MSP 
+ 113:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c **** 
+ 114:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c **** @endverbatim
+ 115:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   * @{
+ 116:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   */
+ 117:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   
+ 118:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c **** /**
+ 119:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   * @brief  Initializes the RNG peripheral and creates the associated handle.
+ 120:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   * @param  hrng: pointer to a RNG_HandleTypeDef structure that contains
+ 121:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   *                the configuration information for RNG.
+ 122:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   * @retval HAL status
+ 123:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   */
+ 124:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c **** HAL_StatusTypeDef HAL_RNG_Init(RNG_HandleTypeDef *hrng)
+ 125:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c **** { 
+  27              		.loc 1 125 1
+  28              		.cfi_startproc
+  29              		@ args = 0, pretend = 0, frame = 8
+  30              		@ frame_needed = 1, uses_anonymous_args = 0
+  31 0000 80B5     		push	{r7, lr}
+  32              	.LCFI0:
+  33              		.cfi_def_cfa_offset 8
+  34              		.cfi_offset 7, -8
+  35              		.cfi_offset 14, -4
+  36 0002 82B0     		sub	sp, sp, #8
+  37              	.LCFI1:
+  38              		.cfi_def_cfa_offset 16
+  39 0004 00AF     		add	r7, sp, #0
+  40              	.LCFI2:
+  41              		.cfi_def_cfa_register 7
+  42 0006 7860     		str	r0, [r7, #4]
+ 126:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   /* Check the RNG handle allocation */
+ 127:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   if(hrng == NULL)
+  43              		.loc 1 127 5
+  44 0008 7B68     		ldr	r3, [r7, #4]
+  45 000a 002B     		cmp	r3, #0
+  46 000c 01D1     		bne	.L2
+ 128:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   {
+ 129:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****     return HAL_ERROR;
+  47              		.loc 1 129 12
+  48 000e 0123     		movs	r3, #1
+  49 0010 25E0     		b	.L3
+  50              	.L2:
+ 130:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   }
+ 131:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   
+ 132:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   __HAL_LOCK(hrng);
+  51              		.loc 1 132 3
+  52 0012 7B68     		ldr	r3, [r7, #4]
+  53 0014 1B79     		ldrb	r3, [r3, #4]	@ zero_extendqisi2
+  54 0016 012B     		cmp	r3, #1
+  55 0018 01D1     		bne	.L4
+  56              		.loc 1 132 3 is_stmt 0 discriminator 1
+  57 001a 0223     		movs	r3, #2
+  58 001c 1FE0     		b	.L3
+  59              	.L4:
+  60              		.loc 1 132 3 discriminator 2
+  61 001e 7B68     		ldr	r3, [r7, #4]
+  62 0020 0122     		movs	r2, #1
+  63 0022 1A71     		strb	r2, [r3, #4]
+ 133:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   
+ 134:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   if(hrng->State == HAL_RNG_STATE_RESET)
+  64              		.loc 1 134 10 is_stmt 1 discriminator 2
+  65 0024 7B68     		ldr	r3, [r7, #4]
+  66 0026 5B79     		ldrb	r3, [r3, #5]
+  67 0028 DBB2     		uxtb	r3, r3
+  68              		.loc 1 134 5 discriminator 2
+  69 002a 002B     		cmp	r3, #0
+  70 002c 05D1     		bne	.L5
+ 135:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   {  
+ 136:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****     /* Allocate lock resource and initialize it */
+ 137:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****     hrng->Lock = HAL_UNLOCKED;
+  71              		.loc 1 137 16
+  72 002e 7B68     		ldr	r3, [r7, #4]
+  73 0030 0022     		movs	r2, #0
+  74 0032 1A71     		strb	r2, [r3, #4]
+ 138:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****     /* Init the low level hardware */
+ 139:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****     HAL_RNG_MspInit(hrng);
+  75              		.loc 1 139 5
+  76 0034 7868     		ldr	r0, [r7, #4]
+  77 0036 FFF7FEFF 		bl	HAL_RNG_MspInit
+  78              	.L5:
+ 140:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   }
+ 141:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   
+ 142:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   /* Change RNG peripheral state */
+ 143:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   hrng->State = HAL_RNG_STATE_BUSY;
+  79              		.loc 1 143 15
+  80 003a 7B68     		ldr	r3, [r7, #4]
+  81 003c 0222     		movs	r2, #2
+  82 003e 5A71     		strb	r2, [r3, #5]
+ 144:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c **** 
+ 145:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   /* Enable the RNG Peripheral */
+ 146:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   __HAL_RNG_ENABLE(hrng);
+  83              		.loc 1 146 3
+  84 0040 7B68     		ldr	r3, [r7, #4]
+  85 0042 1B68     		ldr	r3, [r3]
+  86 0044 1A68     		ldr	r2, [r3]
+  87 0046 7B68     		ldr	r3, [r7, #4]
+  88 0048 1B68     		ldr	r3, [r3]
+  89 004a 42F00402 		orr	r2, r2, #4
+  90 004e 1A60     		str	r2, [r3]
+ 147:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c **** 
+ 148:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   /* Initialize the RNG state */
+ 149:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   hrng->State = HAL_RNG_STATE_READY;
+  91              		.loc 1 149 15
+  92 0050 7B68     		ldr	r3, [r7, #4]
+  93 0052 0122     		movs	r2, #1
+  94 0054 5A71     		strb	r2, [r3, #5]
+ 150:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   
+ 151:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   __HAL_UNLOCK(hrng);
+  95              		.loc 1 151 3
+  96 0056 7B68     		ldr	r3, [r7, #4]
+  97 0058 0022     		movs	r2, #0
+  98 005a 1A71     		strb	r2, [r3, #4]
+ 152:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   
+ 153:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   /* Return function status */
+ 154:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   return HAL_OK;
+  99              		.loc 1 154 10
+ 100 005c 0023     		movs	r3, #0
+ 101              	.L3:
+ 155:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c **** }
+ 102              		.loc 1 155 1
+ 103 005e 1846     		mov	r0, r3
+ 104 0060 0837     		adds	r7, r7, #8
+ 105              	.LCFI3:
+ 106              		.cfi_def_cfa_offset 8
+ 107 0062 BD46     		mov	sp, r7
+ 108              	.LCFI4:
+ 109              		.cfi_def_cfa_register 13
+ 110              		@ sp needed
+ 111 0064 80BD     		pop	{r7, pc}
+ 112              		.cfi_endproc
+ 113              	.LFE126:
+ 115              		.section	.text.HAL_RNG_DeInit,"ax",%progbits
+ 116              		.align	1
+ 117              		.global	HAL_RNG_DeInit
+ 118              		.syntax unified
+ 119              		.thumb
+ 120              		.thumb_func
+ 121              		.fpu softvfp
+ 123              	HAL_RNG_DeInit:
+ 124              	.LFB127:
+ 156:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c **** 
+ 157:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c **** /**
+ 158:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   * @brief  DeInitializes the RNG peripheral. 
+ 159:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   * @param  hrng: pointer to a RNG_HandleTypeDef structure that contains
+ 160:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   *                the configuration information for RNG.
+ 161:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   * @retval HAL status
+ 162:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   */
+ 163:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c **** HAL_StatusTypeDef HAL_RNG_DeInit(RNG_HandleTypeDef *hrng)
+ 164:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c **** { 
+ 125              		.loc 1 164 1
+ 126              		.cfi_startproc
+ 127              		@ args = 0, pretend = 0, frame = 8
+ 128              		@ frame_needed = 1, uses_anonymous_args = 0
+ 129 0000 80B5     		push	{r7, lr}
+ 130              	.LCFI5:
+ 131              		.cfi_def_cfa_offset 8
+ 132              		.cfi_offset 7, -8
+ 133              		.cfi_offset 14, -4
+ 134 0002 82B0     		sub	sp, sp, #8
+ 135              	.LCFI6:
+ 136              		.cfi_def_cfa_offset 16
+ 137 0004 00AF     		add	r7, sp, #0
+ 138              	.LCFI7:
+ 139              		.cfi_def_cfa_register 7
+ 140 0006 7860     		str	r0, [r7, #4]
+ 165:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   /* Check the RNG handle allocation */
+ 166:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   if(hrng == NULL)
+ 141              		.loc 1 166 5
+ 142 0008 7B68     		ldr	r3, [r7, #4]
+ 143 000a 002B     		cmp	r3, #0
+ 144 000c 01D1     		bne	.L7
+ 167:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   {
+ 168:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****     return HAL_ERROR;
+ 145              		.loc 1 168 12
+ 146 000e 0123     		movs	r3, #1
+ 147 0010 19E0     		b	.L8
+ 148              	.L7:
+ 169:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   }
+ 170:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   /* Disable the RNG Peripheral */
+ 171:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   CLEAR_BIT(hrng->Instance->CR, RNG_CR_IE | RNG_CR_RNGEN);
+ 149              		.loc 1 171 3
+ 150 0012 7B68     		ldr	r3, [r7, #4]
+ 151 0014 1B68     		ldr	r3, [r3]
+ 152 0016 1A68     		ldr	r2, [r3]
+ 153 0018 7B68     		ldr	r3, [r7, #4]
+ 154 001a 1B68     		ldr	r3, [r3]
+ 155 001c 22F00C02 		bic	r2, r2, #12
+ 156 0020 1A60     		str	r2, [r3]
+ 172:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   
+ 173:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   /* Clear RNG interrupt status flags */
+ 174:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   CLEAR_BIT(hrng->Instance->SR, RNG_SR_CEIS | RNG_SR_SEIS);
+ 157              		.loc 1 174 3
+ 158 0022 7B68     		ldr	r3, [r7, #4]
+ 159 0024 1B68     		ldr	r3, [r3]
+ 160 0026 5A68     		ldr	r2, [r3, #4]
+ 161 0028 7B68     		ldr	r3, [r7, #4]
+ 162 002a 1B68     		ldr	r3, [r3]
+ 163 002c 22F06002 		bic	r2, r2, #96
+ 164 0030 5A60     		str	r2, [r3, #4]
+ 175:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   
+ 176:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   /* DeInit the low level hardware */
+ 177:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   HAL_RNG_MspDeInit(hrng);
+ 165              		.loc 1 177 3
+ 166 0032 7868     		ldr	r0, [r7, #4]
+ 167 0034 FFF7FEFF 		bl	HAL_RNG_MspDeInit
+ 178:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   
+ 179:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   /* Update the RNG state */
+ 180:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   hrng->State = HAL_RNG_STATE_RESET; 
+ 168              		.loc 1 180 15
+ 169 0038 7B68     		ldr	r3, [r7, #4]
+ 170 003a 0022     		movs	r2, #0
+ 171 003c 5A71     		strb	r2, [r3, #5]
+ 181:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c **** 
+ 182:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   /* Release Lock */
+ 183:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   __HAL_UNLOCK(hrng);
+ 172              		.loc 1 183 3
+ 173 003e 7B68     		ldr	r3, [r7, #4]
+ 174 0040 0022     		movs	r2, #0
+ 175 0042 1A71     		strb	r2, [r3, #4]
+ 184:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   
+ 185:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   /* Return the function status */
+ 186:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   return HAL_OK;
+ 176              		.loc 1 186 10
+ 177 0044 0023     		movs	r3, #0
+ 178              	.L8:
+ 187:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c **** }
+ 179              		.loc 1 187 1
+ 180 0046 1846     		mov	r0, r3
+ 181 0048 0837     		adds	r7, r7, #8
+ 182              	.LCFI8:
+ 183              		.cfi_def_cfa_offset 8
+ 184 004a BD46     		mov	sp, r7
+ 185              	.LCFI9:
+ 186              		.cfi_def_cfa_register 13
+ 187              		@ sp needed
+ 188 004c 80BD     		pop	{r7, pc}
+ 189              		.cfi_endproc
+ 190              	.LFE127:
+ 192              		.section	.text.HAL_RNG_MspInit,"ax",%progbits
+ 193              		.align	1
+ 194              		.weak	HAL_RNG_MspInit
+ 195              		.syntax unified
+ 196              		.thumb
+ 197              		.thumb_func
+ 198              		.fpu softvfp
+ 200              	HAL_RNG_MspInit:
+ 201              	.LFB128:
+ 188:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c **** 
+ 189:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c **** /**
+ 190:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   * @brief  Initializes the RNG MSP.
+ 191:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   * @param  hrng: pointer to a RNG_HandleTypeDef structure that contains
+ 192:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   *                the configuration information for RNG.
+ 193:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   * @retval None
+ 194:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   */
+ 195:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c **** __weak void HAL_RNG_MspInit(RNG_HandleTypeDef *hrng)
+ 196:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c **** {
+ 202              		.loc 1 196 1
+ 203              		.cfi_startproc
+ 204              		@ args = 0, pretend = 0, frame = 8
+ 205              		@ frame_needed = 1, uses_anonymous_args = 0
+ 206              		@ link register save eliminated.
+ 207 0000 80B4     		push	{r7}
+ 208              	.LCFI10:
+ 209              		.cfi_def_cfa_offset 4
+ 210              		.cfi_offset 7, -4
+ 211 0002 83B0     		sub	sp, sp, #12
+ 212              	.LCFI11:
+ 213              		.cfi_def_cfa_offset 16
+ 214 0004 00AF     		add	r7, sp, #0
+ 215              	.LCFI12:
+ 216              		.cfi_def_cfa_register 7
+ 217 0006 7860     		str	r0, [r7, #4]
+ 197:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   /* Prevent unused argument(s) compilation warning */
+ 198:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   UNUSED(hrng);
+ 199:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   /* NOTE : This function should not be modified. When the callback is needed,
+ 200:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****             function HAL_RNG_MspInit must be implemented in the user file.
+ 201:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****    */
+ 202:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c **** }
+ 218              		.loc 1 202 1
+ 219 0008 00BF     		nop
+ 220 000a 0C37     		adds	r7, r7, #12
+ 221              	.LCFI13:
+ 222              		.cfi_def_cfa_offset 4
+ 223 000c BD46     		mov	sp, r7
+ 224              	.LCFI14:
+ 225              		.cfi_def_cfa_register 13
+ 226              		@ sp needed
+ 227 000e 80BC     		pop	{r7}
+ 228              	.LCFI15:
+ 229              		.cfi_restore 7
+ 230              		.cfi_def_cfa_offset 0
+ 231 0010 7047     		bx	lr
+ 232              		.cfi_endproc
+ 233              	.LFE128:
+ 235              		.section	.text.HAL_RNG_MspDeInit,"ax",%progbits
+ 236              		.align	1
+ 237              		.weak	HAL_RNG_MspDeInit
+ 238              		.syntax unified
+ 239              		.thumb
+ 240              		.thumb_func
+ 241              		.fpu softvfp
+ 243              	HAL_RNG_MspDeInit:
+ 244              	.LFB129:
+ 203:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c **** 
+ 204:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c **** /**
+ 205:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   * @brief  DeInitializes the RNG MSP.
+ 206:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   * @param  hrng: pointer to a RNG_HandleTypeDef structure that contains
+ 207:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   *                the configuration information for RNG.
+ 208:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   * @retval None
+ 209:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   */
+ 210:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c **** __weak void HAL_RNG_MspDeInit(RNG_HandleTypeDef *hrng)
+ 211:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c **** {
+ 245              		.loc 1 211 1
+ 246              		.cfi_startproc
+ 247              		@ args = 0, pretend = 0, frame = 8
+ 248              		@ frame_needed = 1, uses_anonymous_args = 0
+ 249              		@ link register save eliminated.
+ 250 0000 80B4     		push	{r7}
+ 251              	.LCFI16:
+ 252              		.cfi_def_cfa_offset 4
+ 253              		.cfi_offset 7, -4
+ 254 0002 83B0     		sub	sp, sp, #12
+ 255              	.LCFI17:
+ 256              		.cfi_def_cfa_offset 16
+ 257 0004 00AF     		add	r7, sp, #0
+ 258              	.LCFI18:
+ 259              		.cfi_def_cfa_register 7
+ 260 0006 7860     		str	r0, [r7, #4]
+ 212:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   /* Prevent unused argument(s) compilation warning */
+ 213:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   UNUSED(hrng);
+ 214:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   /* NOTE : This function should not be modified. When the callback is needed,
+ 215:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****             function HAL_RNG_MspDeInit must be implemented in the user file.
+ 216:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****    */
+ 217:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c **** }
+ 261              		.loc 1 217 1
+ 262 0008 00BF     		nop
+ 263 000a 0C37     		adds	r7, r7, #12
+ 264              	.LCFI19:
+ 265              		.cfi_def_cfa_offset 4
+ 266 000c BD46     		mov	sp, r7
+ 267              	.LCFI20:
+ 268              		.cfi_def_cfa_register 13
+ 269              		@ sp needed
+ 270 000e 80BC     		pop	{r7}
+ 271              	.LCFI21:
+ 272              		.cfi_restore 7
+ 273              		.cfi_def_cfa_offset 0
+ 274 0010 7047     		bx	lr
+ 275              		.cfi_endproc
+ 276              	.LFE129:
+ 278              		.section	.text.HAL_RNG_GenerateRandomNumber,"ax",%progbits
+ 279              		.align	1
+ 280              		.global	HAL_RNG_GenerateRandomNumber
+ 281              		.syntax unified
+ 282              		.thumb
+ 283              		.thumb_func
+ 284              		.fpu softvfp
+ 286              	HAL_RNG_GenerateRandomNumber:
+ 287              	.LFB130:
+ 218:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c **** 
+ 219:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c **** /**
+ 220:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   * @}
+ 221:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   */
+ 222:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c **** 
+ 223:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c **** /** @addtogroup RNG_Exported_Functions_Group2
+ 224:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****  *  @brief   Peripheral Control functions 
+ 225:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****  *
+ 226:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c **** @verbatim   
+ 227:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****  ===============================================================================
+ 228:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****                       ##### Peripheral Control functions #####
+ 229:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****  ===============================================================================  
+ 230:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****     [..]  This section provides functions allowing to:
+ 231:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****       (+) Get the 32 bit Random number
+ 232:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****       (+) Get the 32 bit Random number with interrupt enabled
+ 233:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****       (+) Handle RNG interrupt request 
+ 234:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c **** 
+ 235:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c **** @endverbatim
+ 236:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   * @{
+ 237:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   */
+ 238:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****    
+ 239:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c **** /**
+ 240:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   * @brief  Generates a 32-bit random number.
+ 241:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   * @note   Each time the random number data is read the RNG_FLAG_DRDY flag 
+ 242:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   *         is automatically cleared.
+ 243:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   * @param  hrng: pointer to a RNG_HandleTypeDef structure that contains
+ 244:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   *                the configuration information for RNG.
+ 245:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   * @param  random32bit: pointer to generated random number variable if successful.
+ 246:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   * @retval HAL status
+ 247:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   */
+ 248:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c **** 
+ 249:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c **** HAL_StatusTypeDef HAL_RNG_GenerateRandomNumber(RNG_HandleTypeDef *hrng, uint32_t *random32bit)
+ 250:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c **** {
+ 288              		.loc 1 250 1
+ 289              		.cfi_startproc
+ 290              		@ args = 0, pretend = 0, frame = 16
+ 291              		@ frame_needed = 1, uses_anonymous_args = 0
+ 292 0000 80B5     		push	{r7, lr}
+ 293              	.LCFI22:
+ 294              		.cfi_def_cfa_offset 8
+ 295              		.cfi_offset 7, -8
+ 296              		.cfi_offset 14, -4
+ 297 0002 84B0     		sub	sp, sp, #16
+ 298              	.LCFI23:
+ 299              		.cfi_def_cfa_offset 24
+ 300 0004 00AF     		add	r7, sp, #0
+ 301              	.LCFI24:
+ 302              		.cfi_def_cfa_register 7
+ 303 0006 7860     		str	r0, [r7, #4]
+ 304 0008 3960     		str	r1, [r7]
+ 251:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   uint32_t tickstart = 0U;    
+ 305              		.loc 1 251 12
+ 306 000a 0023     		movs	r3, #0
+ 307 000c BB60     		str	r3, [r7, #8]
+ 252:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   HAL_StatusTypeDef status = HAL_OK;
+ 308              		.loc 1 252 21
+ 309 000e 0023     		movs	r3, #0
+ 310 0010 FB73     		strb	r3, [r7, #15]
+ 253:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c **** 
+ 254:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   /* Process Locked */
+ 255:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   __HAL_LOCK(hrng); 
+ 311              		.loc 1 255 3
+ 312 0012 7B68     		ldr	r3, [r7, #4]
+ 313 0014 1B79     		ldrb	r3, [r3, #4]	@ zero_extendqisi2
+ 314 0016 012B     		cmp	r3, #1
+ 315 0018 01D1     		bne	.L12
+ 316              		.loc 1 255 3 is_stmt 0 discriminator 1
+ 317 001a 0223     		movs	r3, #2
+ 318 001c 39E0     		b	.L13
+ 319              	.L12:
+ 320              		.loc 1 255 3 discriminator 2
+ 321 001e 7B68     		ldr	r3, [r7, #4]
+ 322 0020 0122     		movs	r2, #1
+ 323 0022 1A71     		strb	r2, [r3, #4]
+ 256:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   
+ 257:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   /* Check RNG peripheral state */
+ 258:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   if(hrng->State == HAL_RNG_STATE_READY)
+ 324              		.loc 1 258 10 is_stmt 1 discriminator 2
+ 325 0024 7B68     		ldr	r3, [r7, #4]
+ 326 0026 5B79     		ldrb	r3, [r3, #5]
+ 327 0028 DBB2     		uxtb	r3, r3
+ 328              		.loc 1 258 5 discriminator 2
+ 329 002a 012B     		cmp	r3, #1
+ 330 002c 2BD1     		bne	.L14
+ 331              	.LBB2:
+ 259:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   {
+ 260:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****     /* Change RNG peripheral state */  
+ 261:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****     hrng->State = HAL_RNG_STATE_BUSY;  
+ 332              		.loc 1 261 17
+ 333 002e 7B68     		ldr	r3, [r7, #4]
+ 334 0030 0222     		movs	r2, #2
+ 335 0032 5A71     		strb	r2, [r3, #5]
+ 262:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c **** 
+ 263:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****     /* Get tick */
+ 264:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****     tickstart = HAL_GetTick();
+ 336              		.loc 1 264 17
+ 337 0034 FFF7FEFF 		bl	HAL_GetTick
+ 338 0038 0346     		mov	r3, r0
+ 339              		.loc 1 264 15
+ 340 003a BB60     		str	r3, [r7, #8]
+ 265:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   
+ 266:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****     /* Check if data register contains valid random data */
+ 267:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****     while(__HAL_RNG_GET_FLAG(hrng, RNG_FLAG_DRDY) == RESET)
+ 341              		.loc 1 267 10
+ 342 003c 0FE0     		b	.L15
+ 343              	.L16:
+ 268:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****     {
+ 269:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****       if((HAL_GetTick() - tickstart ) > RNG_TIMEOUT_VALUE)
+ 344              		.loc 1 269 11
+ 345 003e FFF7FEFF 		bl	HAL_GetTick
+ 346 0042 0346     		mov	r3, r0
+ 347 0044 1A46     		mov	r2, r3
+ 348              		.loc 1 269 25
+ 349 0046 BB68     		ldr	r3, [r7, #8]
+ 350 0048 D31A     		subs	r3, r2, r3
+ 351              		.loc 1 269 9
+ 352 004a 022B     		cmp	r3, #2
+ 353 004c 07D9     		bls	.L15
+ 270:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****       {    
+ 271:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****         hrng->State = HAL_RNG_STATE_ERROR;
+ 354              		.loc 1 271 21
+ 355 004e 7B68     		ldr	r3, [r7, #4]
+ 356 0050 0422     		movs	r2, #4
+ 357 0052 5A71     		strb	r2, [r3, #5]
+ 272:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c **** 
+ 273:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****         /* Process Unlocked */
+ 274:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****         __HAL_UNLOCK(hrng);
+ 358              		.loc 1 274 9
+ 359 0054 7B68     		ldr	r3, [r7, #4]
+ 360 0056 0022     		movs	r2, #0
+ 361 0058 1A71     		strb	r2, [r3, #4]
+ 275:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****       
+ 276:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****         return HAL_TIMEOUT;
+ 362              		.loc 1 276 16
+ 363 005a 0323     		movs	r3, #3
+ 364 005c 19E0     		b	.L13
+ 365              	.L15:
+ 267:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****     {
+ 366              		.loc 1 267 11
+ 367 005e 7B68     		ldr	r3, [r7, #4]
+ 368 0060 1B68     		ldr	r3, [r3]
+ 369 0062 5B68     		ldr	r3, [r3, #4]
+ 370 0064 03F00103 		and	r3, r3, #1
+ 267:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****     {
+ 371              		.loc 1 267 10
+ 372 0068 012B     		cmp	r3, #1
+ 373 006a E8D1     		bne	.L16
+ 277:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****       } 
+ 278:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****     }
+ 279:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   
+ 280:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****     /* Get a 32bit Random number */
+ 281:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****     hrng->RandomNumber = hrng->Instance->DR;
+ 374              		.loc 1 281 30
+ 375 006c 7B68     		ldr	r3, [r7, #4]
+ 376 006e 1B68     		ldr	r3, [r3]
+ 377              		.loc 1 281 40
+ 378 0070 9A68     		ldr	r2, [r3, #8]
+ 379              		.loc 1 281 24
+ 380 0072 7B68     		ldr	r3, [r7, #4]
+ 381 0074 9A60     		str	r2, [r3, #8]
+ 282:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****     *random32bit = hrng->RandomNumber;
+ 382              		.loc 1 282 24
+ 383 0076 7B68     		ldr	r3, [r7, #4]
+ 384 0078 9A68     		ldr	r2, [r3, #8]
+ 385              		.loc 1 282 18
+ 386 007a 3B68     		ldr	r3, [r7]
+ 387 007c 1A60     		str	r2, [r3]
+ 283:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   
+ 284:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****     hrng->State = HAL_RNG_STATE_READY;
+ 388              		.loc 1 284 17
+ 389 007e 7B68     		ldr	r3, [r7, #4]
+ 390 0080 0122     		movs	r2, #1
+ 391 0082 5A71     		strb	r2, [r3, #5]
+ 392              	.LBE2:
+ 393 0084 01E0     		b	.L17
+ 394              	.L14:
+ 285:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   }
+ 286:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   else
+ 287:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   {
+ 288:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****     status = HAL_ERROR;
+ 395              		.loc 1 288 12
+ 396 0086 0123     		movs	r3, #1
+ 397 0088 FB73     		strb	r3, [r7, #15]
+ 398              	.L17:
+ 289:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   }
+ 290:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   
+ 291:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   /* Process Unlocked */
+ 292:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   __HAL_UNLOCK(hrng);
+ 399              		.loc 1 292 3
+ 400 008a 7B68     		ldr	r3, [r7, #4]
+ 401 008c 0022     		movs	r2, #0
+ 402 008e 1A71     		strb	r2, [r3, #4]
+ 293:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   
+ 294:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   return status;
+ 403              		.loc 1 294 10
+ 404 0090 FB7B     		ldrb	r3, [r7, #15]	@ zero_extendqisi2
+ 405              	.L13:
+ 295:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c **** }
+ 406              		.loc 1 295 1
+ 407 0092 1846     		mov	r0, r3
+ 408 0094 1037     		adds	r7, r7, #16
+ 409              	.LCFI25:
+ 410              		.cfi_def_cfa_offset 8
+ 411 0096 BD46     		mov	sp, r7
+ 412              	.LCFI26:
+ 413              		.cfi_def_cfa_register 13
+ 414              		@ sp needed
+ 415 0098 80BD     		pop	{r7, pc}
+ 416              		.cfi_endproc
+ 417              	.LFE130:
+ 419              		.section	.text.HAL_RNG_GenerateRandomNumber_IT,"ax",%progbits
+ 420              		.align	1
+ 421              		.global	HAL_RNG_GenerateRandomNumber_IT
+ 422              		.syntax unified
+ 423              		.thumb
+ 424              		.thumb_func
+ 425              		.fpu softvfp
+ 427              	HAL_RNG_GenerateRandomNumber_IT:
+ 428              	.LFB131:
+ 296:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c **** 
+ 297:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c **** /**
+ 298:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   * @brief  Generates a 32-bit random number in interrupt mode.
+ 299:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   * @param  hrng: pointer to a RNG_HandleTypeDef structure that contains
+ 300:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   *                the configuration information for RNG.
+ 301:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   * @retval HAL status
+ 302:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   */
+ 303:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c **** HAL_StatusTypeDef HAL_RNG_GenerateRandomNumber_IT(RNG_HandleTypeDef *hrng)
+ 304:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c **** {
+ 429              		.loc 1 304 1
+ 430              		.cfi_startproc
+ 431              		@ args = 0, pretend = 0, frame = 16
+ 432              		@ frame_needed = 1, uses_anonymous_args = 0
+ 433              		@ link register save eliminated.
+ 434 0000 80B4     		push	{r7}
+ 435              	.LCFI27:
+ 436              		.cfi_def_cfa_offset 4
+ 437              		.cfi_offset 7, -4
+ 438 0002 85B0     		sub	sp, sp, #20
+ 439              	.LCFI28:
+ 440              		.cfi_def_cfa_offset 24
+ 441 0004 00AF     		add	r7, sp, #0
+ 442              	.LCFI29:
+ 443              		.cfi_def_cfa_register 7
+ 444 0006 7860     		str	r0, [r7, #4]
+ 305:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   HAL_StatusTypeDef status = HAL_OK;
+ 445              		.loc 1 305 21
+ 446 0008 0023     		movs	r3, #0
+ 447 000a FB73     		strb	r3, [r7, #15]
+ 306:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   
+ 307:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   /* Process Locked */
+ 308:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   __HAL_LOCK(hrng);
+ 448              		.loc 1 308 3
+ 449 000c 7B68     		ldr	r3, [r7, #4]
+ 450 000e 1B79     		ldrb	r3, [r3, #4]	@ zero_extendqisi2
+ 451 0010 012B     		cmp	r3, #1
+ 452 0012 01D1     		bne	.L19
+ 453              		.loc 1 308 3 is_stmt 0 discriminator 1
+ 454 0014 0223     		movs	r3, #2
+ 455 0016 1CE0     		b	.L20
+ 456              	.L19:
+ 457              		.loc 1 308 3 discriminator 2
+ 458 0018 7B68     		ldr	r3, [r7, #4]
+ 459 001a 0122     		movs	r2, #1
+ 460 001c 1A71     		strb	r2, [r3, #4]
+ 309:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   
+ 310:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   /* Check RNG peripheral state */
+ 311:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   if(hrng->State == HAL_RNG_STATE_READY)
+ 461              		.loc 1 311 10 is_stmt 1 discriminator 2
+ 462 001e 7B68     		ldr	r3, [r7, #4]
+ 463 0020 5B79     		ldrb	r3, [r3, #5]
+ 464 0022 DBB2     		uxtb	r3, r3
+ 465              		.loc 1 311 5 discriminator 2
+ 466 0024 012B     		cmp	r3, #1
+ 467 0026 0ED1     		bne	.L21
+ 312:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   {
+ 313:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****     /* Change RNG peripheral state */  
+ 314:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****     hrng->State = HAL_RNG_STATE_BUSY;  
+ 468              		.loc 1 314 17
+ 469 0028 7B68     		ldr	r3, [r7, #4]
+ 470 002a 0222     		movs	r2, #2
+ 471 002c 5A71     		strb	r2, [r3, #5]
+ 315:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   
+ 316:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****     /* Process Unlocked */
+ 317:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****     __HAL_UNLOCK(hrng);
+ 472              		.loc 1 317 5
+ 473 002e 7B68     		ldr	r3, [r7, #4]
+ 474 0030 0022     		movs	r2, #0
+ 475 0032 1A71     		strb	r2, [r3, #4]
+ 318:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****     
+ 319:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****     /* Enable the RNG Interrupts: Data Ready, Clock error, Seed error */ 
+ 320:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****     __HAL_RNG_ENABLE_IT(hrng);
+ 476              		.loc 1 320 5
+ 477 0034 7B68     		ldr	r3, [r7, #4]
+ 478 0036 1B68     		ldr	r3, [r3]
+ 479 0038 1A68     		ldr	r2, [r3]
+ 480 003a 7B68     		ldr	r3, [r7, #4]
+ 481 003c 1B68     		ldr	r3, [r3]
+ 482 003e 42F00802 		orr	r2, r2, #8
+ 483 0042 1A60     		str	r2, [r3]
+ 484 0044 04E0     		b	.L22
+ 485              	.L21:
+ 321:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   }
+ 322:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   else
+ 323:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   {
+ 324:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****     /* Process Unlocked */
+ 325:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****     __HAL_UNLOCK(hrng);
+ 486              		.loc 1 325 5
+ 487 0046 7B68     		ldr	r3, [r7, #4]
+ 488 0048 0022     		movs	r2, #0
+ 489 004a 1A71     		strb	r2, [r3, #4]
+ 326:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****     
+ 327:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****     status = HAL_ERROR;
+ 490              		.loc 1 327 12
+ 491 004c 0123     		movs	r3, #1
+ 492 004e FB73     		strb	r3, [r7, #15]
+ 493              	.L22:
+ 328:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   }
+ 329:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   
+ 330:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   return status;
+ 494              		.loc 1 330 10
+ 495 0050 FB7B     		ldrb	r3, [r7, #15]	@ zero_extendqisi2
+ 496              	.L20:
+ 331:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c **** }
+ 497              		.loc 1 331 1
+ 498 0052 1846     		mov	r0, r3
+ 499 0054 1437     		adds	r7, r7, #20
+ 500              	.LCFI30:
+ 501              		.cfi_def_cfa_offset 4
+ 502 0056 BD46     		mov	sp, r7
+ 503              	.LCFI31:
+ 504              		.cfi_def_cfa_register 13
+ 505              		@ sp needed
+ 506 0058 80BC     		pop	{r7}
+ 507              	.LCFI32:
+ 508              		.cfi_restore 7
+ 509              		.cfi_def_cfa_offset 0
+ 510 005a 7047     		bx	lr
+ 511              		.cfi_endproc
+ 512              	.LFE131:
+ 514              		.section	.text.HAL_RNG_IRQHandler,"ax",%progbits
+ 515              		.align	1
+ 516              		.global	HAL_RNG_IRQHandler
+ 517              		.syntax unified
+ 518              		.thumb
+ 519              		.thumb_func
+ 520              		.fpu softvfp
+ 522              	HAL_RNG_IRQHandler:
+ 523              	.LFB132:
+ 332:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c **** 
+ 333:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c **** /**
+ 334:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   * @brief  Handles RNG interrupt request.
+ 335:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   * @note   In the case of a clock error, the RNG is no more able to generate 
+ 336:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   *         random numbers because the PLL48CLK clock is not correct. User has 
+ 337:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   *         to check that the clock controller is correctly configured to provide
+ 338:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   *         the RNG clock and clear the CEIS bit using __HAL_RNG_CLEAR_IT(). 
+ 339:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   *         The clock error has no impact on the previously generated 
+ 340:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   *         random numbers, and the RNG_DR register contents can be used.
+ 341:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   * @note   In the case of a seed error, the generation of random numbers is 
+ 342:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   *         interrupted as long as the SECS bit is '1'. If a number is 
+ 343:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   *         available in the RNG_DR register, it must not be used because it may 
+ 344:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   *         not have enough entropy. In this case, it is recommended to clear the 
+ 345:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   *         SEIS bit using __HAL_RNG_CLEAR_IT(), then disable and enable 
+ 346:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   *         the RNG peripheral to reinitialize and restart the RNG.
+ 347:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   * @note   User-written HAL_RNG_ErrorCallback() API is called once whether SEIS
+ 348:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   *         or CEIS are set.  
+ 349:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   * @param  hrng: pointer to a RNG_HandleTypeDef structure that contains
+ 350:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   *                the configuration information for RNG.
+ 351:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   * @retval None
+ 352:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c **** 
+ 353:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   */
+ 354:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c **** void HAL_RNG_IRQHandler(RNG_HandleTypeDef *hrng)
+ 355:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c **** {
+ 524              		.loc 1 355 1
+ 525              		.cfi_startproc
+ 526              		@ args = 0, pretend = 0, frame = 8
+ 527              		@ frame_needed = 1, uses_anonymous_args = 0
+ 528 0000 80B5     		push	{r7, lr}
+ 529              	.LCFI33:
+ 530              		.cfi_def_cfa_offset 8
+ 531              		.cfi_offset 7, -8
+ 532              		.cfi_offset 14, -4
+ 533 0002 82B0     		sub	sp, sp, #8
+ 534              	.LCFI34:
+ 535              		.cfi_def_cfa_offset 16
+ 536 0004 00AF     		add	r7, sp, #0
+ 537              	.LCFI35:
+ 538              		.cfi_def_cfa_register 7
+ 539 0006 7860     		str	r0, [r7, #4]
+ 356:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   /* RNG clock error interrupt occurred */
+ 357:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   if((__HAL_RNG_GET_IT(hrng, RNG_IT_CEI) != RESET) ||  (__HAL_RNG_GET_IT(hrng, RNG_IT_SEI) != RESET
+ 540              		.loc 1 357 7
+ 541 0008 7B68     		ldr	r3, [r7, #4]
+ 542 000a 1B68     		ldr	r3, [r3]
+ 543 000c 5B68     		ldr	r3, [r3, #4]
+ 544 000e 03F02003 		and	r3, r3, #32
+ 545              		.loc 1 357 5
+ 546 0012 202B     		cmp	r3, #32
+ 547 0014 06D0     		beq	.L24
+ 548              		.loc 1 357 57 discriminator 1
+ 549 0016 7B68     		ldr	r3, [r7, #4]
+ 550 0018 1B68     		ldr	r3, [r3]
+ 551 001a 5B68     		ldr	r3, [r3, #4]
+ 552 001c 03F04003 		and	r3, r3, #64
+ 553              		.loc 1 357 52 discriminator 1
+ 554 0020 402B     		cmp	r3, #64
+ 555 0022 0AD1     		bne	.L25
+ 556              	.L24:
+ 358:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   { 
+ 359:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****     /* Change RNG peripheral state */
+ 360:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****     hrng->State = HAL_RNG_STATE_ERROR;
+ 557              		.loc 1 360 17
+ 558 0024 7B68     		ldr	r3, [r7, #4]
+ 559 0026 0422     		movs	r2, #4
+ 560 0028 5A71     		strb	r2, [r3, #5]
+ 361:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   
+ 362:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****     HAL_RNG_ErrorCallback(hrng);
+ 561              		.loc 1 362 5
+ 562 002a 7868     		ldr	r0, [r7, #4]
+ 563 002c FFF7FEFF 		bl	HAL_RNG_ErrorCallback
+ 363:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****     
+ 364:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****     /* Clear the clock error flag */
+ 365:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****     __HAL_RNG_CLEAR_IT(hrng, RNG_IT_CEI|RNG_IT_SEI);
+ 564              		.loc 1 365 5
+ 565 0030 7B68     		ldr	r3, [r7, #4]
+ 566 0032 1B68     		ldr	r3, [r3]
+ 567 0034 6FF06002 		mvn	r2, #96
+ 568 0038 5A60     		str	r2, [r3, #4]
+ 569              	.L25:
+ 366:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****     
+ 367:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   }
+ 368:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   
+ 369:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   /* Check RNG data ready interrupt occurred */    
+ 370:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   if(__HAL_RNG_GET_IT(hrng, RNG_IT_DRDY) != RESET)
+ 570              		.loc 1 370 6
+ 571 003a 7B68     		ldr	r3, [r7, #4]
+ 572 003c 1B68     		ldr	r3, [r3]
+ 573 003e 5B68     		ldr	r3, [r3, #4]
+ 574 0040 03F00103 		and	r3, r3, #1
+ 575              		.loc 1 370 5
+ 576 0044 012B     		cmp	r3, #1
+ 577 0046 1AD1     		bne	.L27
+ 371:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   {
+ 372:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****     /* Generate random number once, so disable the IT */
+ 373:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****     __HAL_RNG_DISABLE_IT(hrng);
+ 578              		.loc 1 373 5
+ 579 0048 7B68     		ldr	r3, [r7, #4]
+ 580 004a 1B68     		ldr	r3, [r3]
+ 581 004c 1A68     		ldr	r2, [r3]
+ 582 004e 7B68     		ldr	r3, [r7, #4]
+ 583 0050 1B68     		ldr	r3, [r3]
+ 584 0052 22F00802 		bic	r2, r2, #8
+ 585 0056 1A60     		str	r2, [r3]
+ 374:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****     
+ 375:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****     /* Get the 32bit Random number (DRDY flag automatically cleared) */ 
+ 376:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****     hrng->RandomNumber = hrng->Instance->DR;
+ 586              		.loc 1 376 30
+ 587 0058 7B68     		ldr	r3, [r7, #4]
+ 588 005a 1B68     		ldr	r3, [r3]
+ 589              		.loc 1 376 40
+ 590 005c 9A68     		ldr	r2, [r3, #8]
+ 591              		.loc 1 376 24
+ 592 005e 7B68     		ldr	r3, [r7, #4]
+ 593 0060 9A60     		str	r2, [r3, #8]
+ 377:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****     
+ 378:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****     if(hrng->State != HAL_RNG_STATE_ERROR)
+ 594              		.loc 1 378 12
+ 595 0062 7B68     		ldr	r3, [r7, #4]
+ 596 0064 5B79     		ldrb	r3, [r3, #5]
+ 597 0066 DBB2     		uxtb	r3, r3
+ 598              		.loc 1 378 7
+ 599 0068 042B     		cmp	r3, #4
+ 600 006a 08D0     		beq	.L27
+ 379:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****     {
+ 380:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****       /* Change RNG peripheral state */
+ 381:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****       hrng->State = HAL_RNG_STATE_READY; 
+ 601              		.loc 1 381 19
+ 602 006c 7B68     		ldr	r3, [r7, #4]
+ 603 006e 0122     		movs	r2, #1
+ 604 0070 5A71     		strb	r2, [r3, #5]
+ 382:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****       
+ 383:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****       /* Data Ready callback */ 
+ 384:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****       HAL_RNG_ReadyDataCallback(hrng, hrng->RandomNumber);
+ 605              		.loc 1 384 7
+ 606 0072 7B68     		ldr	r3, [r7, #4]
+ 607 0074 9B68     		ldr	r3, [r3, #8]
+ 608 0076 1946     		mov	r1, r3
+ 609 0078 7868     		ldr	r0, [r7, #4]
+ 610 007a FFF7FEFF 		bl	HAL_RNG_ReadyDataCallback
+ 611              	.L27:
+ 385:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****     } 
+ 386:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   }
+ 387:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c **** } 
+ 612              		.loc 1 387 1
+ 613 007e 00BF     		nop
+ 614 0080 0837     		adds	r7, r7, #8
+ 615              	.LCFI36:
+ 616              		.cfi_def_cfa_offset 8
+ 617 0082 BD46     		mov	sp, r7
+ 618              	.LCFI37:
+ 619              		.cfi_def_cfa_register 13
+ 620              		@ sp needed
+ 621 0084 80BD     		pop	{r7, pc}
+ 622              		.cfi_endproc
+ 623              	.LFE132:
+ 625              		.section	.text.HAL_RNG_GetRandomNumber,"ax",%progbits
+ 626              		.align	1
+ 627              		.global	HAL_RNG_GetRandomNumber
+ 628              		.syntax unified
+ 629              		.thumb
+ 630              		.thumb_func
+ 631              		.fpu softvfp
+ 633              	HAL_RNG_GetRandomNumber:
+ 634              	.LFB133:
+ 388:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c **** 
+ 389:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c **** /**
+ 390:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   * @brief  Returns generated random number in polling mode (Obsolete)
+ 391:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   *         Use HAL_RNG_GenerateRandomNumber() API instead.
+ 392:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   * @param  hrng: pointer to a RNG_HandleTypeDef structure that contains
+ 393:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   *                the configuration information for RNG.
+ 394:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   * @retval Random value
+ 395:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   */
+ 396:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c **** uint32_t HAL_RNG_GetRandomNumber(RNG_HandleTypeDef *hrng)
+ 397:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c **** {
+ 635              		.loc 1 397 1
+ 636              		.cfi_startproc
+ 637              		@ args = 0, pretend = 0, frame = 8
+ 638              		@ frame_needed = 1, uses_anonymous_args = 0
+ 639 0000 80B5     		push	{r7, lr}
+ 640              	.LCFI38:
+ 641              		.cfi_def_cfa_offset 8
+ 642              		.cfi_offset 7, -8
+ 643              		.cfi_offset 14, -4
+ 644 0002 82B0     		sub	sp, sp, #8
+ 645              	.LCFI39:
+ 646              		.cfi_def_cfa_offset 16
+ 647 0004 00AF     		add	r7, sp, #0
+ 648              	.LCFI40:
+ 649              		.cfi_def_cfa_register 7
+ 650 0006 7860     		str	r0, [r7, #4]
+ 398:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   if(HAL_RNG_GenerateRandomNumber(hrng, &(hrng->RandomNumber)) == HAL_OK)
+ 651              		.loc 1 398 6
+ 652 0008 7B68     		ldr	r3, [r7, #4]
+ 653 000a 0833     		adds	r3, r3, #8
+ 654 000c 1946     		mov	r1, r3
+ 655 000e 7868     		ldr	r0, [r7, #4]
+ 656 0010 FFF7FEFF 		bl	HAL_RNG_GenerateRandomNumber
+ 657 0014 0346     		mov	r3, r0
+ 658              		.loc 1 398 5
+ 659 0016 002B     		cmp	r3, #0
+ 660 0018 02D1     		bne	.L29
+ 399:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   {
+ 400:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****     return hrng->RandomNumber; 
+ 661              		.loc 1 400 16
+ 662 001a 7B68     		ldr	r3, [r7, #4]
+ 663 001c 9B68     		ldr	r3, [r3, #8]
+ 664 001e 00E0     		b	.L30
+ 665              	.L29:
+ 401:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   }
+ 402:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   else
+ 403:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   {
+ 404:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****     return 0U;
+ 666              		.loc 1 404 12
+ 667 0020 0023     		movs	r3, #0
+ 668              	.L30:
+ 405:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   }
+ 406:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c **** }
+ 669              		.loc 1 406 1
+ 670 0022 1846     		mov	r0, r3
+ 671 0024 0837     		adds	r7, r7, #8
+ 672              	.LCFI41:
+ 673              		.cfi_def_cfa_offset 8
+ 674 0026 BD46     		mov	sp, r7
+ 675              	.LCFI42:
+ 676              		.cfi_def_cfa_register 13
+ 677              		@ sp needed
+ 678 0028 80BD     		pop	{r7, pc}
+ 679              		.cfi_endproc
+ 680              	.LFE133:
+ 682              		.section	.text.HAL_RNG_GetRandomNumber_IT,"ax",%progbits
+ 683              		.align	1
+ 684              		.global	HAL_RNG_GetRandomNumber_IT
+ 685              		.syntax unified
+ 686              		.thumb
+ 687              		.thumb_func
+ 688              		.fpu softvfp
+ 690              	HAL_RNG_GetRandomNumber_IT:
+ 691              	.LFB134:
+ 407:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c **** 
+ 408:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c **** /**
+ 409:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   * @brief  Returns a 32-bit random number with interrupt enabled (Obsolete),
+ 410:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   *         Use HAL_RNG_GenerateRandomNumber_IT() API instead.
+ 411:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   * @param  hrng: pointer to a RNG_HandleTypeDef structure that contains
+ 412:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   *                the configuration information for RNG.
+ 413:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   * @retval 32-bit random number
+ 414:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   */
+ 415:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c **** uint32_t HAL_RNG_GetRandomNumber_IT(RNG_HandleTypeDef *hrng)
+ 416:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c **** {
+ 692              		.loc 1 416 1
+ 693              		.cfi_startproc
+ 694              		@ args = 0, pretend = 0, frame = 16
+ 695              		@ frame_needed = 1, uses_anonymous_args = 0
+ 696              		@ link register save eliminated.
+ 697 0000 80B4     		push	{r7}
+ 698              	.LCFI43:
+ 699              		.cfi_def_cfa_offset 4
+ 700              		.cfi_offset 7, -4
+ 701 0002 85B0     		sub	sp, sp, #20
+ 702              	.LCFI44:
+ 703              		.cfi_def_cfa_offset 24
+ 704 0004 00AF     		add	r7, sp, #0
+ 705              	.LCFI45:
+ 706              		.cfi_def_cfa_register 7
+ 707 0006 7860     		str	r0, [r7, #4]
+ 417:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   uint32_t random32bit = 0U;
+ 708              		.loc 1 417 12
+ 709 0008 0023     		movs	r3, #0
+ 710 000a FB60     		str	r3, [r7, #12]
+ 418:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   
+ 419:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   /* Process locked */
+ 420:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   __HAL_LOCK(hrng);
+ 711              		.loc 1 420 3
+ 712 000c 7B68     		ldr	r3, [r7, #4]
+ 713 000e 1B79     		ldrb	r3, [r3, #4]	@ zero_extendqisi2
+ 714 0010 012B     		cmp	r3, #1
+ 715 0012 01D1     		bne	.L32
+ 716              		.loc 1 420 3 is_stmt 0 discriminator 1
+ 717 0014 0223     		movs	r3, #2
+ 718 0016 12E0     		b	.L33
+ 719              	.L32:
+ 720              		.loc 1 420 3 discriminator 2
+ 721 0018 7B68     		ldr	r3, [r7, #4]
+ 722 001a 0122     		movs	r2, #1
+ 723 001c 1A71     		strb	r2, [r3, #4]
+ 421:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   
+ 422:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   /* Change RNG peripheral state */  
+ 423:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   hrng->State = HAL_RNG_STATE_BUSY;  
+ 724              		.loc 1 423 15 is_stmt 1 discriminator 2
+ 725 001e 7B68     		ldr	r3, [r7, #4]
+ 726 0020 0222     		movs	r2, #2
+ 727 0022 5A71     		strb	r2, [r3, #5]
+ 424:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   
+ 425:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   /* Get a 32bit Random number */ 
+ 426:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   random32bit = hrng->Instance->DR;
+ 728              		.loc 1 426 21 discriminator 2
+ 729 0024 7B68     		ldr	r3, [r7, #4]
+ 730 0026 1B68     		ldr	r3, [r3]
+ 731              		.loc 1 426 15 discriminator 2
+ 732 0028 9B68     		ldr	r3, [r3, #8]
+ 733 002a FB60     		str	r3, [r7, #12]
+ 427:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   
+ 428:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   /* Enable the RNG Interrupts: Data Ready, Clock error, Seed error */ 
+ 429:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   __HAL_RNG_ENABLE_IT(hrng); 
+ 734              		.loc 1 429 3 discriminator 2
+ 735 002c 7B68     		ldr	r3, [r7, #4]
+ 736 002e 1B68     		ldr	r3, [r3]
+ 737 0030 1A68     		ldr	r2, [r3]
+ 738 0032 7B68     		ldr	r3, [r7, #4]
+ 739 0034 1B68     		ldr	r3, [r3]
+ 740 0036 42F00802 		orr	r2, r2, #8
+ 741 003a 1A60     		str	r2, [r3]
+ 430:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   
+ 431:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   /* Return the 32 bit random number */   
+ 432:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   return random32bit;
+ 742              		.loc 1 432 10 discriminator 2
+ 743 003c FB68     		ldr	r3, [r7, #12]
+ 744              	.L33:
+ 433:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c **** }
+ 745              		.loc 1 433 1
+ 746 003e 1846     		mov	r0, r3
+ 747 0040 1437     		adds	r7, r7, #20
+ 748              	.LCFI46:
+ 749              		.cfi_def_cfa_offset 4
+ 750 0042 BD46     		mov	sp, r7
+ 751              	.LCFI47:
+ 752              		.cfi_def_cfa_register 13
+ 753              		@ sp needed
+ 754 0044 80BC     		pop	{r7}
+ 755              	.LCFI48:
+ 756              		.cfi_restore 7
+ 757              		.cfi_def_cfa_offset 0
+ 758 0046 7047     		bx	lr
+ 759              		.cfi_endproc
+ 760              	.LFE134:
+ 762              		.section	.text.HAL_RNG_ReadLastRandomNumber,"ax",%progbits
+ 763              		.align	1
+ 764              		.global	HAL_RNG_ReadLastRandomNumber
+ 765              		.syntax unified
+ 766              		.thumb
+ 767              		.thumb_func
+ 768              		.fpu softvfp
+ 770              	HAL_RNG_ReadLastRandomNumber:
+ 771              	.LFB135:
+ 434:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c **** 
+ 435:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c **** /**
+ 436:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   * @brief  Read latest generated random number. 
+ 437:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   * @param  hrng: pointer to a RNG_HandleTypeDef structure that contains
+ 438:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   *                the configuration information for RNG.
+ 439:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   * @retval random value
+ 440:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   */
+ 441:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c **** uint32_t HAL_RNG_ReadLastRandomNumber(RNG_HandleTypeDef *hrng)
+ 442:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c **** {
+ 772              		.loc 1 442 1
+ 773              		.cfi_startproc
+ 774              		@ args = 0, pretend = 0, frame = 8
+ 775              		@ frame_needed = 1, uses_anonymous_args = 0
+ 776              		@ link register save eliminated.
+ 777 0000 80B4     		push	{r7}
+ 778              	.LCFI49:
+ 779              		.cfi_def_cfa_offset 4
+ 780              		.cfi_offset 7, -4
+ 781 0002 83B0     		sub	sp, sp, #12
+ 782              	.LCFI50:
+ 783              		.cfi_def_cfa_offset 16
+ 784 0004 00AF     		add	r7, sp, #0
+ 785              	.LCFI51:
+ 786              		.cfi_def_cfa_register 7
+ 787 0006 7860     		str	r0, [r7, #4]
+ 443:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   return(hrng->RandomNumber);
+ 788              		.loc 1 443 14
+ 789 0008 7B68     		ldr	r3, [r7, #4]
+ 790 000a 9B68     		ldr	r3, [r3, #8]
+ 444:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c **** }
+ 791              		.loc 1 444 1
+ 792 000c 1846     		mov	r0, r3
+ 793 000e 0C37     		adds	r7, r7, #12
+ 794              	.LCFI52:
+ 795              		.cfi_def_cfa_offset 4
+ 796 0010 BD46     		mov	sp, r7
+ 797              	.LCFI53:
+ 798              		.cfi_def_cfa_register 13
+ 799              		@ sp needed
+ 800 0012 80BC     		pop	{r7}
+ 801              	.LCFI54:
+ 802              		.cfi_restore 7
+ 803              		.cfi_def_cfa_offset 0
+ 804 0014 7047     		bx	lr
+ 805              		.cfi_endproc
+ 806              	.LFE135:
+ 808              		.section	.text.HAL_RNG_ReadyDataCallback,"ax",%progbits
+ 809              		.align	1
+ 810              		.weak	HAL_RNG_ReadyDataCallback
+ 811              		.syntax unified
+ 812              		.thumb
+ 813              		.thumb_func
+ 814              		.fpu softvfp
+ 816              	HAL_RNG_ReadyDataCallback:
+ 817              	.LFB136:
+ 445:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c **** 
+ 446:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c **** /**
+ 447:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   * @brief  Data Ready callback in non-blocking mode. 
+ 448:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   * @param  hrng: pointer to a RNG_HandleTypeDef structure that contains
+ 449:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   *                the configuration information for RNG.
+ 450:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   * @param  random32bit: generated random number.
+ 451:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   * @retval None
+ 452:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   */
+ 453:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c **** __weak void HAL_RNG_ReadyDataCallback(RNG_HandleTypeDef *hrng, uint32_t random32bit)
+ 454:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c **** {
+ 818              		.loc 1 454 1
+ 819              		.cfi_startproc
+ 820              		@ args = 0, pretend = 0, frame = 8
+ 821              		@ frame_needed = 1, uses_anonymous_args = 0
+ 822              		@ link register save eliminated.
+ 823 0000 80B4     		push	{r7}
+ 824              	.LCFI55:
+ 825              		.cfi_def_cfa_offset 4
+ 826              		.cfi_offset 7, -4
+ 827 0002 83B0     		sub	sp, sp, #12
+ 828              	.LCFI56:
+ 829              		.cfi_def_cfa_offset 16
+ 830 0004 00AF     		add	r7, sp, #0
+ 831              	.LCFI57:
+ 832              		.cfi_def_cfa_register 7
+ 833 0006 7860     		str	r0, [r7, #4]
+ 834 0008 3960     		str	r1, [r7]
+ 455:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   /* Prevent unused argument(s) compilation warning */
+ 456:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   UNUSED(hrng);
+ 457:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   UNUSED(random32bit);
+ 458:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   /* NOTE : This function should not be modified. When the callback is needed,
+ 459:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****             function HAL_RNG_ReadyDataCallback must be implemented in the user file.
+ 460:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****    */
+ 461:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c **** }
+ 835              		.loc 1 461 1
+ 836 000a 00BF     		nop
+ 837 000c 0C37     		adds	r7, r7, #12
+ 838              	.LCFI58:
+ 839              		.cfi_def_cfa_offset 4
+ 840 000e BD46     		mov	sp, r7
+ 841              	.LCFI59:
+ 842              		.cfi_def_cfa_register 13
+ 843              		@ sp needed
+ 844 0010 80BC     		pop	{r7}
+ 845              	.LCFI60:
+ 846              		.cfi_restore 7
+ 847              		.cfi_def_cfa_offset 0
+ 848 0012 7047     		bx	lr
+ 849              		.cfi_endproc
+ 850              	.LFE136:
+ 852              		.section	.text.HAL_RNG_ErrorCallback,"ax",%progbits
+ 853              		.align	1
+ 854              		.weak	HAL_RNG_ErrorCallback
+ 855              		.syntax unified
+ 856              		.thumb
+ 857              		.thumb_func
+ 858              		.fpu softvfp
+ 860              	HAL_RNG_ErrorCallback:
+ 861              	.LFB137:
+ 462:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c **** 
+ 463:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c **** /**
+ 464:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   * @brief  RNG error callbacks.
+ 465:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   * @param  hrng: pointer to a RNG_HandleTypeDef structure that contains
+ 466:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   *                the configuration information for RNG.
+ 467:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   * @retval None
+ 468:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   */
+ 469:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c **** __weak void HAL_RNG_ErrorCallback(RNG_HandleTypeDef *hrng)
+ 470:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c **** {
+ 862              		.loc 1 470 1
+ 863              		.cfi_startproc
+ 864              		@ args = 0, pretend = 0, frame = 8
+ 865              		@ frame_needed = 1, uses_anonymous_args = 0
+ 866              		@ link register save eliminated.
+ 867 0000 80B4     		push	{r7}
+ 868              	.LCFI61:
+ 869              		.cfi_def_cfa_offset 4
+ 870              		.cfi_offset 7, -4
+ 871 0002 83B0     		sub	sp, sp, #12
+ 872              	.LCFI62:
+ 873              		.cfi_def_cfa_offset 16
+ 874 0004 00AF     		add	r7, sp, #0
+ 875              	.LCFI63:
+ 876              		.cfi_def_cfa_register 7
+ 877 0006 7860     		str	r0, [r7, #4]
+ 471:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   /* Prevent unused argument(s) compilation warning */
+ 472:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   UNUSED(hrng);
+ 473:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   /* NOTE : This function should not be modified. When the callback is needed,
+ 474:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****             function HAL_RNG_ErrorCallback must be implemented in the user file.
+ 475:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****    */
+ 476:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c **** }
+ 878              		.loc 1 476 1
+ 879 0008 00BF     		nop
+ 880 000a 0C37     		adds	r7, r7, #12
+ 881              	.LCFI64:
+ 882              		.cfi_def_cfa_offset 4
+ 883 000c BD46     		mov	sp, r7
+ 884              	.LCFI65:
+ 885              		.cfi_def_cfa_register 13
+ 886              		@ sp needed
+ 887 000e 80BC     		pop	{r7}
+ 888              	.LCFI66:
+ 889              		.cfi_restore 7
+ 890              		.cfi_def_cfa_offset 0
+ 891 0010 7047     		bx	lr
+ 892              		.cfi_endproc
+ 893              	.LFE137:
+ 895              		.section	.text.HAL_RNG_GetState,"ax",%progbits
+ 896              		.align	1
+ 897              		.global	HAL_RNG_GetState
+ 898              		.syntax unified
+ 899              		.thumb
+ 900              		.thumb_func
+ 901              		.fpu softvfp
+ 903              	HAL_RNG_GetState:
+ 904              	.LFB138:
+ 477:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c **** /**
+ 478:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   * @}
+ 479:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   */ 
+ 480:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c **** 
+ 481:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   
+ 482:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c **** /** @addtogroup RNG_Exported_Functions_Group3
+ 483:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****  *  @brief   Peripheral State functions 
+ 484:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****  *
+ 485:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c **** @verbatim   
+ 486:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****  ===============================================================================
+ 487:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****                       ##### Peripheral State functions #####
+ 488:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****  ===============================================================================  
+ 489:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****     [..]
+ 490:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****     This subsection permits to get in run-time the status of the peripheral 
+ 491:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****     and the data flow.
+ 492:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c **** 
+ 493:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c **** @endverbatim
+ 494:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   * @{
+ 495:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   */
+ 496:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   
+ 497:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c **** /**
+ 498:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   * @brief  Returns the RNG state.
+ 499:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   * @param  hrng: pointer to a RNG_HandleTypeDef structure that contains
+ 500:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   *                the configuration information for RNG.
+ 501:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   * @retval HAL state
+ 502:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   */
+ 503:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c **** HAL_RNG_StateTypeDef HAL_RNG_GetState(RNG_HandleTypeDef *hrng)
+ 504:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c **** {
+ 905              		.loc 1 504 1
+ 906              		.cfi_startproc
+ 907              		@ args = 0, pretend = 0, frame = 8
+ 908              		@ frame_needed = 1, uses_anonymous_args = 0
+ 909              		@ link register save eliminated.
+ 910 0000 80B4     		push	{r7}
+ 911              	.LCFI67:
+ 912              		.cfi_def_cfa_offset 4
+ 913              		.cfi_offset 7, -4
+ 914 0002 83B0     		sub	sp, sp, #12
+ 915              	.LCFI68:
+ 916              		.cfi_def_cfa_offset 16
+ 917 0004 00AF     		add	r7, sp, #0
+ 918              	.LCFI69:
+ 919              		.cfi_def_cfa_register 7
+ 920 0006 7860     		str	r0, [r7, #4]
+ 505:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c ****   return hrng->State;
+ 921              		.loc 1 505 14
+ 922 0008 7B68     		ldr	r3, [r7, #4]
+ 923 000a 5B79     		ldrb	r3, [r3, #5]
+ 924 000c DBB2     		uxtb	r3, r3
+ 506:../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.c **** }
+ 925              		.loc 1 506 1
+ 926 000e 1846     		mov	r0, r3
+ 927 0010 0C37     		adds	r7, r7, #12
+ 928              	.LCFI70:
+ 929              		.cfi_def_cfa_offset 4
+ 930 0012 BD46     		mov	sp, r7
+ 931              	.LCFI71:
+ 932              		.cfi_def_cfa_register 13
+ 933              		@ sp needed
+ 934 0014 80BC     		pop	{r7}
+ 935              	.LCFI72:
+ 936              		.cfi_restore 7
+ 937              		.cfi_def_cfa_offset 0
+ 938 0016 7047     		bx	lr
+ 939              		.cfi_endproc
+ 940              	.LFE138:
+ 942              		.text
+ 943              	.Letext0:
+ 944              		.file 2 "c:\\users\\h3c\\chipwh~1\\cw\\home\\portable\\armgcc\\arm-none-eabi\\include\\machine\\_d
+ 945              		.file 3 "c:\\users\\h3c\\chipwh~1\\cw\\home\\portable\\armgcc\\arm-none-eabi\\include\\sys\\_stdin
+ 946              		.file 4 "../../hardware/victims/firmware/./hal/stm32f4/CMSIS/device/stm32f415xx.h"
+ 947              		.file 5 "../../hardware/victims/firmware/./hal/stm32f4/CMSIS/device/stm32f4xx.h"
+ 948              		.file 6 "../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_def.h"
+ 949              		.file 7 "../../hardware/victims/firmware/./hal/stm32f4/stm32f4xx_hal_rng.h"
+DEFINED SYMBOLS
+                            *ABS*:00000000 stm32f4xx_hal_rng.c
+C:\Users\H3C\AppData\Local\Temp\ccLUzrbf.s:16     .text.HAL_RNG_Init:00000000 $t
+C:\Users\H3C\AppData\Local\Temp\ccLUzrbf.s:24     .text.HAL_RNG_Init:00000000 HAL_RNG_Init
+C:\Users\H3C\AppData\Local\Temp\ccLUzrbf.s:200    .text.HAL_RNG_MspInit:00000000 HAL_RNG_MspInit
+C:\Users\H3C\AppData\Local\Temp\ccLUzrbf.s:116    .text.HAL_RNG_DeInit:00000000 $t
+C:\Users\H3C\AppData\Local\Temp\ccLUzrbf.s:123    .text.HAL_RNG_DeInit:00000000 HAL_RNG_DeInit
+C:\Users\H3C\AppData\Local\Temp\ccLUzrbf.s:243    .text.HAL_RNG_MspDeInit:00000000 HAL_RNG_MspDeInit
+C:\Users\H3C\AppData\Local\Temp\ccLUzrbf.s:193    .text.HAL_RNG_MspInit:00000000 $t
+C:\Users\H3C\AppData\Local\Temp\ccLUzrbf.s:236    .text.HAL_RNG_MspDeInit:00000000 $t
+C:\Users\H3C\AppData\Local\Temp\ccLUzrbf.s:279    .text.HAL_RNG_GenerateRandomNumber:00000000 $t
+C:\Users\H3C\AppData\Local\Temp\ccLUzrbf.s:286    .text.HAL_RNG_GenerateRandomNumber:00000000 HAL_RNG_GenerateRandomNumber
+C:\Users\H3C\AppData\Local\Temp\ccLUzrbf.s:420    .text.HAL_RNG_GenerateRandomNumber_IT:00000000 $t
+C:\Users\H3C\AppData\Local\Temp\ccLUzrbf.s:427    .text.HAL_RNG_GenerateRandomNumber_IT:00000000 HAL_RNG_GenerateRandomNumber_IT
+C:\Users\H3C\AppData\Local\Temp\ccLUzrbf.s:515    .text.HAL_RNG_IRQHandler:00000000 $t
+C:\Users\H3C\AppData\Local\Temp\ccLUzrbf.s:522    .text.HAL_RNG_IRQHandler:00000000 HAL_RNG_IRQHandler
+C:\Users\H3C\AppData\Local\Temp\ccLUzrbf.s:860    .text.HAL_RNG_ErrorCallback:00000000 HAL_RNG_ErrorCallback
+C:\Users\H3C\AppData\Local\Temp\ccLUzrbf.s:816    .text.HAL_RNG_ReadyDataCallback:00000000 HAL_RNG_ReadyDataCallback
+C:\Users\H3C\AppData\Local\Temp\ccLUzrbf.s:626    .text.HAL_RNG_GetRandomNumber:00000000 $t
+C:\Users\H3C\AppData\Local\Temp\ccLUzrbf.s:633    .text.HAL_RNG_GetRandomNumber:00000000 HAL_RNG_GetRandomNumber
+C:\Users\H3C\AppData\Local\Temp\ccLUzrbf.s:683    .text.HAL_RNG_GetRandomNumber_IT:00000000 $t
+C:\Users\H3C\AppData\Local\Temp\ccLUzrbf.s:690    .text.HAL_RNG_GetRandomNumber_IT:00000000 HAL_RNG_GetRandomNumber_IT
+C:\Users\H3C\AppData\Local\Temp\ccLUzrbf.s:763    .text.HAL_RNG_ReadLastRandomNumber:00000000 $t
+C:\Users\H3C\AppData\Local\Temp\ccLUzrbf.s:770    .text.HAL_RNG_ReadLastRandomNumber:00000000 HAL_RNG_ReadLastRandomNumber
+C:\Users\H3C\AppData\Local\Temp\ccLUzrbf.s:809    .text.HAL_RNG_ReadyDataCallback:00000000 $t
+C:\Users\H3C\AppData\Local\Temp\ccLUzrbf.s:853    .text.HAL_RNG_ErrorCallback:00000000 $t
+C:\Users\H3C\AppData\Local\Temp\ccLUzrbf.s:896    .text.HAL_RNG_GetState:00000000 $t
+C:\Users\H3C\AppData\Local\Temp\ccLUzrbf.s:903    .text.HAL_RNG_GetState:00000000 HAL_RNG_GetState
+
+UNDEFINED SYMBOLS
+HAL_GetTick

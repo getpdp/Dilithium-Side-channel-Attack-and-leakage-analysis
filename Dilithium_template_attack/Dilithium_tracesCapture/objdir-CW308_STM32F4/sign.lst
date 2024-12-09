@@ -1,0 +1,1782 @@
+   1              		.cpu cortex-m4
+   2              		.eabi_attribute 20, 1
+   3              		.eabi_attribute 21, 1
+   4              		.eabi_attribute 23, 3
+   5              		.eabi_attribute 24, 1
+   6              		.eabi_attribute 25, 1
+   7              		.eabi_attribute 26, 1
+   8              		.eabi_attribute 30, 6
+   9              		.eabi_attribute 34, 1
+  10              		.eabi_attribute 18, 4
+  11              		.file	"sign.c"
+  12              		.text
+  13              	.Ltext0:
+  14              		.cfi_sections	.debug_frame
+  15              		.section	.text.pqcrystals_dilithium2_ref_keypair,"ax",%progbits
+  16              		.align	1
+  17              		.global	pqcrystals_dilithium2_ref_keypair
+  18              		.arch armv7e-m
+  19              		.syntax unified
+  20              		.thumb
+  21              		.thumb_func
+  22              		.fpu softvfp
+  24              	pqcrystals_dilithium2_ref_keypair:
+  25              	.LFB0:
+  26              		.file 1 "sign.c"
+   1:sign.c        **** #include <stdint.h>
+   2:sign.c        **** #include <string.h>
+   3:sign.c        **** #include "params.h"
+   4:sign.c        **** #include "sign.h"
+   5:sign.c        **** #include "packing.h"
+   6:sign.c        **** #include "polyvec.h"
+   7:sign.c        **** #include "poly.h"
+   8:sign.c        **** #include "randombytes.h"
+   9:sign.c        **** #include "symmetric.h"
+  10:sign.c        **** #include "fips202.h"
+  11:sign.c        **** 
+  12:sign.c        **** /*************************************************
+  13:sign.c        **** * Name:        crypto_sign_keypair
+  14:sign.c        **** *
+  15:sign.c        **** * Description: Generates public and private key.
+  16:sign.c        **** *
+  17:sign.c        **** * Arguments:   - uint8_t *pk: pointer to output public key (allocated
+  18:sign.c        **** *                             array of CRYPTO_PUBLICKEYBYTES bytes)
+  19:sign.c        **** *              - uint8_t *sk: pointer to output private key (allocated
+  20:sign.c        **** *                             array of CRYPTO_SECRETKEYBYTES bytes)
+  21:sign.c        **** *
+  22:sign.c        **** * Returns 0 (success)
+  23:sign.c        **** **************************************************/
+  24:sign.c        **** int crypto_sign_keypair(uint8_t *pk, uint8_t *sk, uint8_t* SEED) {
+  27              		.loc 1 24 66
+  28              		.cfi_startproc
+  29              		@ args = 0, pretend = 0, frame = 37040
+  30              		@ frame_needed = 1, uses_anonymous_args = 0
+  31 0000 80B5     		push	{r7, lr}
+  32              	.LCFI0:
+  33              		.cfi_def_cfa_offset 8
+  34              		.cfi_offset 7, -8
+  35              		.cfi_offset 14, -4
+  36 0002 ADF5104D 		sub	sp, sp, #36864
+  37              	.LCFI1:
+  38              		.cfi_def_cfa_offset 36872
+  39 0006 B0B0     		sub	sp, sp, #192
+  40              	.LCFI2:
+  41              		.cfi_def_cfa_offset 37064
+  42 0008 04AF     		add	r7, sp, #16
+  43              	.LCFI3:
+  44              		.cfi_def_cfa 7, 37048
+  45 000a 07F1B003 		add	r3, r7, #176
+  46 000e 43F8A40C 		str	r0, [r3, #-164]
+  47 0012 07F1B003 		add	r3, r7, #176
+  48 0016 43F8A81C 		str	r1, [r3, #-168]
+  49 001a 07F1B003 		add	r3, r7, #176
+  50 001e 43F8AC2C 		str	r2, [r3, #-172]
+  25:sign.c        ****   uint8_t seedbuf[3*SEEDBYTES];
+  26:sign.c        ****   uint8_t tr[CRHBYTES];
+  27:sign.c        ****   const uint8_t *rho, *rhoprime, *key;
+  28:sign.c        ****   polyvecl mat[K];
+  29:sign.c        ****   polyvecl s1, s1hat;
+  30:sign.c        ****   polyveck s2, t1, t0;
+  31:sign.c        **** 
+  32:sign.c        ****   /* Get randomness for rho, rhoprime and key */
+  33:sign.c        ****   //randombytes(seedbuf, SEEDBYTES);
+  34:sign.c        ****   memcpy(seedbuf,SEED, SEEDBYTES);
+  51              		.loc 1 34 3
+  52 0022 07F1B003 		add	r3, r7, #176
+  53 0026 1946     		mov	r1, r3
+  54 0028 07F51043 		add	r3, r7, #36864
+  55 002c 03F14403 		add	r3, r3, #68
+  56 0030 2022     		movs	r2, #32
+  57 0032 51F8AC1C 		ldr	r1, [r1, #-172]
+  58 0036 1846     		mov	r0, r3
+  59 0038 FFF7FEFF 		bl	memcpy
+  35:sign.c        ****   shake256(seedbuf, 3*SEEDBYTES, seedbuf, SEEDBYTES);
+  60              		.loc 1 35 3
+  61 003c 07F51042 		add	r2, r7, #36864
+  62 0040 02F14402 		add	r2, r2, #68
+  63 0044 07F51040 		add	r0, r7, #36864
+  64 0048 00F14400 		add	r0, r0, #68
+  65 004c 2023     		movs	r3, #32
+  66 004e 6021     		movs	r1, #96
+  67 0050 FFF7FEFF 		bl	pqcrystals_fips202_ref_shake256
+  36:sign.c        **** 
+  37:sign.c        ****   
+  38:sign.c        ****   rho = seedbuf;
+  68              		.loc 1 38 7
+  69 0054 07F51043 		add	r3, r7, #36864
+  70 0058 03F14403 		add	r3, r3, #68
+  71 005c 07F51042 		add	r2, r7, #36864
+  72 0060 02F1AC02 		add	r2, r2, #172
+  73 0064 1360     		str	r3, [r2]
+  39:sign.c        ****   rhoprime = seedbuf + SEEDBYTES;
+  74              		.loc 1 39 12
+  75 0066 07F51043 		add	r3, r7, #36864
+  76 006a 03F14403 		add	r3, r3, #68
+  77 006e 2033     		adds	r3, r3, #32
+  78 0070 07F51042 		add	r2, r7, #36864
+  79 0074 02F1A802 		add	r2, r2, #168
+  80 0078 1360     		str	r3, [r2]
+  40:sign.c        ****   key = seedbuf + 2*SEEDBYTES;
+  81              		.loc 1 40 7
+  82 007a 07F51043 		add	r3, r7, #36864
+  83 007e 03F14403 		add	r3, r3, #68
+  84 0082 4033     		adds	r3, r3, #64
+  85 0084 07F51042 		add	r2, r7, #36864
+  86 0088 02F1A402 		add	r2, r2, #164
+  87 008c 1360     		str	r3, [r2]
+  41:sign.c        **** 
+  42:sign.c        ****   /* Expand matrix */
+  43:sign.c        ****   polyvec_matrix_expand(mat, rho);
+  88              		.loc 1 43 3
+  89 008e 07F5A043 		add	r3, r7, #20480
+  90 0092 03F13003 		add	r3, r3, #48
+  91 0096 1C3B     		subs	r3, r3, #28
+  92 0098 07F51042 		add	r2, r7, #36864
+  93 009c 02F1AC02 		add	r2, r2, #172
+  94 00a0 1168     		ldr	r1, [r2]
+  95 00a2 1846     		mov	r0, r3
+  96 00a4 FFF7FEFF 		bl	pqcrystals_dilithium2_ref_polyvec_matrix_expand
+  44:sign.c        **** 
+  45:sign.c        ****   /* Sample short vectors s1 and s2 */
+  46:sign.c        ****   polyvecl_uniform_eta(&s1, rhoprime, 0);
+  97              		.loc 1 46 3
+  98 00a8 07F58043 		add	r3, r7, #16384
+  99 00ac 03F13003 		add	r3, r3, #48
+ 100 00b0 1C3B     		subs	r3, r3, #28
+ 101 00b2 0022     		movs	r2, #0
+ 102 00b4 07F51041 		add	r1, r7, #36864
+ 103 00b8 01F1A801 		add	r1, r1, #168
+ 104 00bc 0968     		ldr	r1, [r1]
+ 105 00be 1846     		mov	r0, r3
+ 106 00c0 FFF7FEFF 		bl	pqcrystals_dilithium2_ref_polyvecl_uniform_eta
+  47:sign.c        ****   polyveck_uniform_eta(&s2, rhoprime, L);
+ 107              		.loc 1 47 3
+ 108 00c4 07F50053 		add	r3, r7, #8192
+ 109 00c8 03F13003 		add	r3, r3, #48
+ 110 00cc 1C3B     		subs	r3, r3, #28
+ 111 00ce 0422     		movs	r2, #4
+ 112 00d0 07F51041 		add	r1, r7, #36864
+ 113 00d4 01F1A801 		add	r1, r1, #168
+ 114 00d8 0968     		ldr	r1, [r1]
+ 115 00da 1846     		mov	r0, r3
+ 116 00dc FFF7FEFF 		bl	pqcrystals_dilithium2_ref_polyveck_uniform_eta
+  48:sign.c        **** 
+  49:sign.c        ****   /* Matrix-vector multiplication */
+  50:sign.c        ****   s1hat = s1;
+ 117              		.loc 1 50 9
+ 118 00e0 07F54253 		add	r3, r7, #12416
+ 119 00e4 03F13003 		add	r3, r3, #48
+ 120 00e8 07F58142 		add	r2, r7, #16512
+ 121 00ec 02F13002 		add	r2, r2, #48
+ 122 00f0 9C3B     		subs	r3, r3, #156
+ 123 00f2 A2F19C01 		sub	r1, r2, #156
+ 124 00f6 4FF48052 		mov	r2, #4096
+ 125 00fa 1846     		mov	r0, r3
+ 126 00fc FFF7FEFF 		bl	memcpy
+  51:sign.c        ****   polyvecl_ntt(&s1hat);
+ 127              		.loc 1 51 3
+ 128 0100 07F54053 		add	r3, r7, #12288
+ 129 0104 03F13003 		add	r3, r3, #48
+ 130 0108 1C3B     		subs	r3, r3, #28
+ 131 010a 1846     		mov	r0, r3
+ 132 010c FFF7FEFF 		bl	pqcrystals_dilithium2_ref_polyvecl_ntt
+  52:sign.c        ****   polyvec_matrix_pointwise_montgomery(&t1, mat, &s1hat);
+ 133              		.loc 1 52 3
+ 134 0110 07F54052 		add	r2, r7, #12288
+ 135 0114 02F13002 		add	r2, r2, #48
+ 136 0118 1C3A     		subs	r2, r2, #28
+ 137 011a 07F5A041 		add	r1, r7, #20480
+ 138 011e 01F13001 		add	r1, r1, #48
+ 139 0122 1C39     		subs	r1, r1, #28
+ 140 0124 07F58553 		add	r3, r7, #4256
+ 141 0128 03F11003 		add	r3, r3, #16
+ 142 012c 9C3B     		subs	r3, r3, #156
+ 143 012e 1846     		mov	r0, r3
+ 144 0130 FFF7FEFF 		bl	pqcrystals_dilithium2_ref_polyvec_matrix_pointwise_montgomery
+  53:sign.c        ****   polyveck_reduce(&t1);
+ 145              		.loc 1 53 3
+ 146 0134 07F58553 		add	r3, r7, #4256
+ 147 0138 03F11003 		add	r3, r3, #16
+ 148 013c 9C3B     		subs	r3, r3, #156
+ 149 013e 1846     		mov	r0, r3
+ 150 0140 FFF7FEFF 		bl	pqcrystals_dilithium2_ref_polyveck_reduce
+  54:sign.c        ****   polyveck_invntt_tomont(&t1);
+ 151              		.loc 1 54 3
+ 152 0144 07F58553 		add	r3, r7, #4256
+ 153 0148 03F11003 		add	r3, r3, #16
+ 154 014c 9C3B     		subs	r3, r3, #156
+ 155 014e 1846     		mov	r0, r3
+ 156 0150 FFF7FEFF 		bl	pqcrystals_dilithium2_ref_polyveck_invntt_tomont
+  55:sign.c        **** 
+  56:sign.c        ****   /* Add error vector s2 */
+  57:sign.c        ****   polyveck_add(&t1, &t1, &s2);
+ 157              		.loc 1 57 3
+ 158 0154 07F50052 		add	r2, r7, #8192
+ 159 0158 02F13002 		add	r2, r2, #48
+ 160 015c 1C3A     		subs	r2, r2, #28
+ 161 015e 07F58551 		add	r1, r7, #4256
+ 162 0162 01F11001 		add	r1, r1, #16
+ 163 0166 9C39     		subs	r1, r1, #156
+ 164 0168 07F58553 		add	r3, r7, #4256
+ 165 016c 03F11003 		add	r3, r3, #16
+ 166 0170 9C3B     		subs	r3, r3, #156
+ 167 0172 1846     		mov	r0, r3
+ 168 0174 FFF7FEFF 		bl	pqcrystals_dilithium2_ref_polyveck_add
+  58:sign.c        **** 
+  59:sign.c        ****   /* Extract t1 and write public key */
+  60:sign.c        ****   polyveck_caddq(&t1);
+ 169              		.loc 1 60 3
+ 170 0178 07F58553 		add	r3, r7, #4256
+ 171 017c 03F11003 		add	r3, r3, #16
+ 172 0180 9C3B     		subs	r3, r3, #156
+ 173 0182 1846     		mov	r0, r3
+ 174 0184 FFF7FEFF 		bl	pqcrystals_dilithium2_ref_polyveck_caddq
+  61:sign.c        ****   polyveck_power2round(&t1, &t0, &t1);
+ 175              		.loc 1 61 3
+ 176 0188 07F58552 		add	r2, r7, #4256
+ 177 018c 02F11002 		add	r2, r2, #16
+ 178 0190 9C3A     		subs	r2, r2, #156
+ 179 0192 07F1B001 		add	r1, r7, #176
+ 180 0196 9C39     		subs	r1, r1, #156
+ 181 0198 07F58553 		add	r3, r7, #4256
+ 182 019c 03F11003 		add	r3, r3, #16
+ 183 01a0 9C3B     		subs	r3, r3, #156
+ 184 01a2 1846     		mov	r0, r3
+ 185 01a4 FFF7FEFF 		bl	pqcrystals_dilithium2_ref_polyveck_power2round
+  62:sign.c        ****   pack_pk(pk, rho, &t1);
+ 186              		.loc 1 62 3
+ 187 01a8 07F58553 		add	r3, r7, #4256
+ 188 01ac 03F11003 		add	r3, r3, #16
+ 189 01b0 9C3B     		subs	r3, r3, #156
+ 190 01b2 07F1B002 		add	r2, r7, #176
+ 191 01b6 1046     		mov	r0, r2
+ 192 01b8 1A46     		mov	r2, r3
+ 193 01ba 07F51043 		add	r3, r7, #36864
+ 194 01be 03F1AC03 		add	r3, r3, #172
+ 195 01c2 1968     		ldr	r1, [r3]
+ 196 01c4 50F8A40C 		ldr	r0, [r0, #-164]
+ 197 01c8 FFF7FEFF 		bl	pqcrystals_dilithium2_ref_pack_pk
+  63:sign.c        **** 
+  64:sign.c        ****   /* Compute CRH(rho, t1) and write secret key */
+  65:sign.c        ****   crh(tr, pk, CRYPTO_PUBLICKEYBYTES);
+ 198              		.loc 1 65 3
+ 199 01cc 07F1B003 		add	r3, r7, #176
+ 200 01d0 1A46     		mov	r2, r3
+ 201 01d2 07F51040 		add	r0, r7, #36864
+ 202 01d6 00F11400 		add	r0, r0, #20
+ 203 01da 4FF4A463 		mov	r3, #1312
+ 204 01de 52F8A42C 		ldr	r2, [r2, #-164]
+ 205 01e2 3021     		movs	r1, #48
+ 206 01e4 FFF7FEFF 		bl	pqcrystals_fips202_ref_shake256
+  66:sign.c        ****   pack_sk(sk, rho, tr, key, &t0, &s1, &s2);
+ 207              		.loc 1 66 3
+ 208 01e8 07F51042 		add	r2, r7, #36864
+ 209 01ec 02F11402 		add	r2, r2, #20
+ 210 01f0 07F1B003 		add	r3, r7, #176
+ 211 01f4 1846     		mov	r0, r3
+ 212 01f6 07F50053 		add	r3, r7, #8192
+ 213 01fa 03F13003 		add	r3, r3, #48
+ 214 01fe 1C3B     		subs	r3, r3, #28
+ 215 0200 0293     		str	r3, [sp, #8]
+ 216 0202 07F58043 		add	r3, r7, #16384
+ 217 0206 03F13003 		add	r3, r3, #48
+ 218 020a 1C3B     		subs	r3, r3, #28
+ 219 020c 0193     		str	r3, [sp, #4]
+ 220 020e 07F1B003 		add	r3, r7, #176
+ 221 0212 9C3B     		subs	r3, r3, #156
+ 222 0214 0093     		str	r3, [sp]
+ 223 0216 07F51043 		add	r3, r7, #36864
+ 224 021a 03F1A403 		add	r3, r3, #164
+ 225 021e 1B68     		ldr	r3, [r3]
+ 226 0220 07F51041 		add	r1, r7, #36864
+ 227 0224 01F1AC01 		add	r1, r1, #172
+ 228 0228 0968     		ldr	r1, [r1]
+ 229 022a 50F8A80C 		ldr	r0, [r0, #-168]
+ 230 022e FFF7FEFF 		bl	pqcrystals_dilithium2_ref_pack_sk
+  67:sign.c        **** 
+  68:sign.c        ****   return 0;
+ 231              		.loc 1 68 10
+ 232 0232 0023     		movs	r3, #0
+  69:sign.c        **** }
+ 233              		.loc 1 69 1
+ 234 0234 1846     		mov	r0, r3
+ 235 0236 07F51047 		add	r7, r7, #36864
+ 236 023a B037     		adds	r7, r7, #176
+ 237              	.LCFI4:
+ 238              		.cfi_def_cfa_offset 8
+ 239 023c BD46     		mov	sp, r7
+ 240              	.LCFI5:
+ 241              		.cfi_def_cfa_register 13
+ 242              		@ sp needed
+ 243 023e 80BD     		pop	{r7, pc}
+ 244              		.cfi_endproc
+ 245              	.LFE0:
+ 247              		.section	.text.pqcrystals_dilithium2_ref_signature,"ax",%progbits
+ 248              		.align	1
+ 249              		.global	pqcrystals_dilithium2_ref_signature
+ 250              		.syntax unified
+ 251              		.thumb
+ 252              		.thumb_func
+ 253              		.fpu softvfp
+ 255              	pqcrystals_dilithium2_ref_signature:
+ 256              	.LFB1:
+  70:sign.c        **** 
+  71:sign.c        **** /*************************************************
+  72:sign.c        **** * Name:        crypto_sign_signature
+  73:sign.c        **** *
+  74:sign.c        **** * Description: Computes signature.
+  75:sign.c        **** *
+  76:sign.c        **** * Arguments:   - uint8_t *sig:   pointer to output signature (of length CRYPTO_BYTES)
+  77:sign.c        **** *              - size_t *siglen: pointer to output length of signature
+  78:sign.c        **** *              - uint8_t *m:     pointer to message to be signed
+  79:sign.c        **** *              - size_t mlen:    length of message
+  80:sign.c        **** *              - uint8_t *sk:    pointer to bit-packed secret key
+  81:sign.c        **** *
+  82:sign.c        **** * Returns 0 (success)
+  83:sign.c        **** **************************************************/
+  84:sign.c        **** int crypto_sign_signature(uint8_t *sig,
+  85:sign.c        ****                           size_t *siglen,
+  86:sign.c        ****                           const uint8_t *m,
+  87:sign.c        ****                           size_t mlen,
+  88:sign.c        ****                           const uint8_t *sk)
+  89:sign.c        **** {
+ 257              		.loc 1 89 1
+ 258              		.cfi_startproc
+ 259              		@ args = 4, pretend = 0, frame = 50640
+ 260              		@ frame_needed = 1, uses_anonymous_args = 0
+ 261 0000 90B5     		push	{r4, r7, lr}
+ 262              	.LCFI6:
+ 263              		.cfi_def_cfa_offset 12
+ 264              		.cfi_offset 4, -12
+ 265              		.cfi_offset 7, -8
+ 266              		.cfi_offset 14, -4
+ 267 0002 ADF5454D 		sub	sp, sp, #50432
+ 268              	.LCFI7:
+ 269              		.cfi_def_cfa_offset 50444
+ 270 0006 B9B0     		sub	sp, sp, #228
+ 271              	.LCFI8:
+ 272              		.cfi_def_cfa_offset 50672
+ 273 0008 04AF     		add	r7, sp, #16
+ 274              	.LCFI9:
+ 275              		.cfi_def_cfa 7, 50656
+ 276 000a 07F5BA64 		add	r4, r7, #1488
+ 277 000e A4F2C454 		subw	r4, r4, #1476
+ 278 0012 2060     		str	r0, [r4]
+ 279 0014 07F5BA60 		add	r0, r7, #1488
+ 280 0018 A0F5B960 		sub	r0, r0, #1480
+ 281 001c 0160     		str	r1, [r0]
+ 282 001e 07F5BA61 		add	r1, r7, #1488
+ 283 0022 A1F2CC51 		subw	r1, r1, #1484
+ 284 0026 0A60     		str	r2, [r1]
+ 285 0028 07F5BA62 		add	r2, r7, #1488
+ 286 002c A2F5BA62 		sub	r2, r2, #1488
+ 287 0030 1360     		str	r3, [r2]
+  90:sign.c        ****   unsigned int n;
+  91:sign.c        ****   uint8_t seedbuf[2*SEEDBYTES + 3*CRHBYTES];
+  92:sign.c        ****   uint8_t *rho, *tr, *key, *mu, *rhoprime;
+  93:sign.c        ****   uint16_t nonce = 0;
+ 288              		.loc 1 93 12
+ 289 0032 0023     		movs	r3, #0
+ 290 0034 07F54542 		add	r2, r7, #50432
+ 291 0038 02F1CE02 		add	r2, r2, #206
+ 292 003c 1380     		strh	r3, [r2]	@ movhi
+  94:sign.c        ****   polyvecl mat[K], s1, y, z;
+  95:sign.c        ****   polyveck t0, s2, w1, w0, h;
+  96:sign.c        ****   poly cp;
+  97:sign.c        ****   keccak_state state;
+  98:sign.c        **** 
+  99:sign.c        ****   rho = seedbuf;
+ 293              		.loc 1 99 7
+ 294 003e 07F54443 		add	r3, r7, #50176
+ 295 0042 03F1E403 		add	r3, r3, #228
+ 296 0046 07F54542 		add	r2, r7, #50432
+ 297 004a 02F1C802 		add	r2, r2, #200
+ 298 004e 1360     		str	r3, [r2]
+ 100:sign.c        ****   tr = rho + SEEDBYTES;
+ 299              		.loc 1 100 6
+ 300 0050 07F54543 		add	r3, r7, #50432
+ 301 0054 03F1C803 		add	r3, r3, #200
+ 302 0058 1B68     		ldr	r3, [r3]
+ 303 005a 2033     		adds	r3, r3, #32
+ 304 005c 07F54542 		add	r2, r7, #50432
+ 305 0060 02F1C402 		add	r2, r2, #196
+ 306 0064 1360     		str	r3, [r2]
+ 101:sign.c        ****   key = tr + CRHBYTES;
+ 307              		.loc 1 101 7
+ 308 0066 07F54543 		add	r3, r7, #50432
+ 309 006a 03F1C403 		add	r3, r3, #196
+ 310 006e 1B68     		ldr	r3, [r3]
+ 311 0070 3033     		adds	r3, r3, #48
+ 312 0072 07F54542 		add	r2, r7, #50432
+ 313 0076 02F1C002 		add	r2, r2, #192
+ 314 007a 1360     		str	r3, [r2]
+ 102:sign.c        ****   mu = key + SEEDBYTES;
+ 315              		.loc 1 102 6
+ 316 007c 07F54543 		add	r3, r7, #50432
+ 317 0080 03F1C003 		add	r3, r3, #192
+ 318 0084 1B68     		ldr	r3, [r3]
+ 319 0086 2033     		adds	r3, r3, #32
+ 320 0088 07F54542 		add	r2, r7, #50432
+ 321 008c 02F1BC02 		add	r2, r2, #188
+ 322 0090 1360     		str	r3, [r2]
+ 103:sign.c        ****   rhoprime = mu + CRHBYTES;
+ 323              		.loc 1 103 12
+ 324 0092 07F54543 		add	r3, r7, #50432
+ 325 0096 03F1BC03 		add	r3, r3, #188
+ 326 009a 1B68     		ldr	r3, [r3]
+ 327 009c 3033     		adds	r3, r3, #48
+ 328 009e 07F54542 		add	r2, r7, #50432
+ 329 00a2 02F1B802 		add	r2, r2, #184
+ 330 00a6 1360     		str	r3, [r2]
+ 104:sign.c        ****   unpack_sk(rho, tr, key, &t0, &s1, &s2, sk);
+ 331              		.loc 1 104 3
+ 332 00a8 07F58B42 		add	r2, r7, #17792
+ 333 00ac 02F15002 		add	r2, r2, #80
+ 334 00b0 EC3A     		subs	r2, r2, #236
+ 335 00b2 07F54543 		add	r3, r7, #50432
+ 336 00b6 03F1E003 		add	r3, r3, #224
+ 337 00ba 1B68     		ldr	r3, [r3]
+ 338 00bc 0293     		str	r3, [sp, #8]
+ 339 00be 07F55753 		add	r3, r7, #13760
+ 340 00c2 03F11003 		add	r3, r3, #16
+ 341 00c6 EC3B     		subs	r3, r3, #236
+ 342 00c8 0193     		str	r3, [sp, #4]
+ 343 00ca 07F5EA43 		add	r3, r7, #29952
+ 344 00ce 03F15003 		add	r3, r3, #80
+ 345 00d2 6C3B     		subs	r3, r3, #108
+ 346 00d4 0093     		str	r3, [sp]
+ 347 00d6 1346     		mov	r3, r2
+ 348 00d8 07F54542 		add	r2, r7, #50432
+ 349 00dc 02F1C002 		add	r2, r2, #192
+ 350 00e0 1268     		ldr	r2, [r2]
+ 351 00e2 07F54541 		add	r1, r7, #50432
+ 352 00e6 01F1C401 		add	r1, r1, #196
+ 353 00ea 0968     		ldr	r1, [r1]
+ 354 00ec 07F54540 		add	r0, r7, #50432
+ 355 00f0 00F1C800 		add	r0, r0, #200
+ 356 00f4 0068     		ldr	r0, [r0]
+ 357 00f6 FFF7FEFF 		bl	pqcrystals_dilithium2_ref_upack_sk
+ 105:sign.c        **** 
+ 106:sign.c        ****   /* Compute CRH(tr, msg) */
+ 107:sign.c        ****   shake256_init(&state);
+ 358              		.loc 1 107 3
+ 359 00fa 07F1D003 		add	r3, r7, #208
+ 360 00fe C03B     		subs	r3, r3, #192
+ 361 0100 1846     		mov	r0, r3
+ 362 0102 FFF7FEFF 		bl	pqcrystals_fips202_ref_shake256_init
+ 108:sign.c        ****   shake256_absorb(&state, tr, CRHBYTES);
+ 363              		.loc 1 108 3
+ 364 0106 07F1D003 		add	r3, r7, #208
+ 365 010a C03B     		subs	r3, r3, #192
+ 366 010c 3022     		movs	r2, #48
+ 367 010e 07F54541 		add	r1, r7, #50432
+ 368 0112 01F1C401 		add	r1, r1, #196
+ 369 0116 0968     		ldr	r1, [r1]
+ 370 0118 1846     		mov	r0, r3
+ 371 011a FFF7FEFF 		bl	pqcrystals_fips202_ref_shake256_absorb
+ 109:sign.c        ****   shake256_absorb(&state, m, mlen);
+ 372              		.loc 1 109 3
+ 373 011e 07F5BA63 		add	r3, r7, #1488
+ 374 0122 A3F5BA62 		sub	r2, r3, #1488
+ 375 0126 07F5BA63 		add	r3, r7, #1488
+ 376 012a A3F2CC51 		subw	r1, r3, #1484
+ 377 012e 07F1D003 		add	r3, r7, #208
+ 378 0132 C03B     		subs	r3, r3, #192
+ 379 0134 1268     		ldr	r2, [r2]
+ 380 0136 0968     		ldr	r1, [r1]
+ 381 0138 1846     		mov	r0, r3
+ 382 013a FFF7FEFF 		bl	pqcrystals_fips202_ref_shake256_absorb
+ 110:sign.c        ****   shake256_finalize(&state);
+ 383              		.loc 1 110 3
+ 384 013e 07F1D003 		add	r3, r7, #208
+ 385 0142 C03B     		subs	r3, r3, #192
+ 386 0144 1846     		mov	r0, r3
+ 387 0146 FFF7FEFF 		bl	pqcrystals_fips202_ref_shake256_finalize
+ 111:sign.c        ****   shake256_squeeze(mu, CRHBYTES, &state);
+ 388              		.loc 1 111 3
+ 389 014a 07F1D003 		add	r3, r7, #208
+ 390 014e C03B     		subs	r3, r3, #192
+ 391 0150 1A46     		mov	r2, r3
+ 392 0152 3021     		movs	r1, #48
+ 393 0154 07F54543 		add	r3, r7, #50432
+ 394 0158 03F1BC03 		add	r3, r3, #188
+ 395 015c 1868     		ldr	r0, [r3]
+ 396 015e FFF7FEFF 		bl	pqcrystals_fips202_ref_shake256_squeeze
+ 112:sign.c        **** 
+ 113:sign.c        **** #ifdef DILITHIUM_RANDOMIZED_SIGNING
+ 114:sign.c        ****   randombytes(rhoprime, CRHBYTES);
+ 115:sign.c        **** #else
+ 116:sign.c        ****   crh(rhoprime, key, SEEDBYTES + CRHBYTES);
+ 397              		.loc 1 116 3
+ 398 0162 5023     		movs	r3, #80
+ 399 0164 07F54542 		add	r2, r7, #50432
+ 400 0168 02F1C002 		add	r2, r2, #192
+ 401 016c 1268     		ldr	r2, [r2]
+ 402 016e 3021     		movs	r1, #48
+ 403 0170 07F54540 		add	r0, r7, #50432
+ 404 0174 00F1B800 		add	r0, r0, #184
+ 405 0178 0068     		ldr	r0, [r0]
+ 406 017a FFF7FEFF 		bl	pqcrystals_fips202_ref_shake256
+ 117:sign.c        **** #endif
+ 118:sign.c        **** 
+ 119:sign.c        ****   /* Expand matrix and transform vectors */
+ 120:sign.c        ****   polyvec_matrix_expand(mat, rho);
+ 407              		.loc 1 120 3
+ 408 017e 07F50543 		add	r3, r7, #34048
+ 409 0182 03F15003 		add	r3, r3, #80
+ 410 0186 6C3B     		subs	r3, r3, #108
+ 411 0188 07F54542 		add	r2, r7, #50432
+ 412 018c 02F1C802 		add	r2, r2, #200
+ 413 0190 1168     		ldr	r1, [r2]
+ 414 0192 1846     		mov	r0, r3
+ 415 0194 FFF7FEFF 		bl	pqcrystals_dilithium2_ref_polyvec_matrix_expand
+ 121:sign.c        ****   
+ 122:sign.c        ****   polyvecl_ntt(&s1);
+ 416              		.loc 1 122 3
+ 417 0198 07F5EA43 		add	r3, r7, #29952
+ 418 019c 03F15003 		add	r3, r3, #80
+ 419 01a0 6C3B     		subs	r3, r3, #108
+ 420 01a2 1846     		mov	r0, r3
+ 421 01a4 FFF7FEFF 		bl	pqcrystals_dilithium2_ref_polyvecl_ntt
+ 123:sign.c        ****   polyveck_ntt(&s2);
+ 422              		.loc 1 123 3
+ 423 01a8 07F55753 		add	r3, r7, #13760
+ 424 01ac 03F11003 		add	r3, r3, #16
+ 425 01b0 EC3B     		subs	r3, r3, #236
+ 426 01b2 1846     		mov	r0, r3
+ 427 01b4 FFF7FEFF 		bl	pqcrystals_dilithium2_ref_polyveck_ntt
+ 124:sign.c        **** 
+ 125:sign.c        ****   polyveck_ntt(&t0);
+ 428              		.loc 1 125 3
+ 429 01b8 07F58B43 		add	r3, r7, #17792
+ 430 01bc 03F15003 		add	r3, r3, #80
+ 431 01c0 EC3B     		subs	r3, r3, #236
+ 432 01c2 1846     		mov	r0, r3
+ 433 01c4 FFF7FEFF 		bl	pqcrystals_dilithium2_ref_polyveck_ntt
+ 434              	.L4:
+ 126:sign.c        **** 
+ 127:sign.c        ****   
+ 128:sign.c        **** 
+ 129:sign.c        **** rej:
+ 130:sign.c        ****   /* Sample intermediate vector y */
+ 131:sign.c        ****   //trigger_high();
+ 132:sign.c        ****   polyvecl_uniform_gamma1(&y, rhoprime, nonce++);
+ 435              		.loc 1 132 3
+ 436 01c8 07F54543 		add	r3, r7, #50432
+ 437 01cc 03F1CE03 		add	r3, r3, #206
+ 438 01d0 1A88     		ldrh	r2, [r3]
+ 439 01d2 531C     		adds	r3, r2, #1
+ 440 01d4 07F54541 		add	r1, r7, #50432
+ 441 01d8 01F1CE01 		add	r1, r1, #206
+ 442 01dc 0B80     		strh	r3, [r1]	@ movhi
+ 443 01de 07F5CA43 		add	r3, r7, #25856
+ 444 01e2 03F15003 		add	r3, r3, #80
+ 445 01e6 6C3B     		subs	r3, r3, #108
+ 446 01e8 07F54541 		add	r1, r7, #50432
+ 447 01ec 01F1B801 		add	r1, r1, #184
+ 448 01f0 0968     		ldr	r1, [r1]
+ 449 01f2 1846     		mov	r0, r3
+ 450 01f4 FFF7FEFF 		bl	pqcrystals_dilithium2_ref_polyvecl_uniform_gamma1
+ 133:sign.c        ****   //trigger_low();
+ 134:sign.c        ****   z = y;
+ 451              		.loc 1 134 5
+ 452 01f8 07F5AB43 		add	r3, r7, #21888
+ 453 01fc 03F15003 		add	r3, r3, #80
+ 454 0200 07F5CB42 		add	r2, r7, #25984
+ 455 0204 02F15002 		add	r2, r2, #80
+ 456 0208 EC3B     		subs	r3, r3, #236
+ 457 020a A2F1EC01 		sub	r1, r2, #236
+ 458 020e 4FF48052 		mov	r2, #4096
+ 459 0212 1846     		mov	r0, r3
+ 460 0214 FFF7FEFF 		bl	memcpy
+ 135:sign.c        ****   polyvecl_ntt(&z);
+ 461              		.loc 1 135 3
+ 462 0218 07F5AA43 		add	r3, r7, #21760
+ 463 021c 03F15003 		add	r3, r3, #80
+ 464 0220 6C3B     		subs	r3, r3, #108
+ 465 0222 1846     		mov	r0, r3
+ 466 0224 FFF7FEFF 		bl	pqcrystals_dilithium2_ref_polyvecl_ntt
+ 136:sign.c        **** 
+ 137:sign.c        ****   /* Matrix-vector multiplication */
+ 138:sign.c        ****   polyvec_matrix_pointwise_montgomery(&w1, mat, &z);
+ 467              		.loc 1 138 3
+ 468 0228 07F5AA42 		add	r2, r7, #21760
+ 469 022c 02F15002 		add	r2, r2, #80
+ 470 0230 6C3A     		subs	r2, r2, #108
+ 471 0232 07F50541 		add	r1, r7, #34048
+ 472 0236 01F15001 		add	r1, r1, #80
+ 473 023a 6C39     		subs	r1, r1, #108
+ 474 023c 07F51753 		add	r3, r7, #9664
+ 475 0240 03F11003 		add	r3, r3, #16
+ 476 0244 EC3B     		subs	r3, r3, #236
+ 477 0246 1846     		mov	r0, r3
+ 478 0248 FFF7FEFF 		bl	pqcrystals_dilithium2_ref_polyvec_matrix_pointwise_montgomery
+ 139:sign.c        ****   polyveck_reduce(&w1);
+ 479              		.loc 1 139 3
+ 480 024c 07F51753 		add	r3, r7, #9664
+ 481 0250 03F11003 		add	r3, r3, #16
+ 482 0254 EC3B     		subs	r3, r3, #236
+ 483 0256 1846     		mov	r0, r3
+ 484 0258 FFF7FEFF 		bl	pqcrystals_dilithium2_ref_polyveck_reduce
+ 140:sign.c        ****   polyveck_invntt_tomont(&w1);
+ 485              		.loc 1 140 3
+ 486 025c 07F51753 		add	r3, r7, #9664
+ 487 0260 03F11003 		add	r3, r3, #16
+ 488 0264 EC3B     		subs	r3, r3, #236
+ 489 0266 1846     		mov	r0, r3
+ 490 0268 FFF7FEFF 		bl	pqcrystals_dilithium2_ref_polyveck_invntt_tomont
+ 141:sign.c        **** 
+ 142:sign.c        ****   /* Decompose w and call the random oracle */
+ 143:sign.c        ****   polyveck_caddq(&w1);
+ 491              		.loc 1 143 3
+ 492 026c 07F51753 		add	r3, r7, #9664
+ 493 0270 03F11003 		add	r3, r3, #16
+ 494 0274 EC3B     		subs	r3, r3, #236
+ 495 0276 1846     		mov	r0, r3
+ 496 0278 FFF7FEFF 		bl	pqcrystals_dilithium2_ref_polyveck_caddq
+ 144:sign.c        ****   polyveck_decompose(&w1, &w0, &w1);
+ 497              		.loc 1 144 3
+ 498 027c 07F51752 		add	r2, r7, #9664
+ 499 0280 02F11002 		add	r2, r2, #16
+ 500 0284 EC3A     		subs	r2, r2, #236
+ 501 0286 07F5AE51 		add	r1, r7, #5568
+ 502 028a 01F11001 		add	r1, r1, #16
+ 503 028e EC39     		subs	r1, r1, #236
+ 504 0290 07F51753 		add	r3, r7, #9664
+ 505 0294 03F11003 		add	r3, r3, #16
+ 506 0298 EC3B     		subs	r3, r3, #236
+ 507 029a 1846     		mov	r0, r3
+ 508 029c FFF7FEFF 		bl	pqcrystals_dilithium2_ref_polyveck_decompose
+ 145:sign.c        ****   polyveck_pack_w1(sig, &w1);
+ 509              		.loc 1 145 3
+ 510 02a0 07F51753 		add	r3, r7, #9664
+ 511 02a4 03F11003 		add	r3, r3, #16
+ 512 02a8 EC3B     		subs	r3, r3, #236
+ 513 02aa 07F5BA62 		add	r2, r7, #1488
+ 514 02ae A2F2C452 		subw	r2, r2, #1476
+ 515 02b2 1946     		mov	r1, r3
+ 516 02b4 1068     		ldr	r0, [r2]
+ 517 02b6 FFF7FEFF 		bl	pqcrystals_dilithium2_ref_polyveck_pack_w1
+ 146:sign.c        **** 
+ 147:sign.c        ****   shake256_init(&state);
+ 518              		.loc 1 147 3
+ 519 02ba 07F1D003 		add	r3, r7, #208
+ 520 02be C03B     		subs	r3, r3, #192
+ 521 02c0 1846     		mov	r0, r3
+ 522 02c2 FFF7FEFF 		bl	pqcrystals_fips202_ref_shake256_init
+ 148:sign.c        ****   shake256_absorb(&state, mu, CRHBYTES);
+ 523              		.loc 1 148 3
+ 524 02c6 07F1D003 		add	r3, r7, #208
+ 525 02ca C03B     		subs	r3, r3, #192
+ 526 02cc 3022     		movs	r2, #48
+ 527 02ce 07F54541 		add	r1, r7, #50432
+ 528 02d2 01F1BC01 		add	r1, r1, #188
+ 529 02d6 0968     		ldr	r1, [r1]
+ 530 02d8 1846     		mov	r0, r3
+ 531 02da FFF7FEFF 		bl	pqcrystals_fips202_ref_shake256_absorb
+ 149:sign.c        ****   shake256_absorb(&state, sig, K*POLYW1_PACKEDBYTES);
+ 532              		.loc 1 149 3
+ 533 02de 07F5BA63 		add	r3, r7, #1488
+ 534 02e2 A3F2C451 		subw	r1, r3, #1476
+ 535 02e6 07F1D003 		add	r3, r7, #208
+ 536 02ea C03B     		subs	r3, r3, #192
+ 537 02ec 4FF44072 		mov	r2, #768
+ 538 02f0 0968     		ldr	r1, [r1]
+ 539 02f2 1846     		mov	r0, r3
+ 540 02f4 FFF7FEFF 		bl	pqcrystals_fips202_ref_shake256_absorb
+ 150:sign.c        ****   shake256_finalize(&state);
+ 541              		.loc 1 150 3
+ 542 02f8 07F1D003 		add	r3, r7, #208
+ 543 02fc C03B     		subs	r3, r3, #192
+ 544 02fe 1846     		mov	r0, r3
+ 545 0300 FFF7FEFF 		bl	pqcrystals_fips202_ref_shake256_finalize
+ 151:sign.c        ****   shake256_squeeze(sig, SEEDBYTES, &state);
+ 546              		.loc 1 151 3
+ 547 0304 07F1D003 		add	r3, r7, #208
+ 548 0308 C03B     		subs	r3, r3, #192
+ 549 030a 07F5BA62 		add	r2, r7, #1488
+ 550 030e A2F2C450 		subw	r0, r2, #1476
+ 551 0312 1A46     		mov	r2, r3
+ 552 0314 2021     		movs	r1, #32
+ 553 0316 0068     		ldr	r0, [r0]
+ 554 0318 FFF7FEFF 		bl	pqcrystals_fips202_ref_shake256_squeeze
+ 152:sign.c        ****   poly_challenge(&cp, sig);
+ 555              		.loc 1 152 3
+ 556 031c 07F5BA63 		add	r3, r7, #1488
+ 557 0320 A3F2C452 		subw	r2, r3, #1476
+ 558 0324 07F5E873 		add	r3, r7, #464
+ 559 0328 EC3B     		subs	r3, r3, #236
+ 560 032a 1168     		ldr	r1, [r2]
+ 561 032c 1846     		mov	r0, r3
+ 562 032e FFF7FEFF 		bl	pqcrystals_dilithium2_ref_poly_challenge
+ 153:sign.c        ****   poly_ntt(&cp);
+ 563              		.loc 1 153 3
+ 564 0332 07F5E873 		add	r3, r7, #464
+ 565 0336 EC3B     		subs	r3, r3, #236
+ 566 0338 1846     		mov	r0, r3
+ 567 033a FFF7FEFF 		bl	pqcrystals_dilithium2_ref_poly_ntt
+ 154:sign.c        **** 
+ 155:sign.c        ****   /* Compute z, reject if it reveals secret */
+ 156:sign.c        ****   polyvecl_pointwise_poly_montgomery(&z, &cp, &s1);
+ 568              		.loc 1 156 3
+ 569 033e 07F5EA42 		add	r2, r7, #29952
+ 570 0342 02F15002 		add	r2, r2, #80
+ 571 0346 6C3A     		subs	r2, r2, #108
+ 572 0348 07F5E871 		add	r1, r7, #464
+ 573 034c EC39     		subs	r1, r1, #236
+ 574 034e 07F5AA43 		add	r3, r7, #21760
+ 575 0352 03F15003 		add	r3, r3, #80
+ 576 0356 6C3B     		subs	r3, r3, #108
+ 577 0358 1846     		mov	r0, r3
+ 578 035a FFF7FEFF 		bl	pqcrystals_dilithium2_ref_polyvecl_pointwise_poly_montgomery
+ 157:sign.c        ****   polyvecl_invntt_tomont(&z);
+ 579              		.loc 1 157 3
+ 580 035e 07F5AA43 		add	r3, r7, #21760
+ 581 0362 03F15003 		add	r3, r3, #80
+ 582 0366 6C3B     		subs	r3, r3, #108
+ 583 0368 1846     		mov	r0, r3
+ 584 036a FFF7FEFF 		bl	pqcrystals_dilithium2_ref_polyvecl_invntt_tomont
+ 158:sign.c        ****   polyvecl_add(&z, &z, &y);
+ 585              		.loc 1 158 3
+ 586 036e 07F5CA42 		add	r2, r7, #25856
+ 587 0372 02F15002 		add	r2, r2, #80
+ 588 0376 6C3A     		subs	r2, r2, #108
+ 589 0378 07F5AA41 		add	r1, r7, #21760
+ 590 037c 01F15001 		add	r1, r1, #80
+ 591 0380 6C39     		subs	r1, r1, #108
+ 592 0382 07F5AA43 		add	r3, r7, #21760
+ 593 0386 03F15003 		add	r3, r3, #80
+ 594 038a 6C3B     		subs	r3, r3, #108
+ 595 038c 1846     		mov	r0, r3
+ 596 038e FFF7FEFF 		bl	pqcrystals_dilithium2_ref_polyvecl_add
+ 159:sign.c        ****   polyvecl_reduce(&z);
+ 597              		.loc 1 159 3
+ 598 0392 07F5AA43 		add	r3, r7, #21760
+ 599 0396 03F15003 		add	r3, r3, #80
+ 600 039a 6C3B     		subs	r3, r3, #108
+ 601 039c 1846     		mov	r0, r3
+ 602 039e FFF7FEFF 		bl	pqcrystals_dilithium2_ref_polyvecl_reduce
+ 160:sign.c        ****   if(polyvecl_chknorm(&z, GAMMA1 - BETA))
+ 603              		.loc 1 160 6
+ 604 03a2 07F5AA43 		add	r3, r7, #21760
+ 605 03a6 03F15003 		add	r3, r3, #80
+ 606 03aa 6C3B     		subs	r3, r3, #108
+ 607 03ac 5F49     		ldr	r1, .L10
+ 608 03ae 1846     		mov	r0, r3
+ 609 03b0 FFF7FEFF 		bl	pqcrystals_dilithium2_ref_polyvecl_chknorm
+ 610 03b4 0346     		mov	r3, r0
+ 611              		.loc 1 160 5
+ 612 03b6 002B     		cmp	r3, #0
+ 613 03b8 00D0     		beq	.L5
+ 161:sign.c        ****     goto rej;
+ 614              		.loc 1 161 5
+ 615 03ba 05E7     		b	.L4
+ 616              	.L5:
+ 162:sign.c        **** 
+ 163:sign.c        ****   /* Check that subtracting cs2 does not change high bits of w and low bits
+ 164:sign.c        ****    * do not reveal secret information */
+ 165:sign.c        ****   polyveck_pointwise_poly_montgomery(&h, &cp, &s2);
+ 617              		.loc 1 165 3
+ 618 03bc 07F55752 		add	r2, r7, #13760
+ 619 03c0 02F11002 		add	r2, r2, #16
+ 620 03c4 EC3A     		subs	r2, r2, #236
+ 621 03c6 07F5E871 		add	r1, r7, #464
+ 622 03ca EC39     		subs	r1, r1, #236
+ 623 03cc 07F5BA63 		add	r3, r7, #1488
+ 624 03d0 EC3B     		subs	r3, r3, #236
+ 625 03d2 1846     		mov	r0, r3
+ 626 03d4 FFF7FEFF 		bl	pqcrystals_dilithium2_ref_polyveck_pointwise_poly_montgomery
+ 166:sign.c        ****   polyveck_invntt_tomont(&h);
+ 627              		.loc 1 166 3
+ 628 03d8 07F5BA63 		add	r3, r7, #1488
+ 629 03dc EC3B     		subs	r3, r3, #236
+ 630 03de 1846     		mov	r0, r3
+ 631 03e0 FFF7FEFF 		bl	pqcrystals_dilithium2_ref_polyveck_invntt_tomont
+ 167:sign.c        ****   polyveck_sub(&w0, &w0, &h);
+ 632              		.loc 1 167 3
+ 633 03e4 07F5BA62 		add	r2, r7, #1488
+ 634 03e8 EC3A     		subs	r2, r2, #236
+ 635 03ea 07F5AE51 		add	r1, r7, #5568
+ 636 03ee 01F11001 		add	r1, r1, #16
+ 637 03f2 EC39     		subs	r1, r1, #236
+ 638 03f4 07F5AE53 		add	r3, r7, #5568
+ 639 03f8 03F11003 		add	r3, r3, #16
+ 640 03fc EC3B     		subs	r3, r3, #236
+ 641 03fe 1846     		mov	r0, r3
+ 642 0400 FFF7FEFF 		bl	pqcrystals_dilithium2_ref_polyveck_sub
+ 168:sign.c        ****   polyveck_reduce(&w0);
+ 643              		.loc 1 168 3
+ 644 0404 07F5AE53 		add	r3, r7, #5568
+ 645 0408 03F11003 		add	r3, r3, #16
+ 646 040c EC3B     		subs	r3, r3, #236
+ 647 040e 1846     		mov	r0, r3
+ 648 0410 FFF7FEFF 		bl	pqcrystals_dilithium2_ref_polyveck_reduce
+ 169:sign.c        ****   if(polyveck_chknorm(&w0, GAMMA2 - BETA))
+ 649              		.loc 1 169 6
+ 650 0414 07F5AE53 		add	r3, r7, #5568
+ 651 0418 03F11003 		add	r3, r3, #16
+ 652 041c EC3B     		subs	r3, r3, #236
+ 653 041e 4449     		ldr	r1, .L10+4
+ 654 0420 1846     		mov	r0, r3
+ 655 0422 FFF7FEFF 		bl	pqcrystals_dilithium2_ref_polyveck_chknorm
+ 656 0426 0346     		mov	r3, r0
+ 657              		.loc 1 169 5
+ 658 0428 002B     		cmp	r3, #0
+ 659 042a 00D0     		beq	.L6
+ 170:sign.c        ****     goto rej;
+ 660              		.loc 1 170 5
+ 661 042c CCE6     		b	.L4
+ 662              	.L6:
+ 171:sign.c        **** 
+ 172:sign.c        ****   /* Compute hints for w1 */
+ 173:sign.c        ****   polyveck_pointwise_poly_montgomery(&h, &cp, &t0);
+ 663              		.loc 1 173 3
+ 664 042e 07F58B42 		add	r2, r7, #17792
+ 665 0432 02F15002 		add	r2, r2, #80
+ 666 0436 EC3A     		subs	r2, r2, #236
+ 667 0438 07F5E871 		add	r1, r7, #464
+ 668 043c EC39     		subs	r1, r1, #236
+ 669 043e 07F5BA63 		add	r3, r7, #1488
+ 670 0442 EC3B     		subs	r3, r3, #236
+ 671 0444 1846     		mov	r0, r3
+ 672 0446 FFF7FEFF 		bl	pqcrystals_dilithium2_ref_polyveck_pointwise_poly_montgomery
+ 174:sign.c        ****   polyveck_invntt_tomont(&h);
+ 673              		.loc 1 174 3
+ 674 044a 07F5BA63 		add	r3, r7, #1488
+ 675 044e EC3B     		subs	r3, r3, #236
+ 676 0450 1846     		mov	r0, r3
+ 677 0452 FFF7FEFF 		bl	pqcrystals_dilithium2_ref_polyveck_invntt_tomont
+ 175:sign.c        ****   polyveck_reduce(&h);
+ 678              		.loc 1 175 3
+ 679 0456 07F5BA63 		add	r3, r7, #1488
+ 680 045a EC3B     		subs	r3, r3, #236
+ 681 045c 1846     		mov	r0, r3
+ 682 045e FFF7FEFF 		bl	pqcrystals_dilithium2_ref_polyveck_reduce
+ 176:sign.c        ****   if(polyveck_chknorm(&h, GAMMA2))
+ 683              		.loc 1 176 6
+ 684 0462 07F5BA63 		add	r3, r7, #1488
+ 685 0466 EC3B     		subs	r3, r3, #236
+ 686 0468 4FF4BA31 		mov	r1, #95232
+ 687 046c 1846     		mov	r0, r3
+ 688 046e FFF7FEFF 		bl	pqcrystals_dilithium2_ref_polyveck_chknorm
+ 689 0472 0346     		mov	r3, r0
+ 690              		.loc 1 176 5
+ 691 0474 002B     		cmp	r3, #0
+ 692 0476 00D0     		beq	.L7
+ 177:sign.c        ****     goto rej;
+ 693              		.loc 1 177 5
+ 694 0478 A6E6     		b	.L4
+ 695              	.L7:
+ 178:sign.c        **** 
+ 179:sign.c        ****   polyveck_add(&w0, &w0, &h);
+ 696              		.loc 1 179 3
+ 697 047a 07F5BA62 		add	r2, r7, #1488
+ 698 047e EC3A     		subs	r2, r2, #236
+ 699 0480 07F5AE51 		add	r1, r7, #5568
+ 700 0484 01F11001 		add	r1, r1, #16
+ 701 0488 EC39     		subs	r1, r1, #236
+ 702 048a 07F5AE53 		add	r3, r7, #5568
+ 703 048e 03F11003 		add	r3, r3, #16
+ 704 0492 EC3B     		subs	r3, r3, #236
+ 705 0494 1846     		mov	r0, r3
+ 706 0496 FFF7FEFF 		bl	pqcrystals_dilithium2_ref_polyveck_add
+ 180:sign.c        ****   polyveck_caddq(&w0);
+ 707              		.loc 1 180 3
+ 708 049a 07F5AE53 		add	r3, r7, #5568
+ 709 049e 03F11003 		add	r3, r3, #16
+ 710 04a2 EC3B     		subs	r3, r3, #236
+ 711 04a4 1846     		mov	r0, r3
+ 712 04a6 FFF7FEFF 		bl	pqcrystals_dilithium2_ref_polyveck_caddq
+ 181:sign.c        ****   n = polyveck_make_hint(&h, &w0, &w1);
+ 713              		.loc 1 181 7
+ 714 04aa 07F51752 		add	r2, r7, #9664
+ 715 04ae 02F11002 		add	r2, r2, #16
+ 716 04b2 EC3A     		subs	r2, r2, #236
+ 717 04b4 07F5AE51 		add	r1, r7, #5568
+ 718 04b8 01F11001 		add	r1, r1, #16
+ 719 04bc EC39     		subs	r1, r1, #236
+ 720 04be 07F5BA63 		add	r3, r7, #1488
+ 721 04c2 EC3B     		subs	r3, r3, #236
+ 722 04c4 1846     		mov	r0, r3
+ 723 04c6 FFF7FEFF 		bl	pqcrystals_dilithium2_ref_polyveck_make_hint
+ 724 04ca 07F54543 		add	r3, r7, #50432
+ 725 04ce 03F1B403 		add	r3, r3, #180
+ 726 04d2 1860     		str	r0, [r3]
+ 182:sign.c        ****   if(n > OMEGA)
+ 727              		.loc 1 182 5
+ 728 04d4 07F54543 		add	r3, r7, #50432
+ 729 04d8 03F1B403 		add	r3, r3, #180
+ 730 04dc 1B68     		ldr	r3, [r3]
+ 731 04de 502B     		cmp	r3, #80
+ 732 04e0 00D9     		bls	.L8
+ 183:sign.c        ****     goto rej;
+ 733              		.loc 1 183 5
+ 734 04e2 71E6     		b	.L4
+ 735              	.L8:
+ 184:sign.c        **** 
+ 185:sign.c        ****   /* Write signature */
+ 186:sign.c        ****   pack_sig(sig, sig, &z, &h);
+ 736              		.loc 1 186 3
+ 737 04e4 07F5BA63 		add	r3, r7, #1488
+ 738 04e8 EC3B     		subs	r3, r3, #236
+ 739 04ea 07F5AA42 		add	r2, r7, #21760
+ 740 04ee 02F15002 		add	r2, r2, #80
+ 741 04f2 6C3A     		subs	r2, r2, #108
+ 742 04f4 07F5BA61 		add	r1, r7, #1488
+ 743 04f8 A1F2C451 		subw	r1, r1, #1476
+ 744 04fc 07F5BA60 		add	r0, r7, #1488
+ 745 0500 A0F2C450 		subw	r0, r0, #1476
+ 746 0504 0968     		ldr	r1, [r1]
+ 747 0506 0068     		ldr	r0, [r0]
+ 748 0508 FFF7FEFF 		bl	pqcrystals_dilithium2_ref_pack_sig
+ 187:sign.c        ****   *siglen = CRYPTO_BYTES;
+ 749              		.loc 1 187 11
+ 750 050c 07F5BA63 		add	r3, r7, #1488
+ 751 0510 A3F5B963 		sub	r3, r3, #1480
+ 752 0514 1B68     		ldr	r3, [r3]
+ 753 0516 40F67412 		movw	r2, #2420
+ 754 051a 1A60     		str	r2, [r3]
+ 188:sign.c        ****   return 0;
+ 755              		.loc 1 188 10
+ 756 051c 0023     		movs	r3, #0
+ 189:sign.c        **** }
+ 757              		.loc 1 189 1
+ 758 051e 1846     		mov	r0, r3
+ 759 0520 07F54547 		add	r7, r7, #50432
+ 760 0524 D437     		adds	r7, r7, #212
+ 761              	.LCFI10:
+ 762              		.cfi_def_cfa_offset 12
+ 763 0526 BD46     		mov	sp, r7
+ 764              	.LCFI11:
+ 765              		.cfi_def_cfa_register 13
+ 766              		@ sp needed
+ 767 0528 90BD     		pop	{r4, r7, pc}
+ 768              	.L11:
+ 769 052a 00BF     		.align	2
+ 770              	.L10:
+ 771 052c B2FF0100 		.word	130994
+ 772 0530 B2730100 		.word	95154
+ 773              		.cfi_endproc
+ 774              	.LFE1:
+ 776              		.section	.text.pqcrystals_dilithium2_ref,"ax",%progbits
+ 777              		.align	1
+ 778              		.global	pqcrystals_dilithium2_ref
+ 779              		.syntax unified
+ 780              		.thumb
+ 781              		.thumb_func
+ 782              		.fpu softvfp
+ 784              	pqcrystals_dilithium2_ref:
+ 785              	.LFB2:
+ 190:sign.c        **** 
+ 191:sign.c        **** /*************************************************
+ 192:sign.c        **** * Name:        crypto_sign
+ 193:sign.c        **** *
+ 194:sign.c        **** * Description: Compute signed message.
+ 195:sign.c        **** *
+ 196:sign.c        **** * Arguments:   - uint8_t *sm: pointer to output signed message (allocated
+ 197:sign.c        **** *                             array with CRYPTO_BYTES + mlen bytes),
+ 198:sign.c        **** *                             can be equal to m
+ 199:sign.c        **** *              - size_t *smlen: pointer to output length of signed
+ 200:sign.c        **** *                               message
+ 201:sign.c        **** *              - const uint8_t *m: pointer to message to be signed
+ 202:sign.c        **** *              - size_t mlen: length of message
+ 203:sign.c        **** *              - const uint8_t *sk: pointer to bit-packed secret key
+ 204:sign.c        **** *
+ 205:sign.c        **** * Returns 0 (success)
+ 206:sign.c        **** **************************************************/
+ 207:sign.c        **** int crypto_sign(uint8_t *sm,
+ 208:sign.c        ****                 size_t *smlen,
+ 209:sign.c        ****                 const uint8_t *m,
+ 210:sign.c        ****                 size_t mlen,
+ 211:sign.c        ****                 const uint8_t *sk)
+ 212:sign.c        **** {
+ 786              		.loc 1 212 1
+ 787              		.cfi_startproc
+ 788              		@ args = 4, pretend = 0, frame = 24
+ 789              		@ frame_needed = 1, uses_anonymous_args = 0
+ 790 0000 80B5     		push	{r7, lr}
+ 791              	.LCFI12:
+ 792              		.cfi_def_cfa_offset 8
+ 793              		.cfi_offset 7, -8
+ 794              		.cfi_offset 14, -4
+ 795 0002 88B0     		sub	sp, sp, #32
+ 796              	.LCFI13:
+ 797              		.cfi_def_cfa_offset 40
+ 798 0004 02AF     		add	r7, sp, #8
+ 799              	.LCFI14:
+ 800              		.cfi_def_cfa 7, 32
+ 801 0006 F860     		str	r0, [r7, #12]
+ 802 0008 B960     		str	r1, [r7, #8]
+ 803 000a 7A60     		str	r2, [r7, #4]
+ 804 000c 3B60     		str	r3, [r7]
+ 213:sign.c        ****   size_t i;
+ 214:sign.c        **** 
+ 215:sign.c        ****   for(i = 0; i < mlen; ++i)
+ 805              		.loc 1 215 9
+ 806 000e 0023     		movs	r3, #0
+ 807 0010 7B61     		str	r3, [r7, #20]
+ 808              		.loc 1 215 3
+ 809 0012 11E0     		b	.L13
+ 810              	.L14:
+ 216:sign.c        ****     sm[CRYPTO_BYTES + mlen - 1 - i] = m[mlen - 1 - i];
+ 811              		.loc 1 216 50 discriminator 3
+ 812 0014 3A68     		ldr	r2, [r7]
+ 813 0016 7B69     		ldr	r3, [r7, #20]
+ 814 0018 D31A     		subs	r3, r2, r3
+ 815 001a 013B     		subs	r3, r3, #1
+ 816              		.loc 1 216 40 discriminator 3
+ 817 001c 7A68     		ldr	r2, [r7, #4]
+ 818 001e 1A44     		add	r2, r2, r3
+ 819              		.loc 1 216 32 discriminator 3
+ 820 0020 3968     		ldr	r1, [r7]
+ 821 0022 7B69     		ldr	r3, [r7, #20]
+ 822 0024 CB1A     		subs	r3, r1, r3
+ 823 0026 03F67313 		addw	r3, r3, #2419
+ 824              		.loc 1 216 7 discriminator 3
+ 825 002a F968     		ldr	r1, [r7, #12]
+ 826 002c 0B44     		add	r3, r3, r1
+ 827              		.loc 1 216 40 discriminator 3
+ 828 002e 1278     		ldrb	r2, [r2]	@ zero_extendqisi2
+ 829              		.loc 1 216 37 discriminator 3
+ 830 0030 1A70     		strb	r2, [r3]
+ 215:sign.c        ****     sm[CRYPTO_BYTES + mlen - 1 - i] = m[mlen - 1 - i];
+ 831              		.loc 1 215 24 discriminator 3
+ 832 0032 7B69     		ldr	r3, [r7, #20]
+ 833 0034 0133     		adds	r3, r3, #1
+ 834 0036 7B61     		str	r3, [r7, #20]
+ 835              	.L13:
+ 215:sign.c        ****     sm[CRYPTO_BYTES + mlen - 1 - i] = m[mlen - 1 - i];
+ 836              		.loc 1 215 3 discriminator 1
+ 837 0038 7A69     		ldr	r2, [r7, #20]
+ 838 003a 3B68     		ldr	r3, [r7]
+ 839 003c 9A42     		cmp	r2, r3
+ 840 003e E9D3     		bcc	.L14
+ 217:sign.c        ****   crypto_sign_signature(sm, smlen, sm + CRYPTO_BYTES, mlen, sk);
+ 841              		.loc 1 217 39
+ 842 0040 FB68     		ldr	r3, [r7, #12]
+ 843 0042 03F67412 		addw	r2, r3, #2420
+ 844              		.loc 1 217 3
+ 845 0046 3B6A     		ldr	r3, [r7, #32]
+ 846 0048 0093     		str	r3, [sp]
+ 847 004a 3B68     		ldr	r3, [r7]
+ 848 004c B968     		ldr	r1, [r7, #8]
+ 849 004e F868     		ldr	r0, [r7, #12]
+ 850 0050 FFF7FEFF 		bl	pqcrystals_dilithium2_ref_signature
+ 218:sign.c        ****   *smlen += mlen;
+ 851              		.loc 1 218 10
+ 852 0054 BB68     		ldr	r3, [r7, #8]
+ 853 0056 1A68     		ldr	r2, [r3]
+ 854 0058 3B68     		ldr	r3, [r7]
+ 855 005a 1A44     		add	r2, r2, r3
+ 856 005c BB68     		ldr	r3, [r7, #8]
+ 857 005e 1A60     		str	r2, [r3]
+ 219:sign.c        ****   return 0;
+ 858              		.loc 1 219 10
+ 859 0060 0023     		movs	r3, #0
+ 220:sign.c        **** }
+ 860              		.loc 1 220 1
+ 861 0062 1846     		mov	r0, r3
+ 862 0064 1837     		adds	r7, r7, #24
+ 863              	.LCFI15:
+ 864              		.cfi_def_cfa_offset 8
+ 865 0066 BD46     		mov	sp, r7
+ 866              	.LCFI16:
+ 867              		.cfi_def_cfa_register 13
+ 868              		@ sp needed
+ 869 0068 80BD     		pop	{r7, pc}
+ 870              		.cfi_endproc
+ 871              	.LFE2:
+ 873              		.section	.text.pqcrystals_dilithium2_ref_verify,"ax",%progbits
+ 874              		.align	1
+ 875              		.global	pqcrystals_dilithium2_ref_verify
+ 876              		.syntax unified
+ 877              		.thumb
+ 878              		.thumb_func
+ 879              		.fpu softvfp
+ 881              	pqcrystals_dilithium2_ref_verify:
+ 882              	.LFB3:
+ 221:sign.c        **** 
+ 222:sign.c        **** /*************************************************
+ 223:sign.c        **** * Name:        crypto_sign_verify
+ 224:sign.c        **** *
+ 225:sign.c        **** * Description: Verifies signature.
+ 226:sign.c        **** *
+ 227:sign.c        **** * Arguments:   - uint8_t *m: pointer to input signature
+ 228:sign.c        **** *              - size_t siglen: length of signature
+ 229:sign.c        **** *              - const uint8_t *m: pointer to message
+ 230:sign.c        **** *              - size_t mlen: length of message
+ 231:sign.c        **** *              - const uint8_t *pk: pointer to bit-packed public key
+ 232:sign.c        **** *
+ 233:sign.c        **** * Returns 0 if signature could be verified correctly and -1 otherwise
+ 234:sign.c        **** **************************************************/
+ 235:sign.c        **** int crypto_sign_verify(const uint8_t *sig,
+ 236:sign.c        ****                        size_t siglen,
+ 237:sign.c        ****                        const uint8_t *m,
+ 238:sign.c        ****                        size_t mlen,
+ 239:sign.c        ****                        const uint8_t *pk)
+ 240:sign.c        **** {
+ 883              		.loc 1 240 1
+ 884              		.cfi_startproc
+ 885              		@ args = 4, pretend = 0, frame = 34936
+ 886              		@ frame_needed = 1, uses_anonymous_args = 0
+ 887 0000 90B5     		push	{r4, r7, lr}
+ 888              	.LCFI17:
+ 889              		.cfi_def_cfa_offset 12
+ 890              		.cfi_offset 4, -12
+ 891              		.cfi_offset 7, -8
+ 892              		.cfi_offset 14, -4
+ 893 0002 ADF5084D 		sub	sp, sp, #34816
+ 894              	.LCFI18:
+ 895              		.cfi_def_cfa_offset 34828
+ 896 0006 9FB0     		sub	sp, sp, #124
+ 897              	.LCFI19:
+ 898              		.cfi_def_cfa_offset 34952
+ 899 0008 00AF     		add	r7, sp, #0
+ 900              	.LCFI20:
+ 901              		.cfi_def_cfa_register 7
+ 902 000a 07F67804 		addw	r4, r7, #2168
+ 903 000e A4F66C04 		subw	r4, r4, #2156
+ 904 0012 2060     		str	r0, [r4]
+ 905 0014 07F67800 		addw	r0, r7, #2168
+ 906 0018 A0F50760 		sub	r0, r0, #2160
+ 907 001c 0160     		str	r1, [r0]
+ 908 001e 07F67801 		addw	r1, r7, #2168
+ 909 0022 A1F67401 		subw	r1, r1, #2164
+ 910 0026 0A60     		str	r2, [r1]
+ 911 0028 07F67802 		addw	r2, r7, #2168
+ 912 002c A2F67802 		subw	r2, r2, #2168
+ 913 0030 1360     		str	r3, [r2]
+ 241:sign.c        ****   unsigned int i;
+ 242:sign.c        ****   uint8_t buf[K*POLYW1_PACKEDBYTES];
+ 243:sign.c        ****   uint8_t rho[SEEDBYTES];
+ 244:sign.c        ****   uint8_t mu[CRHBYTES];
+ 245:sign.c        ****   uint8_t c[SEEDBYTES];
+ 246:sign.c        ****   uint8_t c2[SEEDBYTES];
+ 247:sign.c        ****   poly cp;
+ 248:sign.c        ****   polyvecl mat[K], z;
+ 249:sign.c        ****   polyveck t1, w1, h;
+ 250:sign.c        ****   keccak_state state;
+ 251:sign.c        **** 
+ 252:sign.c        ****   if(siglen != CRYPTO_BYTES)
+ 914              		.loc 1 252 5
+ 915 0032 07F67803 		addw	r3, r7, #2168
+ 916 0036 A3F50763 		sub	r3, r3, #2160
+ 917 003a 1B68     		ldr	r3, [r3]
+ 918 003c 40F67412 		movw	r2, #2420
+ 919 0040 9342     		cmp	r3, r2
+ 920 0042 02D0     		beq	.L17
+ 253:sign.c        ****     return -1;
+ 921              		.loc 1 253 12
+ 922 0044 4FF0FF33 		mov	r3, #-1
+ 923 0048 81E1     		b	.L24
+ 924              	.L17:
+ 254:sign.c        **** 
+ 255:sign.c        ****   unpack_pk(rho, &t1, pk);
+ 925              		.loc 1 255 3
+ 926 004a 07F50353 		add	r3, r7, #8384
+ 927 004e 03F13803 		add	r3, r3, #56
+ 928 0052 143B     		subs	r3, r3, #20
+ 929 0054 07F50540 		add	r0, r7, #34048
+ 930 0058 00F15400 		add	r0, r0, #84
+ 931 005c 07F50842 		add	r2, r7, #34816
+ 932 0060 02F18802 		add	r2, r2, #136
+ 933 0064 1268     		ldr	r2, [r2]
+ 934 0066 1946     		mov	r1, r3
+ 935 0068 FFF7FEFF 		bl	pqcrystals_dilithium2_ref_unpack_pk
+ 256:sign.c        ****   if(unpack_sig(c, &z, &h, sig))
+ 936              		.loc 1 256 6
+ 937 006c 07F67803 		addw	r3, r7, #2168
+ 938 0070 A3F66C03 		subw	r3, r3, #2156
+ 939 0074 07F5BC72 		add	r2, r7, #376
+ 940 0078 943A     		subs	r2, r2, #148
+ 941 007a 07F54351 		add	r1, r7, #12480
+ 942 007e 01F13801 		add	r1, r1, #56
+ 943 0082 1439     		subs	r1, r1, #20
+ 944 0084 07F50540 		add	r0, r7, #34048
+ 945 0088 00F10400 		add	r0, r0, #4
+ 946 008c 1B68     		ldr	r3, [r3]
+ 947 008e FFF7FEFF 		bl	pqcrystals_dilithium2_ref_unpack_sig
+ 948 0092 0346     		mov	r3, r0
+ 949              		.loc 1 256 5
+ 950 0094 002B     		cmp	r3, #0
+ 951 0096 02D0     		beq	.L19
+ 257:sign.c        ****     return -1;
+ 952              		.loc 1 257 12
+ 953 0098 4FF0FF33 		mov	r3, #-1
+ 954 009c 57E1     		b	.L24
+ 955              	.L19:
+ 258:sign.c        ****   if(polyvecl_chknorm(&z, GAMMA1 - BETA))
+ 956              		.loc 1 258 6
+ 957 009e 07F54353 		add	r3, r7, #12480
+ 958 00a2 03F13803 		add	r3, r3, #56
+ 959 00a6 143B     		subs	r3, r3, #20
+ 960 00a8 AC49     		ldr	r1, .L25
+ 961 00aa 1846     		mov	r0, r3
+ 962 00ac FFF7FEFF 		bl	pqcrystals_dilithium2_ref_polyvecl_chknorm
+ 963 00b0 0346     		mov	r3, r0
+ 964              		.loc 1 258 5
+ 965 00b2 002B     		cmp	r3, #0
+ 966 00b4 02D0     		beq	.L20
+ 259:sign.c        ****     return -1;
+ 967              		.loc 1 259 12
+ 968 00b6 4FF0FF33 		mov	r3, #-1
+ 969 00ba 48E1     		b	.L24
+ 970              	.L20:
+ 260:sign.c        **** 
+ 261:sign.c        ****   /* Compute CRH(CRH(rho, t1), msg) */
+ 262:sign.c        ****   crh(mu, pk, CRYPTO_PUBLICKEYBYTES);
+ 971              		.loc 1 262 3
+ 972 00bc 07F50540 		add	r0, r7, #34048
+ 973 00c0 00F12400 		add	r0, r0, #36
+ 974 00c4 4FF4A463 		mov	r3, #1312
+ 975 00c8 07F50842 		add	r2, r7, #34816
+ 976 00cc 02F18802 		add	r2, r2, #136
+ 977 00d0 1268     		ldr	r2, [r2]
+ 978 00d2 3021     		movs	r1, #48
+ 979 00d4 FFF7FEFF 		bl	pqcrystals_fips202_ref_shake256
+ 263:sign.c        ****   shake256_init(&state);
+ 980              		.loc 1 263 3
+ 981 00d8 07F17803 		add	r3, r7, #120
+ 982 00dc 683B     		subs	r3, r3, #104
+ 983 00de 1846     		mov	r0, r3
+ 984 00e0 FFF7FEFF 		bl	pqcrystals_fips202_ref_shake256_init
+ 264:sign.c        ****   shake256_absorb(&state, mu, CRHBYTES);
+ 985              		.loc 1 264 3
+ 986 00e4 07F50541 		add	r1, r7, #34048
+ 987 00e8 01F12401 		add	r1, r1, #36
+ 988 00ec 07F17803 		add	r3, r7, #120
+ 989 00f0 683B     		subs	r3, r3, #104
+ 990 00f2 3022     		movs	r2, #48
+ 991 00f4 1846     		mov	r0, r3
+ 992 00f6 FFF7FEFF 		bl	pqcrystals_fips202_ref_shake256_absorb
+ 265:sign.c        ****   shake256_absorb(&state, m, mlen);
+ 993              		.loc 1 265 3
+ 994 00fa 07F67803 		addw	r3, r7, #2168
+ 995 00fe A3F67802 		subw	r2, r3, #2168
+ 996 0102 07F67803 		addw	r3, r7, #2168
+ 997 0106 A3F67401 		subw	r1, r3, #2164
+ 998 010a 07F17803 		add	r3, r7, #120
+ 999 010e 683B     		subs	r3, r3, #104
+ 1000 0110 1268     		ldr	r2, [r2]
+ 1001 0112 0968     		ldr	r1, [r1]
+ 1002 0114 1846     		mov	r0, r3
+ 1003 0116 FFF7FEFF 		bl	pqcrystals_fips202_ref_shake256_absorb
+ 266:sign.c        ****   shake256_finalize(&state);
+ 1004              		.loc 1 266 3
+ 1005 011a 07F17803 		add	r3, r7, #120
+ 1006 011e 683B     		subs	r3, r3, #104
+ 1007 0120 1846     		mov	r0, r3
+ 1008 0122 FFF7FEFF 		bl	pqcrystals_fips202_ref_shake256_finalize
+ 267:sign.c        ****   shake256_squeeze(mu, CRHBYTES, &state);
+ 1009              		.loc 1 267 3
+ 1010 0126 07F17803 		add	r3, r7, #120
+ 1011 012a 683B     		subs	r3, r3, #104
+ 1012 012c 07F50540 		add	r0, r7, #34048
+ 1013 0130 00F12400 		add	r0, r0, #36
+ 1014 0134 1A46     		mov	r2, r3
+ 1015 0136 3021     		movs	r1, #48
+ 1016 0138 FFF7FEFF 		bl	pqcrystals_fips202_ref_shake256_squeeze
+ 268:sign.c        **** 
+ 269:sign.c        ****   /* Matrix-vector multiplication; compute Az - c2^dt1 */
+ 270:sign.c        ****   poly_challenge(&cp, c);
+ 1017              		.loc 1 270 3
+ 1018 013c 07F50542 		add	r2, r7, #34048
+ 1019 0140 02F10402 		add	r2, r2, #4
+ 1020 0144 07F50043 		add	r3, r7, #32768
+ 1021 0148 03F1E403 		add	r3, r3, #228
+ 1022 014c 1146     		mov	r1, r2
+ 1023 014e 1846     		mov	r0, r3
+ 1024 0150 FFF7FEFF 		bl	pqcrystals_dilithium2_ref_poly_challenge
+ 271:sign.c        ****   polyvec_matrix_expand(mat, rho);
+ 1025              		.loc 1 271 3
+ 1026 0154 07F50542 		add	r2, r7, #34048
+ 1027 0158 02F15402 		add	r2, r2, #84
+ 1028 015c 07F58143 		add	r3, r7, #16512
+ 1029 0160 03F17803 		add	r3, r3, #120
+ 1030 0164 143B     		subs	r3, r3, #20
+ 1031 0166 1146     		mov	r1, r2
+ 1032 0168 1846     		mov	r0, r3
+ 1033 016a FFF7FEFF 		bl	pqcrystals_dilithium2_ref_polyvec_matrix_expand
+ 272:sign.c        **** 
+ 273:sign.c        ****   polyvecl_ntt(&z);
+ 1034              		.loc 1 273 3
+ 1035 016e 07F54353 		add	r3, r7, #12480
+ 1036 0172 03F13803 		add	r3, r3, #56
+ 1037 0176 143B     		subs	r3, r3, #20
+ 1038 0178 1846     		mov	r0, r3
+ 1039 017a FFF7FEFF 		bl	pqcrystals_dilithium2_ref_polyvecl_ntt
+ 274:sign.c        ****   polyvec_matrix_pointwise_montgomery(&w1, mat, &z);
+ 1040              		.loc 1 274 3
+ 1041 017e 07F54352 		add	r2, r7, #12480
+ 1042 0182 02F13802 		add	r2, r2, #56
+ 1043 0186 143A     		subs	r2, r2, #20
+ 1044 0188 07F58141 		add	r1, r7, #16512
+ 1045 018c 01F17801 		add	r1, r1, #120
+ 1046 0190 1439     		subs	r1, r1, #20
+ 1047 0192 07F58753 		add	r3, r7, #4320
+ 1048 0196 03F11803 		add	r3, r3, #24
+ 1049 019a 143B     		subs	r3, r3, #20
+ 1050 019c 1846     		mov	r0, r3
+ 1051 019e FFF7FEFF 		bl	pqcrystals_dilithium2_ref_polyvec_matrix_pointwise_montgomery
+ 275:sign.c        **** 
+ 276:sign.c        ****   poly_ntt(&cp);
+ 1052              		.loc 1 276 3
+ 1053 01a2 07F50043 		add	r3, r7, #32768
+ 1054 01a6 03F1E403 		add	r3, r3, #228
+ 1055 01aa 1846     		mov	r0, r3
+ 1056 01ac FFF7FEFF 		bl	pqcrystals_dilithium2_ref_poly_ntt
+ 277:sign.c        ****   polyveck_shiftl(&t1);
+ 1057              		.loc 1 277 3
+ 1058 01b0 07F50353 		add	r3, r7, #8384
+ 1059 01b4 03F13803 		add	r3, r3, #56
+ 1060 01b8 143B     		subs	r3, r3, #20
+ 1061 01ba 1846     		mov	r0, r3
+ 1062 01bc FFF7FEFF 		bl	pqcrystals_dilithium2_ref_polyveck_shiftl
+ 278:sign.c        ****   polyveck_ntt(&t1);
+ 1063              		.loc 1 278 3
+ 1064 01c0 07F50353 		add	r3, r7, #8384
+ 1065 01c4 03F13803 		add	r3, r3, #56
+ 1066 01c8 143B     		subs	r3, r3, #20
+ 1067 01ca 1846     		mov	r0, r3
+ 1068 01cc FFF7FEFF 		bl	pqcrystals_dilithium2_ref_polyveck_ntt
+ 279:sign.c        ****   polyveck_pointwise_poly_montgomery(&t1, &cp, &t1);
+ 1069              		.loc 1 279 3
+ 1070 01d0 07F50352 		add	r2, r7, #8384
+ 1071 01d4 02F13802 		add	r2, r2, #56
+ 1072 01d8 143A     		subs	r2, r2, #20
+ 1073 01da 07F50041 		add	r1, r7, #32768
+ 1074 01de 01F1E401 		add	r1, r1, #228
+ 1075 01e2 07F50353 		add	r3, r7, #8384
+ 1076 01e6 03F13803 		add	r3, r3, #56
+ 1077 01ea 143B     		subs	r3, r3, #20
+ 1078 01ec 1846     		mov	r0, r3
+ 1079 01ee FFF7FEFF 		bl	pqcrystals_dilithium2_ref_polyveck_pointwise_poly_montgomery
+ 280:sign.c        **** 
+ 281:sign.c        ****   polyveck_sub(&w1, &w1, &t1);
+ 1080              		.loc 1 281 3
+ 1081 01f2 07F50352 		add	r2, r7, #8384
+ 1082 01f6 02F13802 		add	r2, r2, #56
+ 1083 01fa 143A     		subs	r2, r2, #20
+ 1084 01fc 07F58751 		add	r1, r7, #4320
+ 1085 0200 01F11801 		add	r1, r1, #24
+ 1086 0204 1439     		subs	r1, r1, #20
+ 1087 0206 07F58753 		add	r3, r7, #4320
+ 1088 020a 03F11803 		add	r3, r3, #24
+ 1089 020e 143B     		subs	r3, r3, #20
+ 1090 0210 1846     		mov	r0, r3
+ 1091 0212 FFF7FEFF 		bl	pqcrystals_dilithium2_ref_polyveck_sub
+ 282:sign.c        ****   polyveck_reduce(&w1);
+ 1092              		.loc 1 282 3
+ 1093 0216 07F58753 		add	r3, r7, #4320
+ 1094 021a 03F11803 		add	r3, r3, #24
+ 1095 021e 143B     		subs	r3, r3, #20
+ 1096 0220 1846     		mov	r0, r3
+ 1097 0222 FFF7FEFF 		bl	pqcrystals_dilithium2_ref_polyveck_reduce
+ 283:sign.c        ****   polyveck_invntt_tomont(&w1);
+ 1098              		.loc 1 283 3
+ 1099 0226 07F58753 		add	r3, r7, #4320
+ 1100 022a 03F11803 		add	r3, r3, #24
+ 1101 022e 143B     		subs	r3, r3, #20
+ 1102 0230 1846     		mov	r0, r3
+ 1103 0232 FFF7FEFF 		bl	pqcrystals_dilithium2_ref_polyveck_invntt_tomont
+ 284:sign.c        **** 
+ 285:sign.c        ****   /* Reconstruct w1 */
+ 286:sign.c        ****   polyveck_caddq(&w1);
+ 1104              		.loc 1 286 3
+ 1105 0236 07F58753 		add	r3, r7, #4320
+ 1106 023a 03F11803 		add	r3, r3, #24
+ 1107 023e 143B     		subs	r3, r3, #20
+ 1108 0240 1846     		mov	r0, r3
+ 1109 0242 FFF7FEFF 		bl	pqcrystals_dilithium2_ref_polyveck_caddq
+ 287:sign.c        ****   polyveck_use_hint(&w1, &w1, &h);
+ 1110              		.loc 1 287 3
+ 1111 0246 07F5BC72 		add	r2, r7, #376
+ 1112 024a 943A     		subs	r2, r2, #148
+ 1113 024c 07F58751 		add	r1, r7, #4320
+ 1114 0250 01F11801 		add	r1, r1, #24
+ 1115 0254 1439     		subs	r1, r1, #20
+ 1116 0256 07F58753 		add	r3, r7, #4320
+ 1117 025a 03F11803 		add	r3, r3, #24
+ 1118 025e 143B     		subs	r3, r3, #20
+ 1119 0260 1846     		mov	r0, r3
+ 1120 0262 FFF7FEFF 		bl	pqcrystals_dilithium2_ref_polyveck_use_hint
+ 288:sign.c        ****   polyveck_pack_w1(buf, &w1);
+ 1121              		.loc 1 288 3
+ 1122 0266 07F58753 		add	r3, r7, #4320
+ 1123 026a 03F11803 		add	r3, r3, #24
+ 1124 026e 143B     		subs	r3, r3, #20
+ 1125 0270 07F50542 		add	r2, r7, #34048
+ 1126 0274 02F17402 		add	r2, r2, #116
+ 1127 0278 1946     		mov	r1, r3
+ 1128 027a 1046     		mov	r0, r2
+ 1129 027c FFF7FEFF 		bl	pqcrystals_dilithium2_ref_polyveck_pack_w1
+ 289:sign.c        **** 
+ 290:sign.c        ****   /* Call random oracle and verify challenge */
+ 291:sign.c        ****   shake256_init(&state);
+ 1130              		.loc 1 291 3
+ 1131 0280 07F17803 		add	r3, r7, #120
+ 1132 0284 683B     		subs	r3, r3, #104
+ 1133 0286 1846     		mov	r0, r3
+ 1134 0288 FFF7FEFF 		bl	pqcrystals_fips202_ref_shake256_init
+ 292:sign.c        ****   shake256_absorb(&state, mu, CRHBYTES);
+ 1135              		.loc 1 292 3
+ 1136 028c 07F50541 		add	r1, r7, #34048
+ 1137 0290 01F12401 		add	r1, r1, #36
+ 1138 0294 07F17803 		add	r3, r7, #120
+ 1139 0298 683B     		subs	r3, r3, #104
+ 1140 029a 3022     		movs	r2, #48
+ 1141 029c 1846     		mov	r0, r3
+ 1142 029e FFF7FEFF 		bl	pqcrystals_fips202_ref_shake256_absorb
+ 293:sign.c        ****   shake256_absorb(&state, buf, K*POLYW1_PACKEDBYTES);
+ 1143              		.loc 1 293 3
+ 1144 02a2 07F50541 		add	r1, r7, #34048
+ 1145 02a6 01F17401 		add	r1, r1, #116
+ 1146 02aa 07F17803 		add	r3, r7, #120
+ 1147 02ae 683B     		subs	r3, r3, #104
+ 1148 02b0 4FF44072 		mov	r2, #768
+ 1149 02b4 1846     		mov	r0, r3
+ 1150 02b6 FFF7FEFF 		bl	pqcrystals_fips202_ref_shake256_absorb
+ 294:sign.c        ****   shake256_finalize(&state);
+ 1151              		.loc 1 294 3
+ 1152 02ba 07F17803 		add	r3, r7, #120
+ 1153 02be 683B     		subs	r3, r3, #104
+ 1154 02c0 1846     		mov	r0, r3
+ 1155 02c2 FFF7FEFF 		bl	pqcrystals_fips202_ref_shake256_finalize
+ 295:sign.c        ****   shake256_squeeze(c2, SEEDBYTES, &state);
+ 1156              		.loc 1 295 3
+ 1157 02c6 07F17803 		add	r3, r7, #120
+ 1158 02ca 683B     		subs	r3, r3, #104
+ 1159 02cc 07F50440 		add	r0, r7, #33792
+ 1160 02d0 00F1E400 		add	r0, r0, #228
+ 1161 02d4 1A46     		mov	r2, r3
+ 1162 02d6 2021     		movs	r1, #32
+ 1163 02d8 FFF7FEFF 		bl	pqcrystals_fips202_ref_shake256_squeeze
+ 296:sign.c        ****   for(i = 0; i < SEEDBYTES; ++i)
+ 1164              		.loc 1 296 9
+ 1165 02dc 0023     		movs	r3, #0
+ 1166 02de 07F50842 		add	r2, r7, #34816
+ 1167 02e2 02F17402 		add	r2, r2, #116
+ 1168 02e6 1360     		str	r3, [r2]
+ 1169              		.loc 1 296 3
+ 1170 02e8 29E0     		b	.L21
+ 1171              	.L23:
+ 297:sign.c        ****     if(c[i] != c2[i])
+ 1172              		.loc 1 297 9
+ 1173 02ea 07F50843 		add	r3, r7, #34816
+ 1174 02ee 03F17803 		add	r3, r3, #120
+ 1175 02f2 A3F55D72 		sub	r2, r3, #884
+ 1176 02f6 07F50843 		add	r3, r7, #34816
+ 1177 02fa 03F17403 		add	r3, r3, #116
+ 1178 02fe 1B68     		ldr	r3, [r3]
+ 1179 0300 1344     		add	r3, r3, r2
+ 1180 0302 1A78     		ldrb	r2, [r3]	@ zero_extendqisi2
+ 1181              		.loc 1 297 18
+ 1182 0304 07F50843 		add	r3, r7, #34816
+ 1183 0308 03F17803 		add	r3, r3, #120
+ 1184 030c A3F56571 		sub	r1, r3, #916
+ 1185 0310 07F50843 		add	r3, r7, #34816
+ 1186 0314 03F17403 		add	r3, r3, #116
+ 1187 0318 1B68     		ldr	r3, [r3]
+ 1188 031a 0B44     		add	r3, r3, r1
+ 1189 031c 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 1190              		.loc 1 297 7
+ 1191 031e 9A42     		cmp	r2, r3
+ 1192 0320 02D0     		beq	.L22
+ 298:sign.c        ****       return -1;
+ 1193              		.loc 1 298 14
+ 1194 0322 4FF0FF33 		mov	r3, #-1
+ 1195 0326 12E0     		b	.L24
+ 1196              	.L22:
+ 296:sign.c        ****   for(i = 0; i < SEEDBYTES; ++i)
+ 1197              		.loc 1 296 29 discriminator 2
+ 1198 0328 07F50843 		add	r3, r7, #34816
+ 1199 032c 03F17403 		add	r3, r3, #116
+ 1200 0330 1B68     		ldr	r3, [r3]
+ 1201 0332 0133     		adds	r3, r3, #1
+ 1202 0334 07F50842 		add	r2, r7, #34816
+ 1203 0338 02F17402 		add	r2, r2, #116
+ 1204 033c 1360     		str	r3, [r2]
+ 1205              	.L21:
+ 296:sign.c        ****   for(i = 0; i < SEEDBYTES; ++i)
+ 1206              		.loc 1 296 3 discriminator 1
+ 1207 033e 07F50843 		add	r3, r7, #34816
+ 1208 0342 03F17403 		add	r3, r3, #116
+ 1209 0346 1B68     		ldr	r3, [r3]
+ 1210 0348 1F2B     		cmp	r3, #31
+ 1211 034a CED9     		bls	.L23
+ 299:sign.c        **** 
+ 300:sign.c        ****   return 0;
+ 1212              		.loc 1 300 10
+ 1213 034c 0023     		movs	r3, #0
+ 1214              	.L24:
+ 301:sign.c        **** }
+ 1215              		.loc 1 301 1 discriminator 1
+ 1216 034e 1846     		mov	r0, r3
+ 1217 0350 07F50847 		add	r7, r7, #34816
+ 1218 0354 7C37     		adds	r7, r7, #124
+ 1219              	.LCFI21:
+ 1220              		.cfi_def_cfa_offset 12
+ 1221 0356 BD46     		mov	sp, r7
+ 1222              	.LCFI22:
+ 1223              		.cfi_def_cfa_register 13
+ 1224              		@ sp needed
+ 1225 0358 90BD     		pop	{r4, r7, pc}
+ 1226              	.L26:
+ 1227 035a 00BF     		.align	2
+ 1228              	.L25:
+ 1229 035c B2FF0100 		.word	130994
+ 1230              		.cfi_endproc
+ 1231              	.LFE3:
+ 1233              		.section	.text.pqcrystals_dilithium2_ref_open,"ax",%progbits
+ 1234              		.align	1
+ 1235              		.global	pqcrystals_dilithium2_ref_open
+ 1236              		.syntax unified
+ 1237              		.thumb
+ 1238              		.thumb_func
+ 1239              		.fpu softvfp
+ 1241              	pqcrystals_dilithium2_ref_open:
+ 1242              	.LFB4:
+ 302:sign.c        **** 
+ 303:sign.c        **** /*************************************************
+ 304:sign.c        **** * Name:        crypto_sign_open
+ 305:sign.c        **** *
+ 306:sign.c        **** * Description: Verify signed message.
+ 307:sign.c        **** *
+ 308:sign.c        **** * Arguments:   - uint8_t *m: pointer to output message (allocated
+ 309:sign.c        **** *                            array with smlen bytes), can be equal to sm
+ 310:sign.c        **** *              - size_t *mlen: pointer to output length of message
+ 311:sign.c        **** *              - const uint8_t *sm: pointer to signed message
+ 312:sign.c        **** *              - size_t smlen: length of signed message
+ 313:sign.c        **** *              - const uint8_t *pk: pointer to bit-packed public key
+ 314:sign.c        **** *
+ 315:sign.c        **** * Returns 0 if signed message could be verified correctly and -1 otherwise
+ 316:sign.c        **** **************************************************/
+ 317:sign.c        **** int crypto_sign_open(uint8_t *m,
+ 318:sign.c        ****                      size_t *mlen,
+ 319:sign.c        ****                      const uint8_t *sm,
+ 320:sign.c        ****                      size_t smlen,
+ 321:sign.c        ****                      const uint8_t *pk)
+ 322:sign.c        **** {
+ 1243              		.loc 1 322 1
+ 1244              		.cfi_startproc
+ 1245              		@ args = 4, pretend = 0, frame = 24
+ 1246              		@ frame_needed = 1, uses_anonymous_args = 0
+ 1247 0000 80B5     		push	{r7, lr}
+ 1248              	.LCFI23:
+ 1249              		.cfi_def_cfa_offset 8
+ 1250              		.cfi_offset 7, -8
+ 1251              		.cfi_offset 14, -4
+ 1252 0002 88B0     		sub	sp, sp, #32
+ 1253              	.LCFI24:
+ 1254              		.cfi_def_cfa_offset 40
+ 1255 0004 02AF     		add	r7, sp, #8
+ 1256              	.LCFI25:
+ 1257              		.cfi_def_cfa 7, 32
+ 1258 0006 F860     		str	r0, [r7, #12]
+ 1259 0008 B960     		str	r1, [r7, #8]
+ 1260 000a 7A60     		str	r2, [r7, #4]
+ 1261 000c 3B60     		str	r3, [r7]
+ 323:sign.c        ****   size_t i;
+ 324:sign.c        **** 
+ 325:sign.c        ****   if(smlen < CRYPTO_BYTES)
+ 1262              		.loc 1 325 5
+ 1263 000e 3B68     		ldr	r3, [r7]
+ 1264 0010 40F67312 		movw	r2, #2419
+ 1265 0014 9342     		cmp	r3, r2
+ 1266 0016 2BD9     		bls	.L36
+ 326:sign.c        ****     goto badsig;
+ 327:sign.c        **** 
+ 328:sign.c        ****   *mlen = smlen - CRYPTO_BYTES;
+ 1267              		.loc 1 328 17
+ 1268 0018 3B68     		ldr	r3, [r7]
+ 1269 001a A3F67412 		subw	r2, r3, #2420
+ 1270              		.loc 1 328 9
+ 1271 001e BB68     		ldr	r3, [r7, #8]
+ 1272 0020 1A60     		str	r2, [r3]
+ 329:sign.c        ****   if(crypto_sign_verify(sm, CRYPTO_BYTES, sm + CRYPTO_BYTES, *mlen, pk))
+ 1273              		.loc 1 329 6
+ 1274 0022 7B68     		ldr	r3, [r7, #4]
+ 1275 0024 03F67412 		addw	r2, r3, #2420
+ 1276 0028 BB68     		ldr	r3, [r7, #8]
+ 1277 002a 1968     		ldr	r1, [r3]
+ 1278 002c 3B6A     		ldr	r3, [r7, #32]
+ 1279 002e 0093     		str	r3, [sp]
+ 1280 0030 0B46     		mov	r3, r1
+ 1281 0032 40F67411 		movw	r1, #2420
+ 1282 0036 7868     		ldr	r0, [r7, #4]
+ 1283 0038 FFF7FEFF 		bl	pqcrystals_dilithium2_ref_verify
+ 1284 003c 0346     		mov	r3, r0
+ 1285              		.loc 1 329 5
+ 1286 003e 002B     		cmp	r3, #0
+ 1287 0040 18D1     		bne	.L37
+ 330:sign.c        ****     goto badsig;
+ 331:sign.c        ****   else {
+ 332:sign.c        ****     /* All good, copy msg, return 0 */
+ 333:sign.c        ****     for(i = 0; i < *mlen; ++i)
+ 1288              		.loc 1 333 11
+ 1289 0042 0023     		movs	r3, #0
+ 1290 0044 7B61     		str	r3, [r7, #20]
+ 1291              		.loc 1 333 5
+ 1292 0046 0CE0     		b	.L31
+ 1293              	.L32:
+ 334:sign.c        ****       m[i] = sm[CRYPTO_BYTES + i];
+ 1294              		.loc 1 334 30 discriminator 3
+ 1295 0048 7B69     		ldr	r3, [r7, #20]
+ 1296 004a 03F67413 		addw	r3, r3, #2420
+ 1297              		.loc 1 334 16 discriminator 3
+ 1298 004e 7A68     		ldr	r2, [r7, #4]
+ 1299 0050 1A44     		add	r2, r2, r3
+ 1300              		.loc 1 334 8 discriminator 3
+ 1301 0052 F968     		ldr	r1, [r7, #12]
+ 1302 0054 7B69     		ldr	r3, [r7, #20]
+ 1303 0056 0B44     		add	r3, r3, r1
+ 1304              		.loc 1 334 16 discriminator 3
+ 1305 0058 1278     		ldrb	r2, [r2]	@ zero_extendqisi2
+ 1306              		.loc 1 334 12 discriminator 3
+ 1307 005a 1A70     		strb	r2, [r3]
+ 333:sign.c        ****       m[i] = sm[CRYPTO_BYTES + i];
+ 1308              		.loc 1 333 27 discriminator 3
+ 1309 005c 7B69     		ldr	r3, [r7, #20]
+ 1310 005e 0133     		adds	r3, r3, #1
+ 1311 0060 7B61     		str	r3, [r7, #20]
+ 1312              	.L31:
+ 333:sign.c        ****       m[i] = sm[CRYPTO_BYTES + i];
+ 1313              		.loc 1 333 20 discriminator 1
+ 1314 0062 BB68     		ldr	r3, [r7, #8]
+ 1315 0064 1B68     		ldr	r3, [r3]
+ 333:sign.c        ****       m[i] = sm[CRYPTO_BYTES + i];
+ 1316              		.loc 1 333 5 discriminator 1
+ 1317 0066 7A69     		ldr	r2, [r7, #20]
+ 1318 0068 9A42     		cmp	r2, r3
+ 1319 006a EDD3     		bcc	.L32
+ 335:sign.c        ****     return 0;
+ 1320              		.loc 1 335 12
+ 1321 006c 0023     		movs	r3, #0
+ 1322 006e 17E0     		b	.L33
+ 1323              	.L36:
+ 326:sign.c        **** 
+ 1324              		.loc 1 326 5
+ 1325 0070 00BF     		nop
+ 1326 0072 00E0     		b	.L29
+ 1327              	.L37:
+ 330:sign.c        ****   else {
+ 1328              		.loc 1 330 5
+ 1329 0074 00BF     		nop
+ 1330              	.L29:
+ 336:sign.c        ****   }
+ 337:sign.c        **** 
+ 338:sign.c        **** badsig:
+ 339:sign.c        ****   /* Signature verification failed */
+ 340:sign.c        ****   *mlen = -1;
+ 1331              		.loc 1 340 9
+ 1332 0076 BB68     		ldr	r3, [r7, #8]
+ 1333 0078 4FF0FF32 		mov	r2, #-1
+ 1334 007c 1A60     		str	r2, [r3]
+ 341:sign.c        ****   for(i = 0; i < smlen; ++i)
+ 1335              		.loc 1 341 9
+ 1336 007e 0023     		movs	r3, #0
+ 1337 0080 7B61     		str	r3, [r7, #20]
+ 1338              		.loc 1 341 3
+ 1339 0082 07E0     		b	.L34
+ 1340              	.L35:
+ 342:sign.c        ****     m[i] = 0;
+ 1341              		.loc 1 342 6 discriminator 3
+ 1342 0084 FA68     		ldr	r2, [r7, #12]
+ 1343 0086 7B69     		ldr	r3, [r7, #20]
+ 1344 0088 1344     		add	r3, r3, r2
+ 1345              		.loc 1 342 10 discriminator 3
+ 1346 008a 0022     		movs	r2, #0
+ 1347 008c 1A70     		strb	r2, [r3]
+ 341:sign.c        ****   for(i = 0; i < smlen; ++i)
+ 1348              		.loc 1 341 25 discriminator 3
+ 1349 008e 7B69     		ldr	r3, [r7, #20]
+ 1350 0090 0133     		adds	r3, r3, #1
+ 1351 0092 7B61     		str	r3, [r7, #20]
+ 1352              	.L34:
+ 341:sign.c        ****   for(i = 0; i < smlen; ++i)
+ 1353              		.loc 1 341 3 discriminator 1
+ 1354 0094 7A69     		ldr	r2, [r7, #20]
+ 1355 0096 3B68     		ldr	r3, [r7]
+ 1356 0098 9A42     		cmp	r2, r3
+ 1357 009a F3D3     		bcc	.L35
+ 343:sign.c        **** 
+ 344:sign.c        ****   return -1;
+ 1358              		.loc 1 344 10
+ 1359 009c 4FF0FF33 		mov	r3, #-1
+ 1360              	.L33:
+ 345:sign.c        **** }
+ 1361              		.loc 1 345 1
+ 1362 00a0 1846     		mov	r0, r3
+ 1363 00a2 1837     		adds	r7, r7, #24
+ 1364              	.LCFI26:
+ 1365              		.cfi_def_cfa_offset 8
+ 1366 00a4 BD46     		mov	sp, r7
+ 1367              	.LCFI27:
+ 1368              		.cfi_def_cfa_register 13
+ 1369              		@ sp needed
+ 1370 00a6 80BD     		pop	{r7, pc}
+ 1371              		.cfi_endproc
+ 1372              	.LFE4:
+ 1374              		.text
+ 1375              	.Letext0:
+ 1376              		.file 2 "c:\\users\\h3c\\chipwh~1\\cw\\home\\portable\\armgcc\\arm-none-eabi\\include\\machine\\_d
+ 1377              		.file 3 "c:\\users\\h3c\\chipwh~1\\cw\\home\\portable\\armgcc\\arm-none-eabi\\include\\sys\\_stdin
+ 1378              		.file 4 "c:\\users\\h3c\\chipwh~1\\cw\\home\\portable\\armgcc\\lib\\gcc\\arm-none-eabi\\10.2.1\\in
+ 1379              		.file 5 "poly.h"
+ 1380              		.file 6 "polyvec.h"
+ 1381              		.file 7 "fips202.h"
+DEFINED SYMBOLS
+                            *ABS*:00000000 sign.c
+C:\Users\H3C\AppData\Local\Temp\cczS49Wc.s:16     .text.pqcrystals_dilithium2_ref_keypair:00000000 $t
+C:\Users\H3C\AppData\Local\Temp\cczS49Wc.s:24     .text.pqcrystals_dilithium2_ref_keypair:00000000 pqcrystals_dilithium2_ref_keypair
+C:\Users\H3C\AppData\Local\Temp\cczS49Wc.s:248    .text.pqcrystals_dilithium2_ref_signature:00000000 $t
+C:\Users\H3C\AppData\Local\Temp\cczS49Wc.s:255    .text.pqcrystals_dilithium2_ref_signature:00000000 pqcrystals_dilithium2_ref_signature
+C:\Users\H3C\AppData\Local\Temp\cczS49Wc.s:771    .text.pqcrystals_dilithium2_ref_signature:0000052c $d
+C:\Users\H3C\AppData\Local\Temp\cczS49Wc.s:777    .text.pqcrystals_dilithium2_ref:00000000 $t
+C:\Users\H3C\AppData\Local\Temp\cczS49Wc.s:784    .text.pqcrystals_dilithium2_ref:00000000 pqcrystals_dilithium2_ref
+C:\Users\H3C\AppData\Local\Temp\cczS49Wc.s:874    .text.pqcrystals_dilithium2_ref_verify:00000000 $t
+C:\Users\H3C\AppData\Local\Temp\cczS49Wc.s:881    .text.pqcrystals_dilithium2_ref_verify:00000000 pqcrystals_dilithium2_ref_verify
+C:\Users\H3C\AppData\Local\Temp\cczS49Wc.s:1229   .text.pqcrystals_dilithium2_ref_verify:0000035c $d
+C:\Users\H3C\AppData\Local\Temp\cczS49Wc.s:1234   .text.pqcrystals_dilithium2_ref_open:00000000 $t
+C:\Users\H3C\AppData\Local\Temp\cczS49Wc.s:1241   .text.pqcrystals_dilithium2_ref_open:00000000 pqcrystals_dilithium2_ref_open
+
+UNDEFINED SYMBOLS
+memcpy
+pqcrystals_fips202_ref_shake256
+pqcrystals_dilithium2_ref_polyvec_matrix_expand
+pqcrystals_dilithium2_ref_polyvecl_uniform_eta
+pqcrystals_dilithium2_ref_polyveck_uniform_eta
+pqcrystals_dilithium2_ref_polyvecl_ntt
+pqcrystals_dilithium2_ref_polyvec_matrix_pointwise_montgomery
+pqcrystals_dilithium2_ref_polyveck_reduce
+pqcrystals_dilithium2_ref_polyveck_invntt_tomont
+pqcrystals_dilithium2_ref_polyveck_add
+pqcrystals_dilithium2_ref_polyveck_caddq
+pqcrystals_dilithium2_ref_polyveck_power2round
+pqcrystals_dilithium2_ref_pack_pk
+pqcrystals_dilithium2_ref_pack_sk
+pqcrystals_dilithium2_ref_upack_sk
+pqcrystals_fips202_ref_shake256_init
+pqcrystals_fips202_ref_shake256_absorb
+pqcrystals_fips202_ref_shake256_finalize
+pqcrystals_fips202_ref_shake256_squeeze
+pqcrystals_dilithium2_ref_polyveck_ntt
+pqcrystals_dilithium2_ref_polyvecl_uniform_gamma1
+pqcrystals_dilithium2_ref_polyveck_decompose
+pqcrystals_dilithium2_ref_polyveck_pack_w1
+pqcrystals_dilithium2_ref_poly_challenge
+pqcrystals_dilithium2_ref_poly_ntt
+pqcrystals_dilithium2_ref_polyvecl_pointwise_poly_montgomery
+pqcrystals_dilithium2_ref_polyvecl_invntt_tomont
+pqcrystals_dilithium2_ref_polyvecl_add
+pqcrystals_dilithium2_ref_polyvecl_reduce
+pqcrystals_dilithium2_ref_polyvecl_chknorm
+pqcrystals_dilithium2_ref_polyveck_pointwise_poly_montgomery
+pqcrystals_dilithium2_ref_polyveck_sub
+pqcrystals_dilithium2_ref_polyveck_chknorm
+pqcrystals_dilithium2_ref_polyveck_make_hint
+pqcrystals_dilithium2_ref_pack_sig
+pqcrystals_dilithium2_ref_unpack_pk
+pqcrystals_dilithium2_ref_unpack_sig
+pqcrystals_dilithium2_ref_polyveck_shiftl
+pqcrystals_dilithium2_ref_polyveck_use_hint

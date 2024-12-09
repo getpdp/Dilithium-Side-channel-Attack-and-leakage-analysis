@@ -1,0 +1,277 @@
+   1              	# 1 "../../hardware/victims/firmware/./hal/stm32f4/stm32f4_startup.S"
+   1              	/**
+   0              	
+   0              	
+   2              	  ******************************************************************************
+   3              	  * @file      startup_stm32.s
+   4              	  * @author    Ac6
+   5              	  * @version   V1.0.0
+   6              	  * @date      12-June-2014
+   7              	  ******************************************************************************
+   8              	  */
+   9              	
+  10              	  .syntax unified
+  11              	  .cpu cortex-m4
+  12              	  .thumb
+  13              	
+  14              	.global	g_pfnVectors
+  15              	.global	Default_Handler
+  16              	
+  17              	/* start address for the initialization values of the .data section.
+  18              	defined in linker script */
+  19 0000 00000000 	.word	_sidata
+  20              	/* start address for the .data section. defined in linker script */
+  21 0004 00000000 	.word	_sdata
+  22              	/* end address for the .data section. defined in linker script */
+  23 0008 00000000 	.word	_edata
+  24              	/* start address for the .bss section. defined in linker script */
+  25 000c 00000000 	.word	_sbss
+  26              	/* end address for the .bss section. defined in linker script */
+  27 0010 00000000 	.word	_ebss
+  28              	
+  29              	.equ  BootRAM,        0xF1E0F85F
+  30              	/**
+  31              	 * @brief  This is the code that gets called when the processor first
+  32              	 *          starts execution following a reset event. Only the absolutely
+  33              	 *          necessary set is performed, after which the application
+  34              	 *          supplied main() routine is called.
+  35              	 * @param  None
+  36              	 * @retval : None
+  37              	*/
+  38              	
+  39              	    .section	.text.Reset_Handler
+  40              		.weak	Reset_Handler
+  42              	Reset_Handler:
+  43              	
+  44              	/* Copy the data segment initializers from flash to SRAM */
+  45:../../hardware/victims/firmware/./hal/stm32f4/stm32f4_startup.S ****   movs	r1, #0
+  46:../../hardware/victims/firmware/./hal/stm32f4/stm32f4_startup.S ****   b	LoopCopyDataInit
+  47              	
+  48              	CopyDataInit:
+  49:../../hardware/victims/firmware/./hal/stm32f4/stm32f4_startup.S **** 	ldr	r3, =_sidata
+  50:../../hardware/victims/firmware/./hal/stm32f4/stm32f4_startup.S **** 	ldr	r3, [r3, r1]
+  51:../../hardware/victims/firmware/./hal/stm32f4/stm32f4_startup.S **** 	str	r3, [r0, r1]
+  52:../../hardware/victims/firmware/./hal/stm32f4/stm32f4_startup.S **** 	adds	r1, r1, #4
+  53              	
+  54              	LoopCopyDataInit:
+  55:../../hardware/victims/firmware/./hal/stm32f4/stm32f4_startup.S **** 	ldr	r0, =_sdata
+  56:../../hardware/victims/firmware/./hal/stm32f4/stm32f4_startup.S **** 	ldr	r3, =_edata
+  57:../../hardware/victims/firmware/./hal/stm32f4/stm32f4_startup.S **** 	adds	r2, r0, r1
+  58:../../hardware/victims/firmware/./hal/stm32f4/stm32f4_startup.S **** 	cmp	r2, r3
+  59:../../hardware/victims/firmware/./hal/stm32f4/stm32f4_startup.S **** 	bcc	CopyDataInit
+  60:../../hardware/victims/firmware/./hal/stm32f4/stm32f4_startup.S **** 	ldr	r2, =_sbss
+  61:../../hardware/victims/firmware/./hal/stm32f4/stm32f4_startup.S **** 	b	LoopFillZerobss
+  62              	/* Zero fill the bss segment. */
+  63              	FillZerobss:
+  64:../../hardware/victims/firmware/./hal/stm32f4/stm32f4_startup.S **** 	movs r3, #0
+  65:../../hardware/victims/firmware/./hal/stm32f4/stm32f4_startup.S ****  	str  r3, [r2]
+  66:../../hardware/victims/firmware/./hal/stm32f4/stm32f4_startup.S **** 	adds r2, r2, #4
+  67              	
+  68              	LoopFillZerobss:
+  69:../../hardware/victims/firmware/./hal/stm32f4/stm32f4_startup.S **** 	ldr	r3, = _ebss
+  70:../../hardware/victims/firmware/./hal/stm32f4/stm32f4_startup.S **** 	cmp	r2, r3
+  71:../../hardware/victims/firmware/./hal/stm32f4/stm32f4_startup.S **** 	bcc	FillZerobss
+  72              	
+  73              	/* Call the clock system intitialization function.*/
+  74:../../hardware/victims/firmware/./hal/stm32f4/stm32f4_startup.S ****     bl  SystemInit
+  75              	/* Call static constructors */
+  76:../../hardware/victims/firmware/./hal/stm32f4/stm32f4_startup.S ****     bl __libc_init_array
+  77              	/* Call the application's entry point.*/
+  78:../../hardware/victims/firmware/./hal/stm32f4/stm32f4_startup.S **** 	bl	main
+  79              	
+  80              	LoopForever:
+  81:../../hardware/victims/firmware/./hal/stm32f4/stm32f4_startup.S ****     b LoopForever
+  82              	
+  84              	
+  85              	/**
+  86              	 * @brief  This is the code that gets called when the processor receives an
+  87              	 *         unexpected interrupt.  This simply enters an infinite loop, preserving
+  88              	 *         the system state for examination by a debugger.
+  89              	 *
+  90              	 * @param  None
+  91              	 * @retval : None
+  92              	*/
+  93              	    .section	.text.Default_Handler,"ax",%progbits
+  94              	Default_Handler:
+  95              	Infinite_Loop:
+  96:../../hardware/victims/firmware/./hal/stm32f4/stm32f4_startup.S **** 	b	Infinite_Loop
+  98              	/******************************************************************************
+  99              	*
+ 100              	* The minimal vector table for a Cortex-M.  Note that the proper constructs
+ 101              	* must be placed on this to ensure that it ends up at physical address
+ 102              	* 0x0000.0000.
+ 103              	*
+ 104              	******************************************************************************/
+ 105              	 	.section	.isr_vector,"a",%progbits
+ 108              	
+ 109              	g_pfnVectors:
+ 110 0000 00000000 		.word	_estack
+ 111 0004 00000000 		.word	Reset_Handler
+ 112 0008 00000000 		.word	NMI_Handler
+ 113 000c 00000000 		.word	HardFault_Handler
+ 114 0010 00000000 		.word	MemManage_Handler
+ 115 0014 00000000 		.word	BusFault_Handler
+ 116 0018 00000000 		.word	UsageFault_Handler
+ 117 001c 00000000 		.word	0
+ 118 0020 00000000 		.word	0
+ 119 0024 00000000 		.word	0
+ 120 0028 00000000 		.word	0
+ 121 002c 00000000 		.word	SVC_Handler
+ 122 0030 00000000 		.word	DebugMon_Handler
+ 123 0034 00000000 		.word	0
+ 124 0038 00000000 		.word	PendSV_Handler
+ 125 003c 00000000 		.word	SysTick_Handler
+ 126 0040 00000000 		.word	0
+ 127 0044 00000000 		.word	0
+ 128 0048 00000000 		.word	0
+ 129 004c 00000000 		.word	0
+ 130 0050 00000000 		.word	0
+ 131 0054 00000000 		.word	0
+ 132 0058 00000000 		.word	0
+ 133 005c 00000000 		.word	0
+ 134 0060 00000000 		.word	0
+ 135 0064 00000000 		.word	0
+ 136 0068 00000000 		.word	0
+ 137 006c 00000000 		.word	0
+ 138 0070 00000000 		.word	0
+ 139 0074 00000000 		.word	0
+ 140 0078 00000000 		.word	0
+ 141 007c 00000000 		.word	0
+ 142 0080 00000000 		.word	0
+ 143 0084 00000000 		.word	0
+ 144 0088 00000000 		.word	0
+ 145 008c 00000000 		.word	0
+ 146 0090 00000000 		.word	0
+ 147 0094 00000000 		.word	0
+ 148 0098 00000000 		.word	0
+ 149 009c 00000000 		.word	0
+ 150 00a0 00000000 		.word	0
+ 151 00a4 00000000 		.word	0
+ 152 00a8 00000000 		.word	0
+ 153 00ac 00000000 		.word	0
+ 154 00b0 00000000 		.word	0
+ 155 00b4 00000000 		.word	0
+ 156 00b8 00000000 		.word	0
+ 157 00bc 00000000 		.word	0
+ 158 00c0 00000000 		.word	0
+ 159 00c4 00000000 		.word	0
+ 160 00c8 00000000 		.word	0
+ 161 00cc 00000000 		.word	0
+ 162 00d0 00000000 		.word	0
+ 163 00d4 00000000 		.word	0
+ 164 00d8 00000000 		.word	0
+ 165 00dc 00000000 		.word	0
+ 166 00e0 00000000 		.word	0
+ 167 00e4 00000000 		.word	0
+ 168 00e8 00000000 		.word	0
+ 169 00ec 00000000 		.word	0
+ 170 00f0 00000000 		.word	0
+ 171 00f4 00000000 		.word	0
+ 172 00f8 00000000 		.word	0
+ 173 00fc 00000000 		.word	0
+ 174 0100 00000000 		.word	0
+ 175 0104 00000000 		.word	0
+ 176 0108 00000000 		.word	0
+ 177 010c 00000000 		.word	0
+ 178 0110 00000000 		.word	0
+ 179 0114 00000000 		.word	0
+ 180 0118 00000000 		.word	0
+ 181 011c 00000000 		.word	0
+ 182 0120 00000000 		.word	0
+ 183 0124 00000000 		.word	0
+ 184 0128 00000000 		.word	0
+ 185 012c 00000000 		.word	0
+ 186 0130 00000000 		.word	0
+ 187 0134 00000000 		.word	0
+ 188 0138 00000000 		.word	0
+ 189 013c 00000000 		.word	0
+ 190 0140 00000000 		.word	0
+ 191 0144 00000000 		.word	0
+ 192 0148 00000000 		.word	0
+ 193 014c 00000000 		.word	0
+ 194 0150 00000000 		.word	0
+ 195 0154 00000000 		.word	0
+ 196 0158 00000000 		.word	0
+ 197 015c 00000000 		.word	0
+ 198 0160 00000000 		.word	0
+ 199 0164 00000000 		.word	0
+ 200 0168 00000000 		.word	0
+ 201 016c 00000000 		.word	0
+ 202 0170 00000000 		.word	0
+ 203 0174 00000000 		.word	0
+ 204 0178 00000000 		.word	0
+ 205 017c 00000000 		.word	0
+ 206 0180 00000000 		.word	0
+ 207 0184 00000000 		.word	0
+ 208              	
+ 209              	/*******************************************************************************
+ 210              	*
+ 211              	* Provide weak aliases for each Exception handler to the Default_Handler.
+ 212              	* As they are weak aliases, any function with the same name will override
+ 213              	* this definition.
+ 214              	*
+ 215              	*******************************************************************************/
+ 216              	
+ 217              	  	.weak	NMI_Handler
+ 218              		.thumb_set NMI_Handler,Default_Handler
+ 219              	
+ 220              	  	.weak	HardFault_Handler
+ 221              		.thumb_set HardFault_Handler,Default_Handler
+ 222              	
+ 223              	  	.weak	MemManage_Handler
+ 224              		.thumb_set MemManage_Handler,Default_Handler
+ 225              	
+ 226              	  	.weak	BusFault_Handler
+ 227              		.thumb_set BusFault_Handler,Default_Handler
+ 228              	
+ 229              		.weak	UsageFault_Handler
+ 230              		.thumb_set UsageFault_Handler,Default_Handler
+ 231              	
+ 232              		.weak	SVC_Handler
+ 233              		.thumb_set SVC_Handler,Default_Handler
+ 234              	
+ 235              		.weak	DebugMon_Handler
+ 236              		.thumb_set DebugMon_Handler,Default_Handler
+ 237              	
+ 238              		.weak	PendSV_Handler
+ 239              		.thumb_set PendSV_Handler,Default_Handler
+ 240              	
+ 241              		.weak	SysTick_Handler
+ 242              		.thumb_set SysTick_Handler,Default_Handler
+ 243              	
+ 244              		.weak	SystemInit
+DEFINED SYMBOLS
+../../hardware/victims/firmware/./hal/stm32f4/stm32f4_startup.S:109    .isr_vector:00000000 g_pfnVectors
+../../hardware/victims/firmware/./hal/stm32f4/stm32f4_startup.S:94     .text.Default_Handler:00000000 Default_Handler
+../../hardware/victims/firmware/./hal/stm32f4/stm32f4_startup.S:29     *ABS*:f1e0f85f BootRAM
+../../hardware/victims/firmware/./hal/stm32f4/stm32f4_startup.S:42     .text.Reset_Handler:00000000 Reset_Handler
+../../hardware/victims/firmware/./hal/stm32f4/stm32f4_startup.S:45     .text.Reset_Handler:00000000 $t
+../../hardware/victims/firmware/./hal/stm32f4/stm32f4_startup.S:54     .text.Reset_Handler:0000000c LoopCopyDataInit
+../../hardware/victims/firmware/./hal/stm32f4/stm32f4_startup.S:48     .text.Reset_Handler:00000004 CopyDataInit
+../../hardware/victims/firmware/./hal/stm32f4/stm32f4_startup.S:68     .text.Reset_Handler:00000020 LoopFillZerobss
+../../hardware/victims/firmware/./hal/stm32f4/stm32f4_startup.S:63     .text.Reset_Handler:0000001a FillZerobss
+../../hardware/victims/firmware/./hal/stm32f4/stm32f4_startup.S:80     .text.Reset_Handler:00000032 LoopForever
+../../hardware/victims/firmware/./hal/stm32f4/stm32f4_startup.S:95     .text.Default_Handler:00000000 Infinite_Loop
+../../hardware/victims/firmware/./hal/stm32f4/stm32f4_startup.S:96     .text.Default_Handler:00000000 $t
+../../hardware/victims/firmware/./hal/stm32f4/stm32f4_startup.S:94     .text.Default_Handler:00000000 NMI_Handler
+../../hardware/victims/firmware/./hal/stm32f4/stm32f4_startup.S:94     .text.Default_Handler:00000000 HardFault_Handler
+../../hardware/victims/firmware/./hal/stm32f4/stm32f4_startup.S:94     .text.Default_Handler:00000000 MemManage_Handler
+../../hardware/victims/firmware/./hal/stm32f4/stm32f4_startup.S:94     .text.Default_Handler:00000000 BusFault_Handler
+../../hardware/victims/firmware/./hal/stm32f4/stm32f4_startup.S:94     .text.Default_Handler:00000000 UsageFault_Handler
+../../hardware/victims/firmware/./hal/stm32f4/stm32f4_startup.S:94     .text.Default_Handler:00000000 SVC_Handler
+../../hardware/victims/firmware/./hal/stm32f4/stm32f4_startup.S:94     .text.Default_Handler:00000000 DebugMon_Handler
+../../hardware/victims/firmware/./hal/stm32f4/stm32f4_startup.S:94     .text.Default_Handler:00000000 PendSV_Handler
+../../hardware/victims/firmware/./hal/stm32f4/stm32f4_startup.S:94     .text.Default_Handler:00000000 SysTick_Handler
+../../hardware/victims/firmware/./hal/stm32f4/stm32f4_startup.S:244    .text.Reset_Handler:00000034 $d
+                            .text:00000000 $d
+
+UNDEFINED SYMBOLS
+_sidata
+_sdata
+_edata
+_sbss
+_ebss
+SystemInit
+__libc_init_array
+main
+_estack

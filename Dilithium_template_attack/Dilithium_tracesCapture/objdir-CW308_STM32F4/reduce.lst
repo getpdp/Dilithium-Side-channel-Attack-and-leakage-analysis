@@ -1,0 +1,371 @@
+   1              		.cpu cortex-m4
+   2              		.eabi_attribute 20, 1
+   3              		.eabi_attribute 21, 1
+   4              		.eabi_attribute 23, 3
+   5              		.eabi_attribute 24, 1
+   6              		.eabi_attribute 25, 1
+   7              		.eabi_attribute 26, 1
+   8              		.eabi_attribute 30, 6
+   9              		.eabi_attribute 34, 1
+  10              		.eabi_attribute 18, 4
+  11              		.file	"reduce.c"
+  12              		.text
+  13              	.Ltext0:
+  14              		.cfi_sections	.debug_frame
+  15              		.section	.text.pqcrystals_dilithium2_ref_montgomery_reduce,"ax",%progbits
+  16              		.align	1
+  17              		.global	pqcrystals_dilithium2_ref_montgomery_reduce
+  18              		.arch armv7e-m
+  19              		.syntax unified
+  20              		.thumb
+  21              		.thumb_func
+  22              		.fpu softvfp
+  24              	pqcrystals_dilithium2_ref_montgomery_reduce:
+  25              	.LFB0:
+  26              		.file 1 "reduce.c"
+   1:reduce.c      **** #include <stdint.h>
+   2:reduce.c      **** #include "params.h"
+   3:reduce.c      **** #include "reduce.h"
+   4:reduce.c      **** 
+   5:reduce.c      **** /*************************************************
+   6:reduce.c      **** * Name:        montgomery_reduce
+   7:reduce.c      **** *
+   8:reduce.c      **** * Description: For finite field element a with -2^{31}Q <= a <= Q*2^31,
+   9:reduce.c      **** *              compute r \equiv a*2^{-32} (mod Q) such that -Q < r < Q.
+  10:reduce.c      **** *
+  11:reduce.c      **** * Arguments:   - int64_t: finite field element a
+  12:reduce.c      **** *
+  13:reduce.c      **** * Returns r.
+  14:reduce.c      **** **************************************************/
+  15:reduce.c      **** int32_t montgomery_reduce(int64_t a) {
+  27              		.loc 1 15 38
+  28              		.cfi_startproc
+  29              		@ args = 0, pretend = 0, frame = 24
+  30              		@ frame_needed = 1, uses_anonymous_args = 0
+  31              		@ link register save eliminated.
+  32 0000 2DE9B00F 		push	{r4, r5, r7, r8, r9, r10, fp}
+  33              	.LCFI0:
+  34              		.cfi_def_cfa_offset 28
+  35              		.cfi_offset 4, -28
+  36              		.cfi_offset 5, -24
+  37              		.cfi_offset 7, -20
+  38              		.cfi_offset 8, -16
+  39              		.cfi_offset 9, -12
+  40              		.cfi_offset 10, -8
+  41              		.cfi_offset 11, -4
+  42 0004 87B0     		sub	sp, sp, #28
+  43              	.LCFI1:
+  44              		.cfi_def_cfa_offset 56
+  45 0006 00AF     		add	r7, sp, #0
+  46              	.LCFI2:
+  47              		.cfi_def_cfa_register 7
+  48 0008 C7E90201 		strd	r0, [r7, #8]
+  16:reduce.c      ****   int32_t t;
+  17:reduce.c      **** 
+  18:reduce.c      ****   t = (int32_t)a*QINV;
+  49              		.loc 1 18 7
+  50 000c B868     		ldr	r0, [r7, #8]
+  51              		.loc 1 18 5
+  52 000e 0146     		mov	r1, r0
+  53 0010 C900     		lsls	r1, r1, #3
+  54 0012 091A     		subs	r1, r1, r0
+  55 0014 8902     		lsls	r1, r1, #10
+  56 0016 0144     		add	r1, r1, r0
+  57 0018 4903     		lsls	r1, r1, #13
+  58 001a 0144     		add	r1, r1, r0
+  59 001c 7961     		str	r1, [r7, #20]
+  19:reduce.c      ****   t = (a - (int64_t)t*Q) >> 32;
+  60              		.loc 1 19 12
+  61 001e 7969     		ldr	r1, [r7, #20]
+  62 0020 C817     		asrs	r0, r1, #31
+  63 0022 0C46     		mov	r4, r1
+  64 0024 0546     		mov	r5, r0
+  65              		.loc 1 19 22
+  66 0026 C7E90045 		strd	r4, [r7]
+  67 002a 4FF00000 		mov	r0, #0
+  68 002e 4FF00001 		mov	r1, #0
+  69 0032 A902     		lsls	r1, r5, #10
+  70 0034 41EA9451 		orr	r1, r1, r4, lsr #22
+  71 0038 A002     		lsls	r0, r4, #10
+  72 003a D7F800C0 		ldr	ip, [r7]
+  73 003e BCEB0002 		subs	r2, ip, r0
+  74 0042 D7F804C0 		ldr	ip, [r7, #4]
+  75 0046 6CEB0103 		sbc	r3, ip, r1
+  76 004a 4FF00000 		mov	r0, #0
+  77 004e 4FF00001 		mov	r1, #0
+  78 0052 5903     		lsls	r1, r3, #13
+  79 0054 41EAD241 		orr	r1, r1, r2, lsr #19
+  80 0058 5003     		lsls	r0, r2, #13
+  81 005a 0246     		mov	r2, r0
+  82 005c 0B46     		mov	r3, r1
+  83 005e B2EB040A 		subs	r10, r2, r4
+  84 0062 63EB050B 		sbc	fp, r3, r5
+  85              		.loc 1 19 10
+  86 0066 D7E90223 		ldrd	r2, [r7, #8]
+  87 006a 1AEB0208 		adds	r8, r10, r2
+  88 006e 4BEB0309 		adc	r9, fp, r3
+  89              		.loc 1 19 26
+  90 0072 4FF00002 		mov	r2, #0
+  91 0076 4FF00003 		mov	r3, #0
+  92 007a 4A46     		mov	r2, r9
+  93 007c 4FEAE973 		asr	r3, r9, #31
+  94              		.loc 1 19 5
+  95 0080 1346     		mov	r3, r2
+  96 0082 7B61     		str	r3, [r7, #20]
+  20:reduce.c      ****   return t;
+  97              		.loc 1 20 10
+  98 0084 7B69     		ldr	r3, [r7, #20]
+  21:reduce.c      **** }
+  99              		.loc 1 21 1
+ 100 0086 1846     		mov	r0, r3
+ 101 0088 1C37     		adds	r7, r7, #28
+ 102              	.LCFI3:
+ 103              		.cfi_def_cfa_offset 28
+ 104 008a BD46     		mov	sp, r7
+ 105              	.LCFI4:
+ 106              		.cfi_def_cfa_register 13
+ 107              		@ sp needed
+ 108 008c BDE8B00F 		pop	{r4, r5, r7, r8, r9, r10, fp}
+ 109              	.LCFI5:
+ 110              		.cfi_restore 11
+ 111              		.cfi_restore 10
+ 112              		.cfi_restore 9
+ 113              		.cfi_restore 8
+ 114              		.cfi_restore 7
+ 115              		.cfi_restore 5
+ 116              		.cfi_restore 4
+ 117              		.cfi_def_cfa_offset 0
+ 118 0090 7047     		bx	lr
+ 119              		.cfi_endproc
+ 120              	.LFE0:
+ 122              		.section	.text.pqcrystals_dilithium2_ref_reduce32,"ax",%progbits
+ 123              		.align	1
+ 124              		.global	pqcrystals_dilithium2_ref_reduce32
+ 125              		.syntax unified
+ 126              		.thumb
+ 127              		.thumb_func
+ 128              		.fpu softvfp
+ 130              	pqcrystals_dilithium2_ref_reduce32:
+ 131              	.LFB1:
+  22:reduce.c      **** 
+  23:reduce.c      **** /*************************************************
+  24:reduce.c      **** * Name:        reduce32
+  25:reduce.c      **** *
+  26:reduce.c      **** * Description: For finite field element a with a <= 2^{31} - 2^{22} - 1,
+  27:reduce.c      **** *              compute r \equiv a (mod Q) such that -6283009 <= r <= 6283007.
+  28:reduce.c      **** *
+  29:reduce.c      **** * Arguments:   - int32_t: finite field element a
+  30:reduce.c      **** *
+  31:reduce.c      **** * Returns r.
+  32:reduce.c      **** **************************************************/
+  33:reduce.c      **** int32_t reduce32(int32_t a) {
+ 132              		.loc 1 33 29
+ 133              		.cfi_startproc
+ 134              		@ args = 0, pretend = 0, frame = 16
+ 135              		@ frame_needed = 1, uses_anonymous_args = 0
+ 136              		@ link register save eliminated.
+ 137 0000 80B4     		push	{r7}
+ 138              	.LCFI6:
+ 139              		.cfi_def_cfa_offset 4
+ 140              		.cfi_offset 7, -4
+ 141 0002 85B0     		sub	sp, sp, #20
+ 142              	.LCFI7:
+ 143              		.cfi_def_cfa_offset 24
+ 144 0004 00AF     		add	r7, sp, #0
+ 145              	.LCFI8:
+ 146              		.cfi_def_cfa_register 7
+ 147 0006 7860     		str	r0, [r7, #4]
+  34:reduce.c      ****   int32_t t;
+  35:reduce.c      **** 
+  36:reduce.c      ****   t = (a + (1 << 22)) >> 23;
+ 148              		.loc 1 36 10
+ 149 0008 7B68     		ldr	r3, [r7, #4]
+ 150 000a 03F58003 		add	r3, r3, #4194304
+ 151              		.loc 1 36 5
+ 152 000e DB15     		asrs	r3, r3, #23
+ 153 0010 FB60     		str	r3, [r7, #12]
+  37:reduce.c      ****   t = a - t*Q;
+ 154              		.loc 1 37 12
+ 155 0012 FA68     		ldr	r2, [r7, #12]
+ 156 0014 1346     		mov	r3, r2
+ 157 0016 5B02     		lsls	r3, r3, #9
+ 158 0018 9B1A     		subs	r3, r3, r2
+ 159 001a 9B02     		lsls	r3, r3, #10
+ 160 001c 1344     		add	r3, r3, r2
+ 161 001e 5B03     		lsls	r3, r3, #13
+ 162 0020 9B1A     		subs	r3, r3, r2
+ 163              		.loc 1 37 5
+ 164 0022 7A68     		ldr	r2, [r7, #4]
+ 165 0024 1344     		add	r3, r3, r2
+ 166 0026 FB60     		str	r3, [r7, #12]
+  38:reduce.c      ****   return t;
+ 167              		.loc 1 38 10
+ 168 0028 FB68     		ldr	r3, [r7, #12]
+  39:reduce.c      **** }
+ 169              		.loc 1 39 1
+ 170 002a 1846     		mov	r0, r3
+ 171 002c 1437     		adds	r7, r7, #20
+ 172              	.LCFI9:
+ 173              		.cfi_def_cfa_offset 4
+ 174 002e BD46     		mov	sp, r7
+ 175              	.LCFI10:
+ 176              		.cfi_def_cfa_register 13
+ 177              		@ sp needed
+ 178 0030 80BC     		pop	{r7}
+ 179              	.LCFI11:
+ 180              		.cfi_restore 7
+ 181              		.cfi_def_cfa_offset 0
+ 182 0032 7047     		bx	lr
+ 183              		.cfi_endproc
+ 184              	.LFE1:
+ 186              		.section	.text.pqcrystals_dilithium2_ref_caddq,"ax",%progbits
+ 187              		.align	1
+ 188              		.global	pqcrystals_dilithium2_ref_caddq
+ 189              		.syntax unified
+ 190              		.thumb
+ 191              		.thumb_func
+ 192              		.fpu softvfp
+ 194              	pqcrystals_dilithium2_ref_caddq:
+ 195              	.LFB2:
+  40:reduce.c      **** 
+  41:reduce.c      **** /*************************************************
+  42:reduce.c      **** * Name:        caddq
+  43:reduce.c      **** *
+  44:reduce.c      **** * Description: Add Q if input coefficient is negative.
+  45:reduce.c      **** *
+  46:reduce.c      **** * Arguments:   - int32_t: finite field element a
+  47:reduce.c      **** *
+  48:reduce.c      **** * Returns r.
+  49:reduce.c      **** **************************************************/
+  50:reduce.c      **** int32_t caddq(int32_t a) {
+ 196              		.loc 1 50 26
+ 197              		.cfi_startproc
+ 198              		@ args = 0, pretend = 0, frame = 8
+ 199              		@ frame_needed = 1, uses_anonymous_args = 0
+ 200              		@ link register save eliminated.
+ 201 0000 80B4     		push	{r7}
+ 202              	.LCFI12:
+ 203              		.cfi_def_cfa_offset 4
+ 204              		.cfi_offset 7, -4
+ 205 0002 83B0     		sub	sp, sp, #12
+ 206              	.LCFI13:
+ 207              		.cfi_def_cfa_offset 16
+ 208 0004 00AF     		add	r7, sp, #0
+ 209              	.LCFI14:
+ 210              		.cfi_def_cfa_register 7
+ 211 0006 7860     		str	r0, [r7, #4]
+  51:reduce.c      ****   a += (a >> 31) & Q;
+ 212              		.loc 1 51 11
+ 213 0008 7B68     		ldr	r3, [r7, #4]
+ 214 000a DA17     		asrs	r2, r3, #31
+ 215              		.loc 1 51 18
+ 216 000c 054B     		ldr	r3, .L7
+ 217 000e 1340     		ands	r3, r3, r2
+ 218              		.loc 1 51 5
+ 219 0010 7A68     		ldr	r2, [r7, #4]
+ 220 0012 1344     		add	r3, r3, r2
+ 221 0014 7B60     		str	r3, [r7, #4]
+  52:reduce.c      ****   return a;
+ 222              		.loc 1 52 10
+ 223 0016 7B68     		ldr	r3, [r7, #4]
+  53:reduce.c      **** }
+ 224              		.loc 1 53 1
+ 225 0018 1846     		mov	r0, r3
+ 226 001a 0C37     		adds	r7, r7, #12
+ 227              	.LCFI15:
+ 228              		.cfi_def_cfa_offset 4
+ 229 001c BD46     		mov	sp, r7
+ 230              	.LCFI16:
+ 231              		.cfi_def_cfa_register 13
+ 232              		@ sp needed
+ 233 001e 80BC     		pop	{r7}
+ 234              	.LCFI17:
+ 235              		.cfi_restore 7
+ 236              		.cfi_def_cfa_offset 0
+ 237 0020 7047     		bx	lr
+ 238              	.L8:
+ 239 0022 00BF     		.align	2
+ 240              	.L7:
+ 241 0024 01E07F00 		.word	8380417
+ 242              		.cfi_endproc
+ 243              	.LFE2:
+ 245              		.section	.text.pqcrystals_dilithium2_ref_freeze,"ax",%progbits
+ 246              		.align	1
+ 247              		.global	pqcrystals_dilithium2_ref_freeze
+ 248              		.syntax unified
+ 249              		.thumb
+ 250              		.thumb_func
+ 251              		.fpu softvfp
+ 253              	pqcrystals_dilithium2_ref_freeze:
+ 254              	.LFB3:
+  54:reduce.c      **** 
+  55:reduce.c      **** /*************************************************
+  56:reduce.c      **** * Name:        freeze
+  57:reduce.c      **** *
+  58:reduce.c      **** * Description: For finite field element a, compute standard
+  59:reduce.c      **** *              representative r = a mod^+ Q.
+  60:reduce.c      **** *
+  61:reduce.c      **** * Arguments:   - int32_t: finite field element a
+  62:reduce.c      **** *
+  63:reduce.c      **** * Returns r.
+  64:reduce.c      **** **************************************************/
+  65:reduce.c      **** int32_t freeze(int32_t a) {
+ 255              		.loc 1 65 27
+ 256              		.cfi_startproc
+ 257              		@ args = 0, pretend = 0, frame = 8
+ 258              		@ frame_needed = 1, uses_anonymous_args = 0
+ 259 0000 80B5     		push	{r7, lr}
+ 260              	.LCFI18:
+ 261              		.cfi_def_cfa_offset 8
+ 262              		.cfi_offset 7, -8
+ 263              		.cfi_offset 14, -4
+ 264 0002 82B0     		sub	sp, sp, #8
+ 265              	.LCFI19:
+ 266              		.cfi_def_cfa_offset 16
+ 267 0004 00AF     		add	r7, sp, #0
+ 268              	.LCFI20:
+ 269              		.cfi_def_cfa_register 7
+ 270 0006 7860     		str	r0, [r7, #4]
+  66:reduce.c      ****   a = reduce32(a);
+ 271              		.loc 1 66 7
+ 272 0008 7868     		ldr	r0, [r7, #4]
+ 273 000a FFF7FEFF 		bl	pqcrystals_dilithium2_ref_reduce32
+ 274 000e 7860     		str	r0, [r7, #4]
+  67:reduce.c      ****   a = caddq(a);
+ 275              		.loc 1 67 7
+ 276 0010 7868     		ldr	r0, [r7, #4]
+ 277 0012 FFF7FEFF 		bl	pqcrystals_dilithium2_ref_caddq
+ 278 0016 7860     		str	r0, [r7, #4]
+  68:reduce.c      ****   return a;
+ 279              		.loc 1 68 10
+ 280 0018 7B68     		ldr	r3, [r7, #4]
+  69:reduce.c      **** }
+ 281              		.loc 1 69 1
+ 282 001a 1846     		mov	r0, r3
+ 283 001c 0837     		adds	r7, r7, #8
+ 284              	.LCFI21:
+ 285              		.cfi_def_cfa_offset 8
+ 286 001e BD46     		mov	sp, r7
+ 287              	.LCFI22:
+ 288              		.cfi_def_cfa_register 13
+ 289              		@ sp needed
+ 290 0020 80BD     		pop	{r7, pc}
+ 291              		.cfi_endproc
+ 292              	.LFE3:
+ 294              		.text
+ 295              	.Letext0:
+ 296              		.file 2 "c:\\users\\h3c\\chipwh~1\\cw\\home\\portable\\armgcc\\arm-none-eabi\\include\\machine\\_d
+ 297              		.file 3 "c:\\users\\h3c\\chipwh~1\\cw\\home\\portable\\armgcc\\arm-none-eabi\\include\\sys\\_stdin
+DEFINED SYMBOLS
+                            *ABS*:00000000 reduce.c
+C:\Users\H3C\AppData\Local\Temp\ccwmKEN5.s:16     .text.pqcrystals_dilithium2_ref_montgomery_reduce:00000000 $t
+C:\Users\H3C\AppData\Local\Temp\ccwmKEN5.s:24     .text.pqcrystals_dilithium2_ref_montgomery_reduce:00000000 pqcrystals_dilithium2_ref_montgomery_reduce
+C:\Users\H3C\AppData\Local\Temp\ccwmKEN5.s:123    .text.pqcrystals_dilithium2_ref_reduce32:00000000 $t
+C:\Users\H3C\AppData\Local\Temp\ccwmKEN5.s:130    .text.pqcrystals_dilithium2_ref_reduce32:00000000 pqcrystals_dilithium2_ref_reduce32
+C:\Users\H3C\AppData\Local\Temp\ccwmKEN5.s:187    .text.pqcrystals_dilithium2_ref_caddq:00000000 $t
+C:\Users\H3C\AppData\Local\Temp\ccwmKEN5.s:194    .text.pqcrystals_dilithium2_ref_caddq:00000000 pqcrystals_dilithium2_ref_caddq
+C:\Users\H3C\AppData\Local\Temp\ccwmKEN5.s:241    .text.pqcrystals_dilithium2_ref_caddq:00000024 $d
+C:\Users\H3C\AppData\Local\Temp\ccwmKEN5.s:246    .text.pqcrystals_dilithium2_ref_freeze:00000000 $t
+C:\Users\H3C\AppData\Local\Temp\ccwmKEN5.s:253    .text.pqcrystals_dilithium2_ref_freeze:00000000 pqcrystals_dilithium2_ref_freeze
+
+NO UNDEFINED SYMBOLS
